@@ -1,0 +1,6 @@
+
+Documentation currently uses fithesis2, so installing fithesis is no necessary
+
+Archive fithesis-0.2.10.tar.gz contains modified fithesis for utf8 encoding.
+Installing fithesis on fedora 20:
+    sudo ./install.sh 0.2.10 /usr/share
