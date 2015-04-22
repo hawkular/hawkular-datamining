@@ -1,7 +1,6 @@
-# Master thesis repository #
+## Hawkular metrics ##
 
-### Additional information  ###
-*[Google Doc](https://docs.google.com/document/d/127rSiX4ElhGC4QNYK7OJiz0uufGbRprELlvfevLOuXI/edit?usp=sharing)
+Project is being developed for Red Hat and supervised by [Jiri Kremser](https://github.com/Jiri-Kremser)
 
 ### Description in English ###
 TODO
@@ -24,3 +23,5 @@ modul bude v případe dobrých výsledku začleněn do monitorovacího systému
 Hawkular, toto vyžaduje, aby byl modul šířen také pod svobodnou licenci, a to
 Apache Licence 2.0.
 
+### Additional information & Links  ###
+* [Google Doc](https://docs.google.com/document/d/127rSiX4ElhGC4QNYK7OJiz0uufGbRprELlvfevLOuXI/edit?usp=sharing)
