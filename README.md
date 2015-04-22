@@ -1,7 +1,7 @@
 # Master thesis repository #
 
 ### Additional information  ###
-* https://docs.google.com/document/d/127rSiX4ElhGC4QNYK7OJiz0uufGbRprELlvfevLOuXI/edit?usp=sharing
+*[Google Doc](https://docs.google.com/document/d/127rSiX4ElhGC4QNYK7OJiz0uufGbRprELlvfevLOuXI/edit?usp=sharing)
 
 ### Description in English ###
 TODO
