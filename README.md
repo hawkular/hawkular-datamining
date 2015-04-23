@@ -1,6 +1,7 @@
-## Hawkular metrics ##
+## Alert prediction ##
 
-Project is being developed for Red Hat and supervised by [Jiri Kremser](https://github.com/Jiri-Kremser)
+Project is being developed for Red Hat and supervised by [Jiri Kremser](https://github.com/Jiri-Kremser).
+Is related to [Hawkular](http://www.hawkular.org/).
 
 ### Description in English ###
 TODO
@@ -25,3 +26,4 @@ Apache Licence 2.0.
 
 ### Additional information & Links  ###
 * [Google Doc](https://docs.google.com/document/d/127rSiX4ElhGC4QNYK7OJiz0uufGbRprELlvfevLOuXI/edit?usp=sharing)
+* [Hawkular](http://www.hawkular.org/)
