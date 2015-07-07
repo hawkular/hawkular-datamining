@@ -1,16 +1,18 @@
 % Author: Pavol Loffay
-% Project: Master thesis - TODO
+% Project: Master thesis - Hawkular alrt prediction
 % Date 20.2.2015
-%
 
-\documentclass[12pt,oneside,draft]{fithesis2} 
+\documentclass[12pt,oneside]{fithesis2}
+% Packages
+\usepackage[english]{babel}       % Multilingual support
+\usepackage[utf8]{inputenc}       % UTF-8 encoding
+\usepackage[T1]{fontenc}          % T1 font encoding
+\usepackage[scaled=0.86]{berasans}
+\usepackage[scaled=1.03]{inconsolata}
+\usepackage[plainpages = false,pdfpagelabels]{hyperref}
+\usepackage{blindtext}            % Lorem ipsum generator
 
-% packages
-\usepackage[english]{babel}   
-\usepackage[utf8]{inputenc} 
-\usepackage[T1]{fontenc}  
-\usepackage[plainpages=false,pdfpagelabels,unicode]{hyperref}  
- 
+
 \thesistitle{Data minig} % enter thesis title  
 \thesissubtitle{Master thesis}  
 \thesisstudent{Pavol Loffay}    % name of the author  
@@ -19,39 +21,39 @@
 \thesisyear{spring 2016}  
 \thesisadvisor{RNDr. Adam Rambousek} % fill in advisor’s name  
 \thesislang{en}                 % thesis is in English  
- 
-\begin{document}  
-\FrontMatter  
-\ThesisTitlePage  
- 
-\begin{ThesisDeclaration}  
-\DeclarationText  
-\AdvisorName  
-\end{ThesisDeclaration}  
- 
-\begin{ThesisThanks}  
-I would like to thank my supervisor...  TODO
-\end{ThesisThanks}  
- 
-\begin{ThesisAbstract}  
-The aim of the bachelor work is to provide...  ODO
-\end{ThesisAbstract}  
- 
-\begin{ThesisKeyWords}  
-keyword1, keyword2, etc.  
-\end{ThesisKeyWords}  
- 
-\MainMatter  
 
-% table of contents
-\tableofcontents  
+\begin{document}
+\FrontMatter                    % The front matter
+\ThesisTitlePage                % The title page
+\begin{ThesisDeclaration}       % The declaration
+  \DeclarationText
+  \AdvisorName
+\end{ThesisDeclaration}
 
-\chapter{Introduction}  
-Introduction TODO
-\chapter{Theory} 
-\cite{rfc_owamp}
- 
+\begin{ThesisThanks}            % The acknowledgements (optional)
+  I would like to thank my supervisor\,\dots
+\end{ThesisThanks}
+
+\begin{ThesisAbstract}          % The abstract
+  The aim of the master work is to provide\,\dots
+\end{ThesisAbstract}
+
+\begin{ThesisKeyWords}          % The keywords
+  TODO\,\dots
+\end{ThesisKeyWords}
+
+\tableofcontents                % The table of contents
+%   \listoftables                   % The list of tables (optional)
+%   \listoffigures                  % The list of figures (optional)
+
+\MainMatter                     % The main matter
+\chapter{Introduction}          % Chapters
+TODO \cite{rfc_owamp}
+
+    
+% Bibliography goes here
+% Index goes here (optional)
 \bibliographystyle{czechiso} % sets plain bibliography style  
-\bibliography{bibliography}     % BibTeX database file  
- 
+\bibliography{bibliography}     % BibTeX database file 
 \end{document}
+

@@ -1,0 +1,13 @@
+% automated typesetting of Czech/Slovak quotation
+% marks typed as "
+% style makes " active active character (dangerous,
+% may not work with some packages)
+ 
+\chardef\cslq="12
+\chardef\csrq="10
+
+\catcode`\"=13
+\def\csslq{\cslq\global\let"=\cssrq}
+\def\cssrq{\csrq\global\let"=\csslq}
+\let"=\csslq
+\endinput
