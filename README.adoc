@@ -3,6 +3,20 @@
 Project is being developed for Red Hat and supervised by [Jiri Kremser](https://github.com/Jiri-Kremser).
 Is related to [Hawkular](http://www.hawkular.org/).
 
+== Buil & Run
+
+To build Hawkular Data mining, clone this repository and build from the top level.
+
+[source,shell]
+----
+$ git clone https://github.com/hawkular/hawkular.git
+$ cd hawkular-datamining
+$ mvn install
+$ start hawkular
+$ hawkular-datamining-dist/target/wildfly-9.0.0.Final/bin/standalone.sh --debug 9797 -Djboss.socket.binding.port-offset=1000
+----
+
+
 ### Description in English ###
 TODO
 
