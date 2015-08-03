@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2015 Red Hat, Inc. and/or its affiliates
+    and other contributors as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>hawkular-datamining-parent</artifactId>
+    <groupId>org.hawkular.datamining</groupId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>hawkular-datamining-dist</artifactId>
+  <packaging>war</packaging>
+  <name>Hawkular Data mining dist</name>
+
+  <properties>
+    <hawkular.dist.zip.root.dir>hawkular-${project.version}</hawkular.dist.zip.root.dir>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.hawkular.datamining</groupId>
+      <artifactId>hawkular-datamining-bus</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- javaee -->
+    <dependency>
+      <groupId>javax.enterprise</groupId>
+      <artifactId>cdi-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.spec.javax.ejb</groupId>
+      <artifactId>jboss-ejb-api_3.2_spec</artifactId>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <!-- Build war -->
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <failOnMissingWebXml>false</failOnMissingWebXml>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>dev</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>unpack-wildfly</id>
+                <phase>prepare-package</phase>
+                <goals>
+                  <goal>unpack</goal>
+                </goals>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>org.wildfly</groupId>
+                      <artifactId>wildfly-dist</artifactId>
+                      <version>${version.org.wildfly}</version>
+                      <type>zip</type>
+                      <outputDirectory>${project.build.directory}</outputDirectory>
+                    </artifactItem>
+                  </artifactItems>
+                </configuration>
+              </execution>
+              <execution>
+                <id>copy</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>copy</goal>
+                </goals>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>org.hawkular.datamining</groupId>
+                      <artifactId>hawkular-datamining-dist</artifactId>
+                      <version>${project.version}</version>
+                      <type>war</type>
+                      <overWrite>false</overWrite>
+                      <outputDirectory>
+                        ${project.build.directory}/wildfly-${version.org.wildfly}/standalone/deployments</outputDirectory>
+                    </artifactItem>
+                  </artifactItems>
+                  <outputDirectory>${project.build.directory}/wars</outputDirectory>
+                  <overWriteReleases>false</overWriteReleases>
+                  <overWriteSnapshots>true</overWriteSnapshots>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>
