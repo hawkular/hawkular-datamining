@@ -37,8 +37,7 @@ public class BusIntegration {
     @Produces
     @Singleton
     public MetricDataListener getMetricDataListener() {
-        LOG.info("Initializing bus");
-        System.out.println("XXXInitializing bus\n\n");
+        LOG.debug("Initializing bus");
 
         MetricDataListener metricDataListener = null;
         try {

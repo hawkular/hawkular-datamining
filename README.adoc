@@ -11,7 +11,7 @@ To build Hawkular Data mining, clone this repository and build from the top leve
 ----
 $ git clone https://github.com/hawkular/hawkular.git
 $ cd hawkular-datamining
-$ mvn clean install -Pdev
+$ mvn clean install
 $ start hawkular
 $ hawkular-datamining-dist/target/wildfly-9.0.0.Final/bin/standalone.sh --debug 9797 -Djboss.socket.binding.port-offset=1000
 ----

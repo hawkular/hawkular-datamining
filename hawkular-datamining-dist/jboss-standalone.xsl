@@ -25,6 +25,7 @@
                 xmlns:logging="urn:jboss:domain:logging:3.0"
                 xmlns:undertow="urn:jboss:domain:undertow:2.0"
                 xmlns:tx="urn:jboss:domain:transactions:3.0"
+                xmlns:jboss="urn:jboss:domain:3.0"
                 version="2.0"
                 exclude-result-prefixes="xalan ds ra ejb3 logging undertow tx">
 
@@ -43,6 +44,23 @@
       <xsl:apply-templates select="node()|@*"/>
     </xsl:copy>
     <xsl:call-template name="loggers"/>
+  </xsl:template>
+
+  <!-- set the console log level -->
+  <xsl:template match="logging:console-handler[@name='CONSOLE']/logging:level">
+    <level name="DEBUG"/>
+  </xsl:template>
+
+  <!-- port offset -->
+  <xsl:template match="jboss:socket-binding-group/@port-offset">
+    <xsl:attribute name="port-offset">1000</xsl:attribute>
+  </xsl:template>
+
+  <xsl:template match="node()[name(.)='core-environment']">
+    <xsl:copy>
+      <xsl:attribute name="node-identifier">hawkular-datamining</xsl:attribute>
+      <xsl:apply-templates select="@*|node()" />
+    </xsl:copy>
   </xsl:template>
 
   <!-- copy everything else as-is -->
