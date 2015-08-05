@@ -78,7 +78,9 @@
         <artifactId>license-maven-plugin</artifactId>
         <configuration>
           <excludes>
+            <exclude></exclude>
             <exclude>doc/**</exclude>
+            <exclude>**/*.adoc</exclude>
           </excludes>
         </configuration>
       </plugin>
