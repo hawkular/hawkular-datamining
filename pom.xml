@@ -37,6 +37,7 @@
   <modules>
     <module>hawkular-datamining-bus</module>
     <module>hawkular-datamining-dist</module>
+    <module>hawkular-datamining-engine</module>
   </modules>
 
   <properties>

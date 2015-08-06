@@ -29,7 +29,7 @@ import org.hawkular.datamining.bus.listener.MetricDataListener;
 import org.jboss.logging.Logger;
 
 /**
- * Created by pavol on 29.7.2015.
+ * @author Pavol Loffay
  */
 public class BusIntegration {
 

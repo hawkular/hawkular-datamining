@@ -23,11 +23,22 @@ $ hawkular-datamining-dist/target/wildfly-9.0.0.Final/bin/standalone.sh --debug 
 ----
 
 == Description in English
+==== Alert Prediction in Metric Data Based on Machine Learning Methods
+Student by application of machine learning or regression analysis for time series will develop module which will
+predict incoming events based on historical time series data. This events are predefined as alerts usually as
+conjunction or disjunction of simple clauses based on data from time series.
 
-TODO
+Data has following structure <timestamp, value>. There are also available metadata such as name, units, type of quantity
+defining if it’s monotonic function or random. These metric data are for instance result of measurement of free disk
+space, free memory, Java heap usage etc.
+
+Content of theoretical part should include comparison of time series data mining methods and deal with problems
+as concept drift and anomaly detection. Chosen algorithm will be implemented in Java language and module in case
+of good results will be merged into monitoring system Hawkular. This requires that module will be distributed
+under Apache Licence 2.0.
 
 == Description in Czech
-
+==== Predikce udalosti v metrickych datech za pomoci metod strojoveho uceni
 Student za pomoci metod strojového učeni pro časové rady nebo za pomoci regresní
 analýzy vyvine modul, který na základe historických dat umožní včasnou detekci
 blížících se události. Tyto události jsou předem definovaný jako takzvaný

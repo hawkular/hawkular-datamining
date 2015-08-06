@@ -25,8 +25,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 /**
  * A bus message for messages on HawkularAvailData Topic.
  *
- * @author Jay Shaughnessy
- * @author Lucas Ponce
+ * @author Pavol Loffay
  */
 
 public class AvailDataMessage extends BasicMessage {

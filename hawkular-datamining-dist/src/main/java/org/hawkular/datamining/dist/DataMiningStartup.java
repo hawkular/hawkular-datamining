@@ -27,7 +27,7 @@ import org.hawkular.datamining.bus.listener.MetricDataListener;
 import org.jboss.logging.Logger;
 
 /**
- * Created by pavol on 1.8.2015.
+ * @author Pavol Loffay
  */
 @Startup
 @Singleton

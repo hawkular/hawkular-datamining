@@ -17,7 +17,7 @@
 package org.hawkular.datamining.bus;
 
 /**
- * Created by pavol on 28.7.2015.
+ * @author Pavol Loffay
  */
 public class Configuration {
     public static final String BROKER_URL = "tcp://localhost:62626";

@@ -14,21 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.datamining.bus.listener;
 
-import org.hawkular.bus.common.consumer.BasicMessageListener;
-import org.hawkular.datamining.bus.model.AvailDataMessage;
-import org.jboss.logging.Logger;
+package org.hawkular.datamining.bus;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Pavol Loffay
  */
-public class AvailableDataListener extends BasicMessageListener<AvailDataMessage> {
+public class MetricFilter {
 
-    private static final Logger LOG = Logger.getLogger(AvailableDataListener.class);
+    private static final Set<String> neededSources = new HashSet<>();
+    static {
+        neededSources.add("MI~R~[dhcp130-144~Local~/]~MT~WildFly Memory Metrics~Heap Used");
+//        neededSources.add("MI~R~[dhcp130-144~Local~/]~MT~WildFly Memory Metrics~NonHeap Used");
+    }
 
-    @Override
-    protected void onBasicMessage(AvailDataMessage availDataMessage) {
-        LOG.debug(availDataMessage.toJSON());
+
+    public static boolean isNeeded(String source) {
+        return neededSources.contains(source);
     }
 }
