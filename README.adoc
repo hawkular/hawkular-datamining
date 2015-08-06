@@ -1,7 +1,14 @@
-## Alert prediction ##
+## Data mining ##
 
 Project is being developed for Red Hat and supervised by link:https://github.com/Jiri-Kremser[Jiri Kremser].
 In the future it will be probably integrated into link:http://www.hawkular.org/[Hawkular].
+
+
+ifdef::env-github[]
+[link=https://travis-ci.org/hawkular/hawkular-inventory]
+image:https://travis-ci.org/hawkular/hawkular-inventory.svg?branch=master["Build Status", link="https://travis-ci.org/hawkular/hawkular-inventory"]{nbsp}
+
+endif::[]
 
 == Buil & Run
 
