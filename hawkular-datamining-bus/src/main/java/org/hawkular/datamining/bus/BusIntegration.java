@@ -19,11 +19,13 @@ package org.hawkular.datamining.bus;
 import javax.enterprise.inject.Produces;
 import javax.inject.Singleton;
 import javax.jms.JMSException;
+
 import org.hawkular.bus.common.ConnectionContextFactory;
 import org.hawkular.bus.common.Endpoint;
 import org.hawkular.bus.common.MessageProcessor;
 import org.hawkular.bus.common.consumer.ConsumerConnectionContext;
 import org.hawkular.datamining.bus.listener.MetricDataListener;
+
 import org.jboss.logging.Logger;
 
 /**

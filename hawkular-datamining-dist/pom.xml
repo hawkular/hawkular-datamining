@@ -44,13 +44,9 @@
 
     <!-- javaee -->
     <dependency>
-      <groupId>javax.enterprise</groupId>
-      <artifactId>cdi-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>org.jboss.spec.javax.ejb</groupId>
       <artifactId>jboss-ejb-api_3.2_spec</artifactId>
+      <version>${version.org.jboss.spec.javax.ejb.jboss-ejb-api_3.2_spec}</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
@@ -73,6 +69,7 @@
       <id>dev</id>
       <build>
         <plugins>
+          <!-- Download wildfly and copy dist war there -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-dependency-plugin</artifactId>

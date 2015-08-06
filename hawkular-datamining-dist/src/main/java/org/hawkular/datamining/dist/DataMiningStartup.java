@@ -16,13 +16,14 @@
  */
 package org.hawkular.datamining.dist;
 
-import org.hawkular.datamining.bus.Official;
-import org.hawkular.datamining.bus.listener.MetricDataListener;
-
 import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
+
+import org.hawkular.datamining.bus.Official;
+import org.hawkular.datamining.bus.listener.MetricDataListener;
+
 import org.jboss.logging.Logger;
 
 /**

@@ -16,8 +16,11 @@
  */
 package org.hawkular.datamining.bus.listener;
 
+import java.util.List;
+
 import org.hawkular.bus.common.consumer.BasicMessageListener;
 import org.hawkular.datamining.bus.model.MetricDataMessage;
+
 import org.jboss.logging.Logger;
 
 /**
@@ -29,6 +32,17 @@ public class MetricDataListener extends BasicMessageListener<MetricDataMessage> 
 
     @Override
     protected void onBasicMessage(MetricDataMessage metricDataMessage) {
-        LOG.debug(metricDataMessage.toJSON());
+//        LOG.debug(metricDataMessage.toJSON());
+
+        MetricDataMessage.MetricData metricData = metricDataMessage.getMetricData();
+        String tenantId = metricData.getTenantId();
+        List<MetricDataMessage.SingleMetric> data = metricData.getData();
+
+        LOG.debugf("\n\ntenant %s", tenantId);
+        for (MetricDataMessage.SingleMetric singleMetric: data) {
+            LOG.debug(singleMetric.getSource());
+            LOG.debug(singleMetric.getValue());
+            LOG.debug(singleMetric.getTimestamp());
+        }
     }
 }

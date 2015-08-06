@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.hawkular</groupId>
     <artifactId>hawkular-parent</artifactId>
-    <version>18</version>
+    <version>19</version>
   </parent>
 
   <groupId>org.hawkular.datamining</groupId>
@@ -40,7 +40,11 @@
   </modules>
 
   <properties>
-    <version.org.hawkular.bus>0.3.0.Final</version.org.hawkular.bus>
+    <version.org.hawkular.bus>0.3.3.Final</version.org.hawkular.bus>
+    <version.org.jboss.logging>3.2.1.Final</version.org.jboss.logging>
+    <version.org.jboss.logging.jboss-logging-tools>2.0.0.Final</version.org.jboss.logging.jboss-logging-tools>
+    <verison.javax.enterprise.cdi-api>1.2</verison.javax.enterprise.cdi-api>
+    <version.org.jboss.spec.javax.ejb.jboss-ejb-api_3.2_spec>1.0.0.Final</version.org.jboss.spec.javax.ejb.jboss-ejb-api_3.2_spec>
   </properties>
 
   <scm>
@@ -51,20 +55,30 @@
   </scm>
 
   <dependencies>
+    <dependency>
+      <groupId>javax.enterprise</groupId>
+      <artifactId>cdi-api</artifactId>
+      <version>${verison.javax.enterprise.cdi-api}</version>
+      <scope>provided</scope>
+    </dependency>
+
     <!-- logging -->
     <dependency>
       <groupId>org.jboss.logging</groupId>
       <artifactId>jboss-logging</artifactId>
+      <version>${version.org.jboss.logging}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.jboss.logging</groupId>
       <artifactId>jboss-logging-annotations</artifactId>
+      <version>${version.org.jboss.logging.jboss-logging-tools}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.jboss.logging</groupId>
       <artifactId>jboss-logging-processor</artifactId>
+      <version>${version.org.jboss.logging.jboss-logging-tools}</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
