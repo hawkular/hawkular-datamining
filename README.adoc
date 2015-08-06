@@ -4,8 +4,8 @@ Project is being developed for Red Hat and supervised by link:https://github.com
 In the future it will be probably integrated into link:http://www.hawkular.org/[Hawkular].
 
 ifdef::env-github[]
-[link=https://travis-ci.org/hawkular/hawkular-inventory]
-image:https://travis-ci.org/hawkular/hawkular-inventory.svg?branch=master["Build Status", link="https://travis-ci.org/hawkular/hawkular-inventory"]{nbsp}
+[link=https://travis-ci.org/pavolloffay/hawkular-datamining]
+image:https://travis-ci.org/pavolloffay/hawkular-datamining.svg?branch=master["Build Status", link="https://travis-ci.org/pavolloffay/hawkular-datamining"]{nbsp}
 
 endif::[]
 
