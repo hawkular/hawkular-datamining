@@ -1,4 +1,4 @@
-= Data mining 
+= Data mining
 
 Project is being developed for Red Hat and supervised by link:https://github.com/Jiri-Kremser[Jiri Kremser].
 In the future it will be probably integrated into link:http://www.hawkular.org/[Hawkular].
@@ -22,11 +22,11 @@ $ start hawkular
 $ hawkular-datamining-dist/target/wildfly-9.0.0.Final/bin/standalone.sh --debug 9797 -Djboss.socket.binding.port-offset=1000
 ----
 
-== Description in English 
+== Description in English
 
 TODO
 
-== Description in Czech 
+== Description in Czech
 
 Student za pomoci metod strojového učeni pro časové rady nebo za pomoci regresní
 analýzy vyvine modul, který na základe historických dat umožní včasnou detekci

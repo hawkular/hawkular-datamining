@@ -11,21 +11,6 @@ sudo: false
 #  directories:
 #  - $HOME/.m2
 #
+
 install:
-- mvn install -DskipTests=true
-#- mvn -s .travis.maven.settings.xml -version -B
-#script:
-#- mvn -fae -s .travis.maven.settings.xml clean install
-#env:
-#  global:
-#  - secure: g/PGmXBWEd9PgmP9xfuUj60yGdvGR9x9cRzE3EDkX0ALkAdZZxHpI3qWdNpUl9mNrtjrxM/4/yi7oKDOpkwl+iCw2KAvlfjnn8sWTEwDIfK9+zyFAU0C6QEJnkToLFvkumO4NbbBBGxQ2KR4rxaIDRI6umf3F8roZybTD+SLXfg=
-#  - secure: FlQ6i3L1vf5Gf73FMmEY8a0ZJpuQVzTwLjYlABbi5iJd+VQdlke3+5nEhEFYHKiiK6duye6GIxtti65s/VHS6VHJb62p/Z1Fj6/FsKgoFbVmzYenGDXEfGQYHnvCUm4OY/kcHIgeI5RpG2n0BXHRK9PSYfGD4G50i7ev7d0BnKw=
-  # for pushing the swagger adoc documentation to the website repository
-#  - secure: fRgTtGRZRh1DhRIXlOnuWV6cROHhVvtNL3DzVay1zDnX0y0SVH3Aau/kbsytIkG4DaKvRi1XnI4sRC4HtUReXCMQjvwO9sdmj+9F3y04vbhH8qNR8IUBFADKjLCjjnq7Qo8PBbuk6b8Sj1bFpYSgd2sJXcvvA9cP/xlTMu6XZSM=
-#after_success:
-#- PROJECT_VERSION=`mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -v '\['`
-#- if [[ "$PROJECT_VERSION" =~ .*SNAPSHOT ]] && [[ "${TRAVIS_BRANCH}" = "master" ]] && [[ "${TRAVIS_PULL_REQUEST}" = "false" ]];
-#  then
-#    mvn -s .travis.maven.settings.xml deploy -DskipTests ;
-#    ./.travis.swagger.sh ;
-#  fi
+- mvn -fae clean install
