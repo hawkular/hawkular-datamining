@@ -23,7 +23,7 @@ $ hawkular-datamining-dist/target/wildfly-9.0.0.Final/bin/standalone.sh --debug 
 ----
 
 == Description in English
-==== Alert Prediction in Metric Data Based on Machine Learning Methods
+==== Alert prediction in metric data based on machine learning methods
 Student by application of machine learning or regression analysis for time series will develop module which will
 predict incoming events based on historical time series data. This events are predefined as alerts usually as
 conjunction or disjunction of simple clauses based on data from time series.
