@@ -30,22 +30,23 @@
   <artifactId>hawkular-datamining-engine</artifactId>
 
   <dependencies>
-    <dependency> <!-- Spark dependency -->
+    <!-- Spark -->
+    <dependency>
       <groupId>org.apache.spark</groupId>
       <artifactId>spark-core_2.10</artifactId>
-      <version>1.4.0</version>
+      <version>${versin.org.apache.spark}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.spark</groupId>
       <artifactId>spark-mllib_2.10</artifactId>
-      <version>1.4.1</version>
+      <version>${versin.org.apache.spark}</version>
     </dependency>
 
-
-    <!--<dependency>-->
-      <!--<groupId>org.apache.spark</groupId>-->
-      <!--<artifactId>spark-core_2.10</artifactId>-->
-      <!--<version>1.4.1</version>-->
-    <!--</dependency>-->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${version.junit}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>
