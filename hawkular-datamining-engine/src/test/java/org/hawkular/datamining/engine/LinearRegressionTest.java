@@ -20,10 +20,8 @@ package org.hawkular.datamining.engine;
 import java.io.IOException;
 import java.net.URL;
 
-import org.apache.spark.api.java.JavaDoubleRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.api.java.function.Function;
 import org.apache.spark.mllib.linalg.Vectors;
 import org.apache.spark.mllib.regression.LabeledPoint;
 import org.apache.spark.mllib.regression.LinearRegressionModel;
@@ -32,14 +30,16 @@ import org.junit.Test;
 
 import scala.Tuple2;
 
-
 /**
  * @author Pavol Loffay
  */
 public class LinearRegressionTest extends BaseTest {
 
     private static final String DATA_FILE = "lpsa.data.txt";
-    private static final String SAVE_NAME = "REG_MODEL";
+
+    private static final double GRADIENT_DESCENT_STEP = 0.1;
+    private static final int NUMBER_OF_ITERATIONS = 100;
+
     private URL testFile;
 
     public LinearRegressionTest() throws IOException {
@@ -50,53 +50,37 @@ public class LinearRegressionTest extends BaseTest {
     }
 
     @Test
-    public void testLinearRegression() {
+    public void testSimpleData() {
+        String fileName = "simple-data.txt";
+
         JavaSparkContext sparkContext = new JavaSparkContext(sparkConf);
 
         // Load and parse the data
-        JavaRDD<String> data = sparkContext.textFile(testFile.getPath());
-        JavaRDD<LabeledPoint> parsedData = data.map(
-                new Function<String, LabeledPoint>() {
-                    public LabeledPoint call(String line) {
-                        String[] parts = line.split(",");
-                        String[] features = parts[1].split(" ");
-                        double[] v = new double[features.length];
-                        for (int i = 0; i < features.length - 1; i++)
-                            v[i] = Double.parseDouble(features[i]);
-                        return new LabeledPoint(Double.parseDouble(parts[0]), Vectors.dense(v));
-                    }
+        JavaRDD<String> data = sparkContext.textFile(this.getClass().getClassLoader().getResource(fileName).getPath());
+        JavaRDD<LabeledPoint> parsedData = data.map(line -> {
+                    String[] parts = line.split(",");
+                    return new LabeledPoint(Double.parseDouble(parts[1]), Vectors.dense(Double.parseDouble(parts[0])));
                 }
         );
         parsedData.cache();
+        parsedData.foreach(x -> System.out.println("label " + x.label() + " feature" + x.features()));
 
-        // Building the model
-        int numIterations = 100;
-        final LinearRegressionModel model = LinearRegressionWithSGD.train(JavaRDD.toRDD(parsedData), numIterations);
+        LinearRegressionModel regressionModel = LinearRegressionWithSGD.train(parsedData.rdd(),
+                NUMBER_OF_ITERATIONS,
+                GRADIENT_DESCENT_STEP);
 
         // Evaluate model on training examples and compute training error
-        JavaRDD<Tuple2<Double, Double>> valuesAndPreds = parsedData.map(
-                new Function<LabeledPoint, Tuple2<Double, Double>>() {
-                    public Tuple2<Double, Double> call(LabeledPoint point) {
-                        double prediction = model.predict(point.features());
-                        System.out.println(prediction);
-                        return new Tuple2<Double, Double>(prediction, point.label());
-                    }
+        JavaRDD<Tuple2<Double, Double>> valuesAndPreds = parsedData.map(x -> {
+                    double prediction = regressionModel.predict(x.features());
+
+//                    System.out.println("Label = " + x.label());
+//                    System.out.println("Prediction = " + prediction);
+
+                    return new Tuple2<Double, Double>(prediction, x.features().toArray()[0]);
                 }
         );
-        double MSE = new JavaDoubleRDD(valuesAndPreds.map(
-                new Function<Tuple2<Double, Double>, Object>() {
-                    public Object call(Tuple2<Double, Double> pair) {
-                        return Math.pow(pair._1() - pair._2(), 2.0);
-                    }
-                }
-        ).rdd()).mean();
 
-        // Save and load model
-//        model.save(sparkContext.sc(), SAVE_NAME);
-//        LinearRegressionModel sameModel = LinearRegressionModel.load(sparkContext.sc(), SAVE_NAME);
-
-        System.out.println("training Mean Squared Error = " + MSE);
-        valuesAndPreds.foreach(x -> System.out.println(x));
+        valuesAndPreds.foreach(x -> System.out.println("" + x._2 + ", " + x._1));
         sparkContext.close();
     }
 }
