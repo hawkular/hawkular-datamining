@@ -57,6 +57,14 @@
     <tag>HEAD</tag>
   </scm>
 
+  <developers>
+    <developer>
+      <id>ploffay</id>
+      <name>Pavol Loffay</name>
+      <email>p.loffay@gmail.com</email>
+    </developer>
+  </developers>
+
   <dependencies>
     <dependency>
       <groupId>javax.enterprise</groupId>

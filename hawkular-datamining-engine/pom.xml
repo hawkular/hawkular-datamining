@@ -41,6 +41,11 @@
       <artifactId>spark-mllib_2.10</artifactId>
       <version>${versin.org.apache.spark}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.spark</groupId>
+      <artifactId>spark-streaming_2.10</artifactId>
+      <version>${versin.org.apache.spark}</version>
+    </dependency>
 
     <dependency>
       <groupId>junit</groupId>

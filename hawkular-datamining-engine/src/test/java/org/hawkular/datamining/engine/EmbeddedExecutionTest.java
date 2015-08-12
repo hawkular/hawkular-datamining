@@ -18,30 +18,22 @@
 package org.hawkular.datamining.engine;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.URL;
 
-import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
  * @author Pavol Loffay
  */
-public class EmbeddedExecutionTest implements Serializable {
+public class EmbeddedExecutionTest extends BaseTest {
 
-    private static SparkConf sparkConf;
-    private static URL testFile;
+    private URL testFile;
 
-    @BeforeClass
-    public static void initBeforeClass() throws IOException {
-        Configuration configuration = new Configuration();
-        sparkConf = configuration.getSparkConf();
-
-        ClassLoader classLoader = EmbeddedExecutionTest.class.getClassLoader();
+    public EmbeddedExecutionTest() throws IOException {
+        ClassLoader classLoader = this.getClass().getClassLoader();
         testFile = classLoader.getResource(Configuration.CONF_FILE);
     }
 
