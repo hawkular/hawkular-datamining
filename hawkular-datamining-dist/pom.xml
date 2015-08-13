@@ -29,7 +29,6 @@
 
   <artifactId>hawkular-datamining-dist</artifactId>
   <packaging>war</packaging>
-  <name>Hawkular Data mining dist</name>
 
   <properties>
     <hawkular.dist.zip.root.dir>hawkular-${project.version}</hawkular.dist.zip.root.dir>
@@ -40,6 +39,12 @@
       <groupId>org.hawkular.datamining</groupId>
       <artifactId>hawkular-datamining-bus</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hawkular.datamining</groupId>
+      <artifactId>hawkular-datamining-rest</artifactId>
+      <version>${project.version}</version>
+      <type>war</type>
     </dependency>
 
     <!-- javaee -->
@@ -59,6 +64,15 @@
         <artifactId>maven-war-plugin</artifactId>
         <configuration>
           <failOnMissingWebXml>false</failOnMissingWebXml>
+          <overlays>
+            <overlay>
+              <groupId>org.hawkular.datamining</groupId>
+              <artifactId>hawkular-datamining-rest</artifactId>
+            </overlay>
+            <overlay>
+              <!-- empty groupId/artifactId represents the current build -->
+            </overlay>
+          </overlays>
         </configuration>
       </plugin>
     </plugins>

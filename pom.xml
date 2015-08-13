@@ -36,8 +36,9 @@
 
   <modules>
     <module>hawkular-datamining-bus</module>
-    <module>hawkular-datamining-dist</module>
     <module>hawkular-datamining-engine</module>
+    <module>hawkular-dataminig-rest</module>
+    <module>hawkular-datamining-dist</module>
   </modules>
 
   <properties>
@@ -109,6 +110,18 @@
       <version>${version.com.fasterxml.jackson.core}</version>
     </dependency>
   </dependencies>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.wildfly.bom</groupId>
+        <artifactId>jboss-javaee-7.0-wildfly</artifactId>
+        <version>${version.org.wildfly}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <build>
     <plugins>

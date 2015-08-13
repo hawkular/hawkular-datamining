@@ -19,6 +19,7 @@ package org.hawkular.datamining.engine;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -68,14 +69,18 @@ public class LinearRegressionTest extends BaseTest {
                 NUMBER_OF_ITERATIONS,
                 GRADIENT_DESCENT_STEP);
 
+        LabeledPoint newPoint = new LabeledPoint(0, Vectors.dense(66));
+        JavaRDD<LabeledPoint> rddToAdd = sparkContext.parallelize(Arrays.asList(newPoint));
+        JavaRDD<LabeledPoint> newData = parsedData.union(rddToAdd);
+
         // Evaluate model on training examples and compute training error
-        JavaRDD<Tuple2<Double, Double>> valuesAndPreds = parsedData.map(x -> {
+        JavaRDD<Tuple2<Double, Double>> valuesAndPreds = newData.map(x -> {
                     double prediction = regressionModel.predict(x.features());
 
 //                    System.out.println("Label = " + x.label());
 //                    System.out.println("Prediction = " + prediction);
 
-                    return new Tuple2<Double, Double>(prediction, x.features().toArray()[0]);
+                    return new Tuple2<>(prediction, x.features().toArray()[0]);
                 }
         );
 
