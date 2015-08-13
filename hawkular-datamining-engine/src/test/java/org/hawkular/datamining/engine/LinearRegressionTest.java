@@ -35,9 +35,9 @@ import scala.Tuple2;
  */
 public class LinearRegressionTest extends BaseTest {
 
-    private static final String DATA_FILE = "lpsa.data.txt";
+    private static final String DATA_FILE = "simple-data.txt";
 
-    private static final double GRADIENT_DESCENT_STEP = 0.1;
+    private static final double GRADIENT_DESCENT_STEP = 0.01;
     private static final int NUMBER_OF_ITERATIONS = 100;
 
     private URL testFile;
@@ -51,12 +51,11 @@ public class LinearRegressionTest extends BaseTest {
 
     @Test
     public void testSimpleData() {
-        String fileName = "simple-data.txt";
 
         JavaSparkContext sparkContext = new JavaSparkContext(sparkConf);
 
         // Load and parse the data
-        JavaRDD<String> data = sparkContext.textFile(this.getClass().getClassLoader().getResource(fileName).getPath());
+        JavaRDD<String> data = sparkContext.textFile(testFile.getPath());
         JavaRDD<LabeledPoint> parsedData = data.map(line -> {
                     String[] parts = line.split(",");
                     return new LabeledPoint(Double.parseDouble(parts[1]), Vectors.dense(Double.parseDouble(parts[0])));
@@ -80,7 +79,7 @@ public class LinearRegressionTest extends BaseTest {
                 }
         );
 
-        valuesAndPreds.foreach(x -> System.out.println("" + x._2 + ", " + x._1));
+        valuesAndPreds.foreach(x -> System.out.println(x._2() + ", " + x._1()));
         sparkContext.close();
     }
 }
