@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.bus;
+package org.hawkular.datamining.engine;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -25,14 +25,26 @@ import java.util.Set;
  */
 public class MetricFilter {
 
-    private static final Set<String> neededSources = new HashSet<>();
+
+    private static final Set<String> subscriptions = new HashSet<>();
+
     static {
-        neededSources.add("MI~R~[dhcp130-144~Local~/]~MT~WildFly Memory Metrics~Heap Used");
-//        neededSources.add("MI~R~[dhcp130-144~Local~/]~MT~WildFly Memory Metrics~NonHeap Used");
+        subscriptions.add("MI~R~[dhcp130-144~Local~/]~MT~WildFly Memory Metrics~Heap Used");
+//        subscriptions.add("MI~R~[dhcp130-144~Local~/]~MT~WildFly Memory Metrics~NonHeap Used");
+
+        subscriptions.forEach(x -> EngineLogger.LOGGER.infof("Metric %s is being watched", x));
     }
 
 
-    public static boolean isNeeded(String source) {
-        return neededSources.contains(source);
+    public static boolean subscribe(String key) {
+        return subscriptions.contains(key);
+    }
+
+    public static boolean unSubscribe(String key) {
+        return subscriptions.remove(key);
+    }
+
+    public static boolean contains(String key) {
+        return subscriptions.contains(key);
     }
 }

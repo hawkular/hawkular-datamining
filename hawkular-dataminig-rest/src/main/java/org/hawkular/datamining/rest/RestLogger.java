@@ -17,24 +17,21 @@
 
 package org.hawkular.datamining.rest;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import org.jboss.logging.BasicLogger;
+import org.jboss.logging.Logger;
+import org.jboss.logging.annotations.LogMessage;
+import org.jboss.logging.annotations.Message;
+import org.jboss.logging.annotations.MessageLogger;
 
 /**
  * @author Pavol Loffay
  */
-@Path("/configuration")
-@Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
-public class RestConfiguration {
+@MessageLogger(projectCode = "HAWKDMING")
+public interface RestLogger extends BasicLogger {
 
-    @GET
-    @Path("/")
-    public Response getTenant() {
-        return Response.ok().build();
-    }
+    RestLogger LOGGER = Logger.getMessageLogger(RestLogger.class, "org.hawkular.datamining.rest");
+
+    @LogMessage(level = Logger.Level.INFO)
+    @Message(id = 2000, value = "Hawkular-Datamining REST Api is starting...")
+    void apiStarting();
 }

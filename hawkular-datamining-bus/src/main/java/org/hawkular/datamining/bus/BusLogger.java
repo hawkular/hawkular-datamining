@@ -15,23 +15,17 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.rest;
+package org.hawkular.datamining.bus;
 
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;
-import org.jboss.logging.annotations.LogMessage;
-import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageLogger;
 
 /**
  * @author Pavol Loffay
  */
 @MessageLogger(projectCode = "HAWKDMING")
-public interface RestApiLogger extends BasicLogger {
+public interface BusLogger extends BasicLogger {
 
-    RestApiLogger LOGGER = Logger.getMessageLogger(RestApiLogger.class, "org.hawkular.datamining.rest");
-
-    @LogMessage(level = Logger.Level.INFO)
-    @Message(id = 2000, value = "Hawkular-Datamining REST Api is starting...")
-    void apiStarting();
+    BusLogger LOGGER = Logger.getMessageLogger(BusLogger.class, "org.hawkular.datamining.bus");
 }

@@ -15,18 +15,17 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.rest;
+package org.hawkular.datamining.engine;
 
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
+import org.jboss.logging.BasicLogger;
+import org.jboss.logging.Logger;
+import org.jboss.logging.annotations.MessageLogger;
 
 /**
  * @author Pavol Loffay
  */
-@ApplicationPath("/")
-public class DataminingRestAppliccation extends Application {
+@MessageLogger(projectCode = "HAWKDMING")
+public interface EngineLogger extends BasicLogger {
 
-    public DataminingRestAppliccation() {
-        RestApiLogger.LOGGER.apiStarting();
-    }
+    EngineLogger LOGGER = Logger.getMessageLogger(EngineLogger.class, "org.hawkular.datamining.engine");
 }

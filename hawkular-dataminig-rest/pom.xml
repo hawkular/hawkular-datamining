@@ -33,6 +33,12 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.hawkular.datamining</groupId>
+      <artifactId>hawkular-datamining-engine</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.jboss.resteasy</groupId>
       <artifactId>resteasy-jaxrs</artifactId>
       <scope>provided</scope>

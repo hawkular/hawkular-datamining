@@ -17,9 +17,9 @@
 package org.hawkular.datamining.bus.listener;
 
 import org.hawkular.bus.common.consumer.BasicMessageListener;
-import org.hawkular.datamining.bus.MetricFilter;
 import org.hawkular.datamining.bus.model.MetricDataMessage;
 
+import org.hawkular.datamining.engine.MetricFilter;
 import org.jboss.logging.Logger;
 
 /**
@@ -38,7 +38,7 @@ public class MetricDataListener extends BasicMessageListener<MetricDataMessage> 
         for (MetricDataMessage.SingleMetric singleMetric: metricData.getData()) {
 
             // filter data
-            if (MetricFilter.isNeeded(singleMetric.getSource())) {
+            if (MetricFilter.contains(singleMetric.getSource())) {
                 LOG.debugf("\n\ntenant %s", tenantId);
                 LOG.debug(singleMetric.getSource());
                 LOG.debug(singleMetric.getValue());
