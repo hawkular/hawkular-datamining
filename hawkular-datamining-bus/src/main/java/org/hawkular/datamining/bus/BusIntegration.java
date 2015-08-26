@@ -51,7 +51,10 @@ public class BusIntegration {
             MessageProcessor processor = new MessageProcessor();
             metricDataListener = new MetricDataListener();
             processor.listen(context, metricDataListener);
+
+            BusLogger.LOGGER.initializedInfo();
         } catch (JMSException ex)  {
+            BusLogger.LOGGER.initializedFailedError(ex);
             ex.printStackTrace();
         }
 

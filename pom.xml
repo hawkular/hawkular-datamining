@@ -35,9 +35,9 @@
   <inceptionYear>2015</inceptionYear>
 
   <modules>
-    <module>hawkular-datamining-bus</module>
     <module>hawkular-datamining-engine</module>
-    <module>hawkular-dataminig-rest</module>
+    <module>hawkular-datamining-bus</module>
+    <module>hawkular-datamining-rest</module>
     <module>hawkular-datamining-dist</module>
   </modules>
 

@@ -16,18 +16,29 @@
  */
 package org.hawkular.datamining.bus.listener;
 
+
+
+import java.io.IOException;
+
 import org.hawkular.bus.common.consumer.BasicMessageListener;
+import org.hawkular.datamining.bus.BusLogger;
 import org.hawkular.datamining.bus.model.MetricDataMessage;
 
+import org.hawkular.datamining.engine.Configuration;
 import org.hawkular.datamining.engine.MetricFilter;
-import org.jboss.logging.Logger;
 
 /**
  * @author Pavol Loffay
  */
 public class MetricDataListener extends BasicMessageListener<MetricDataMessage> {
 
-    private static final Logger LOG = Logger.getLogger(MetricDataListener.class);
+    public MetricDataListener() {
+        try {
+            Configuration configuration = new Configuration();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     protected void onBasicMessage(MetricDataMessage metricDataMessage) {
@@ -37,12 +48,12 @@ public class MetricDataListener extends BasicMessageListener<MetricDataMessage> 
 
         for (MetricDataMessage.SingleMetric singleMetric: metricData.getData()) {
 
-            // filter data
+//             filter data
             if (MetricFilter.contains(singleMetric.getSource())) {
-                LOG.debugf("\n\ntenant %s", tenantId);
-                LOG.debug(singleMetric.getSource());
-                LOG.debug(singleMetric.getValue());
-                LOG.debug(singleMetric.getTimestamp());
+                BusLogger.LOGGER.debugf("\n\ntenant %s", tenantId);
+                BusLogger.LOGGER.debug(singleMetric.getSource());
+                BusLogger.LOGGER.debug(singleMetric.getValue());
+                BusLogger.LOGGER.debug(singleMetric.getTimestamp());
             }
         }
     }

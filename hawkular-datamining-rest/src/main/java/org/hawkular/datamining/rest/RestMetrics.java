@@ -38,7 +38,7 @@ import org.hawkular.datamining.engine.MetricFilter;
 public class RestMetrics {
 
     @GET
-    @Path("/subscribe/{key}")
+    @Path("/{key}")
     public Response contains(@PathParam("key") String key) {
 
         Response.Status status = MetricFilter.contains(key) ? Response.Status.OK : Response.Status.NOT_FOUND;
@@ -47,8 +47,8 @@ public class RestMetrics {
     }
 
     @POST
-    @Path("/subscribe")
-    public Response subscribe(String key) {
+    @Path("/{key}")
+    public Response subscribe(@PathParam("key") String key) {
 
         if (null != key) {
             MetricFilter.subscribe(key);
@@ -58,7 +58,7 @@ public class RestMetrics {
     }
 
     @DELETE
-    @Path("/subscribe/{key}")
+    @Path("/{key}")
     public Response unSubscribe(@PathParam("key") String key) {
 
         if (null != key) {

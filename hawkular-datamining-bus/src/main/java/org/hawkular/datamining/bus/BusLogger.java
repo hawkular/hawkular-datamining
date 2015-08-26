@@ -19,6 +19,9 @@ package org.hawkular.datamining.bus;
 
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;
+import org.jboss.logging.annotations.Cause;
+import org.jboss.logging.annotations.LogMessage;
+import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageLogger;
 
 /**
@@ -28,4 +31,12 @@ import org.jboss.logging.annotations.MessageLogger;
 public interface BusLogger extends BasicLogger {
 
     BusLogger LOGGER = Logger.getMessageLogger(BusLogger.class, "org.hawkular.datamining.bus");
+
+    @LogMessage(level = Logger.Level.INFO)
+    @Message(value = "Datamining bus successfully connected")
+    void initializedInfo();
+
+    @LogMessage(level = Logger.Level.ERROR)
+    @Message(id = 10011, value = "Dataminig bus failed to conenct to bus")
+    void initializedFailedError(@Cause Throwable t);
 }

@@ -35,11 +35,9 @@ public class Configuration {
     private Properties properties = new Properties();
 
     public Configuration() throws IOException {
-
         properties.load(getConfigurationFile().openStream());
         parseSparkProperties(properties);
     }
-
 
     public SparkConf getSparkConf() {
         return sparkConf;

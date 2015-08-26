@@ -29,8 +29,8 @@ public class MetricFilter {
     private static final Set<String> subscriptions = new HashSet<>();
 
     static {
-        subscriptions.add("MI~R~[dhcp130-144~Local~/]~MT~WildFly Memory Metrics~Heap Used");
-//        subscriptions.add("MI~R~[dhcp130-144~Local~/]~MT~WildFly Memory Metrics~NonHeap Used");
+        subscriptions.add("MI~R~[dhcp130-144~Local~~]~MT~WildFly Memory Metrics~Heap Used");
+        subscriptions.add("MI~R~[dhcp130-144~Local~~]~MT~WildFly Memory Metrics~NonHeap Used");
 
         subscriptions.forEach(x -> EngineLogger.LOGGER.infof("Metric %s is being watched", x));
     }
