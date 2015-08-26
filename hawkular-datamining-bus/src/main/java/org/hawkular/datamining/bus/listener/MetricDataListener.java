@@ -22,6 +22,7 @@ import java.io.IOException;
 
 import org.hawkular.bus.common.consumer.BasicMessageListener;
 import org.hawkular.datamining.bus.BusLogger;
+import org.hawkular.datamining.bus.StreamingJMSReceiver;
 import org.hawkular.datamining.bus.model.MetricDataMessage;
 
 import org.hawkular.datamining.engine.Configuration;
@@ -32,12 +33,18 @@ import org.hawkular.datamining.engine.MetricFilter;
  */
 public class MetricDataListener extends BasicMessageListener<MetricDataMessage> {
 
+    private StreamingJMSReceiver stringReceiver;
+
     public MetricDataListener() {
         try {
             Configuration configuration = new Configuration();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void setStreamingReceiver(StreamingJMSReceiver streamingReceiver) {
+        this.stringReceiver = streamingReceiver;
     }
 
     @Override
@@ -50,10 +57,11 @@ public class MetricDataListener extends BasicMessageListener<MetricDataMessage> 
 
 //             filter data
             if (MetricFilter.contains(singleMetric.getSource())) {
-                BusLogger.LOGGER.debugf("\n\ntenant %s", tenantId);
-                BusLogger.LOGGER.debug(singleMetric.getSource());
-                BusLogger.LOGGER.debug(singleMetric.getValue());
-                BusLogger.LOGGER.debug(singleMetric.getTimestamp());
+                BusLogger.LOGGER.debugf("\ntenant %s", tenantId);
+                BusLogger.LOGGER.debugf("source: %s", singleMetric.getSource());
+                BusLogger.LOGGER.debugf("value: %s", singleMetric.getValue());
+
+                stringReceiver.addMessage(String.valueOf(singleMetric.getValue()));
             }
         }
     }

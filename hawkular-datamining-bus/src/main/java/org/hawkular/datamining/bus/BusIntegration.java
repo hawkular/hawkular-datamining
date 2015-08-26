@@ -20,26 +20,26 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Singleton;
 import javax.jms.JMSException;
 
+import org.apache.spark.storage.StorageLevel;
 import org.hawkular.bus.common.ConnectionContextFactory;
 import org.hawkular.bus.common.Endpoint;
 import org.hawkular.bus.common.MessageProcessor;
 import org.hawkular.bus.common.consumer.ConsumerConnectionContext;
 import org.hawkular.datamining.bus.listener.MetricDataListener;
 
-import org.jboss.logging.Logger;
 
 /**
  * @author Pavol Loffay
  */
 public class BusIntegration {
 
-    private static final Logger LOG = Logger.getLogger(BusIntegration.class);
-
     @Official
     @Produces
     @Singleton
     public MetricDataListener getMetricDataListener() {
-        LOG.debug("Initializing bus");
+        BusLogger.LOGGER.debug("Bus initializing started");
+
+        StreamingJMSReceiver streamingJMSReceiver = new StreamingJMSReceiver(StorageLevel.MEMORY_ONLY());
 
         MetricDataListener metricDataListener = null;
         try {
@@ -52,6 +52,7 @@ public class BusIntegration {
             metricDataListener = new MetricDataListener();
             processor.listen(context, metricDataListener);
 
+            metricDataListener.setStreamingReceiver(streamingJMSReceiver);
             BusLogger.LOGGER.initializedInfo();
         } catch (JMSException ex)  {
             BusLogger.LOGGER.initializedFailedError(ex);
