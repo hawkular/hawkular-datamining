@@ -32,6 +32,6 @@ public interface RestLogger extends BasicLogger {
     RestLogger LOGGER = Logger.getMessageLogger(RestLogger.class, "org.hawkular.datamining.rest");
 
     @LogMessage(level = Logger.Level.INFO)
-    @Message(id = 2000, value = "Hawkular-Datamining REST Api is starting...")
+    @Message(value = "Hawkular datamining REST Api is starting")
     void apiStarting();
 }

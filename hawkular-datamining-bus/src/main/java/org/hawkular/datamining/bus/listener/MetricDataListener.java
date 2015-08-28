@@ -14,19 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.hawkular.datamining.bus.listener;
-
-
-
-import java.io.IOException;
 
 import org.hawkular.bus.common.consumer.BasicMessageListener;
 import org.hawkular.datamining.bus.BusLogger;
-import org.hawkular.datamining.bus.StreamingJMSReceiver;
 import org.hawkular.datamining.bus.model.MetricDataMessage;
-
-import org.hawkular.datamining.engine.Configuration;
 import org.hawkular.datamining.engine.MetricFilter;
+import org.hawkular.datamining.engine.receiver.StreamingJMSReceiver;
 
 /**
  * @author Pavol Loffay
@@ -35,13 +30,6 @@ public class MetricDataListener extends BasicMessageListener<MetricDataMessage> 
 
     private StreamingJMSReceiver stringReceiver;
 
-    public MetricDataListener() {
-        try {
-            Configuration configuration = new Configuration();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     public void setStreamingReceiver(StreamingJMSReceiver streamingReceiver) {
         this.stringReceiver = streamingReceiver;

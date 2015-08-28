@@ -15,58 +15,71 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.bus;
+package org.hawkular.datamining.engine.receiver;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 
 import org.apache.spark.storage.StorageLevel;
 import org.apache.spark.streaming.receiver.Receiver;
+import org.hawkular.datamining.engine.EngineLogger;
+
 
 /**
  * @author Pavol Loffay
  */
 public class StreamingJMSReceiver extends Receiver<String> {
 
-    private Thread receiver;
+    private Thread workerThread;
 
     private LinkedList<String> incomingMessages = new LinkedList<>();
 
-    public StreamingJMSReceiver(StorageLevel storageLevel) {
-        super(storageLevel);
+
+    public StreamingJMSReceiver() {
+        super(StorageLevel.MEMORY_ONLY());
     }
 
     public void addMessage(String message) {
-        incomingMessages.add(message);
+        incomingMessages.push(message);
     }
 
     @Override
     public StorageLevel storageLevel() {
-        return null;
+        return StorageLevel.MEMORY_ONLY();
     }
 
     @Override
     public void onStart() {
-        receiver =  new Thread()  {
-            @Override public void run() {
-                receive();
-            }
-        };
-
-        receiver.start();
+        workerThread = new Thread(new StoreDataWorker());
+        workerThread.start();
     }
 
     @Override
     public void onStop() {
-
+        workerThread.stop();
     }
 
-    private void receive() {
 
-        while (true) {
+    private class StoreDataWorker implements Runnable, Serializable {
 
-            for (String message: incomingMessages) {
-                store(message);
+        @Override
+        public void run() {
+            while (true) {
+                while (!incomingMessages.isEmpty()) {
+                    String newMessage = incomingMessages.pop();
+
+                    EngineLogger.LOGGER.debugf("Receiving %s", newMessage);
+                    store(newMessage);
+                }
+
+                if (shouldEnd()) {
+                    break;
+                }
             }
+        }
+
+        private boolean shouldEnd() {
+            return Thread.currentThread().isInterrupted();
         }
     }
 }

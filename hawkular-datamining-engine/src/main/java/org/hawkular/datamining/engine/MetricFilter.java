@@ -25,7 +25,6 @@ import java.util.Set;
  */
 public class MetricFilter {
 
-
     private static final Set<String> subscriptions = new HashSet<>();
 
     static {
@@ -46,5 +45,9 @@ public class MetricFilter {
 
     public static boolean contains(String key) {
         return subscriptions.contains(key);
+    }
+
+    public static Set<String> getAll() {
+        return new HashSet<>(subscriptions);
     }
 }

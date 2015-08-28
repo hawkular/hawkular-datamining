@@ -14,18 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.hawkular.datamining.bus;
+
+import java.io.IOException;
 
 import javax.enterprise.inject.Produces;
 import javax.inject.Singleton;
 import javax.jms.JMSException;
 
-import org.apache.spark.storage.StorageLevel;
 import org.hawkular.bus.common.ConnectionContextFactory;
 import org.hawkular.bus.common.Endpoint;
 import org.hawkular.bus.common.MessageProcessor;
 import org.hawkular.bus.common.consumer.ConsumerConnectionContext;
 import org.hawkular.datamining.bus.listener.MetricDataListener;
+import org.hawkular.datamining.engine.AnalyticEngine;
+import org.hawkular.datamining.engine.SparkEngine;
+import org.hawkular.datamining.engine.receiver.StreamingJMSReceiver;
 
 
 /**
@@ -33,13 +38,15 @@ import org.hawkular.datamining.bus.listener.MetricDataListener;
  */
 public class BusIntegration {
 
+    private AnalyticEngine analyticEngine;
+
     @Official
     @Produces
     @Singleton
     public MetricDataListener getMetricDataListener() {
         BusLogger.LOGGER.debug("Bus initializing started");
 
-        StreamingJMSReceiver streamingJMSReceiver = new StreamingJMSReceiver(StorageLevel.MEMORY_ONLY());
+        StreamingJMSReceiver streamingJMSReceiver = new StreamingJMSReceiver();
 
         MetricDataListener metricDataListener = null;
         try {
@@ -53,8 +60,11 @@ public class BusIntegration {
             processor.listen(context, metricDataListener);
 
             metricDataListener.setStreamingReceiver(streamingJMSReceiver);
+            analyticEngine = new SparkEngine(streamingJMSReceiver);
+
             BusLogger.LOGGER.initializedInfo();
-        } catch (JMSException ex)  {
+            analyticEngine.start();
+        } catch (JMSException | IOException ex)  {
             BusLogger.LOGGER.initializedFailedError(ex);
             ex.printStackTrace();
         }

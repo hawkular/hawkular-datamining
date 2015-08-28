@@ -17,26 +17,11 @@
 
 package org.hawkular.datamining.engine;
 
-import org.jboss.logging.BasicLogger;
-import org.jboss.logging.Logger;
-import org.jboss.logging.annotations.LogMessage;
-import org.jboss.logging.annotations.Message;
-import org.jboss.logging.annotations.MessageLogger;
-
 /**
  * @author Pavol Loffay
  */
-@MessageLogger(projectCode = "HAWKDMING")
-public interface EngineLogger extends BasicLogger {
+public interface AnalyticEngine {
 
-    EngineLogger LOGGER = Logger.getMessageLogger(EngineLogger.class, "org.hawkular.datamining.engine");
-
-
-    @LogMessage(level = Logger.Level.INFO)
-    @Message(value = "Datamining engine successfully started")
-    void startInfo();
-
-    @LogMessage(level = Logger.Level.INFO)
-    @Message(value = "Datamining engine stopped")
-    void stopInfo();
+    void start();
+    void stop();
 }

@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.hawkular.datamining.dist;
 
 import javax.annotation.PostConstruct;
@@ -38,6 +39,7 @@ public class DataMiningStartup {
     @Official
     @Inject
     private MetricDataListener metricDataListener;
+
 
     @PostConstruct
     public void postConstruct() {

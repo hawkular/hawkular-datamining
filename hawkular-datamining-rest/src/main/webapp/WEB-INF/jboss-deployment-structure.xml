@@ -18,8 +18,18 @@
 
 -->
 
-<beans xmlns="http://xmlns.jcp.org/xml/ns/javaee"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/beans_1_1.xsd"
-       version="1.1" bean-discovery-mode="all">
-</beans>
+<!-- This file is used to  control class loading in a fine grained manner -->
+<jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.2">
+  <deployment>
+
+    <!--
+         WF loads jackson in higher version that uses spark(jackson 2.4.4)
+         so we need to prevent WF loading in order to use our from lib
+         -->
+    <exclusions>
+      <!--<module name="com.fasterxml.jackson.core.jackson-databind"/>-->
+      <module name="org.jboss.resteasy.resteasy-jackson2-provider" />
+    </exclusions>
+
+  </deployment>
+</jboss-deployment-structure>

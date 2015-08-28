@@ -38,12 +38,9 @@ import org.hawkular.datamining.engine.MetricFilter;
 public class RestMetrics {
 
     @GET
-    @Path("/{key}")
-    public Response contains(@PathParam("key") String key) {
+    public Response getAll() {
 
-        Response.Status status = MetricFilter.contains(key) ? Response.Status.OK : Response.Status.NOT_FOUND;
-
-        return Response.status(status).build();
+        return Response.status(Response.Status.OK).entity(MetricFilter.getAll()).build();
     }
 
     @POST

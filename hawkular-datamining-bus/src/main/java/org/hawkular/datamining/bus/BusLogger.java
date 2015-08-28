@@ -37,6 +37,6 @@ public interface BusLogger extends BasicLogger {
     void initializedInfo();
 
     @LogMessage(level = Logger.Level.ERROR)
-    @Message(id = 10011, value = "Dataminig bus failed to conenct to bus")
+    @Message(id = 10011, value = "Dataminig bus failed to connect to bus")
     void initializedFailedError(@Cause Throwable t);
 }

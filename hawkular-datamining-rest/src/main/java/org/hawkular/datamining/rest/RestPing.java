@@ -37,6 +37,7 @@ import javax.ws.rs.core.Response;
 
 import org.jboss.resteasy.core.Dispatcher;
 import org.jboss.resteasy.core.ResourceInvoker;
+import org.jboss.resteasy.core.ResourceLocatorInvoker;
 import org.jboss.resteasy.core.ResourceMethodInvoker;
 import org.jboss.resteasy.core.ResourceMethodRegistry;
 
@@ -73,6 +74,10 @@ public class RestPing {
 
             JaxRsResource jaxRsResource = new JaxRsResource(uri);
             for (ResourceInvoker invoker : entry.getValue()) {
+                if (invoker instanceof ResourceLocatorInvoker) {
+                    continue;
+                }
+
                 ResourceMethodInvoker method = (ResourceMethodInvoker) invoker;
                 if(method.getMethod().getDeclaringClass() == getClass()){
                     continue;
