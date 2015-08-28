@@ -36,7 +36,7 @@ public class MetricFilter {
 
 
     public static boolean subscribe(String key) {
-        return subscriptions.contains(key);
+        return subscriptions.add(key);
     }
 
     public static boolean unSubscribe(String key) {

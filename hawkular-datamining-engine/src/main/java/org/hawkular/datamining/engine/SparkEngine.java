@@ -36,7 +36,7 @@ public class SparkEngine implements AnalyticEngine, Serializable {
 
     private Receiver<String> receiver;
     private JavaStreamingContext streamingContext;
-    private transient Duration batchDuration = Durations.seconds(1);
+    private Duration batchDuration = Durations.seconds(1);
 
 
     public SparkEngine(Receiver<String> receiver) throws IOException {
