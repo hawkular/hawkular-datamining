@@ -20,7 +20,7 @@ package org.hawkular.datamining.bus;
 /**
  * @author Pavol Loffay
  */
-public class Configuration {
+public class BusConfiguration {
     public static final String BROKER_URL = "tcp://localhost:62626";
     public static final String TOPIC_METRIC_DATA = "HawkularMetricData";
 }

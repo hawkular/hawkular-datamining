@@ -27,14 +27,14 @@ import org.apache.spark.SparkConf;
 /**
  * @author Pavol Loffay
  */
-public class Configuration {
+public class EngineConfiguration {
 
     public static final String CONF_FILE = "hawkular-datamining.properties";
 
     private SparkConf sparkConf = new SparkConf();
     private Properties properties = new Properties();
 
-    public Configuration() throws IOException {
+    public EngineConfiguration() throws IOException {
         properties.load(getConfigurationFile().openStream());
         parseSparkProperties(properties);
     }

@@ -34,7 +34,7 @@
     <!-- Data mining -->
     <dependency>
       <groupId>org.hawkular.datamining</groupId>
-      <artifactId>hawkular-datamining-engine</artifactId>
+      <artifactId>hawkular-datamining-api</artifactId>
       <version>${project.version}</version>
     </dependency>
 

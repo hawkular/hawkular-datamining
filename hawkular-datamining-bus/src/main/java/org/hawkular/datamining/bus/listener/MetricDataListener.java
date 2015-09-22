@@ -18,21 +18,21 @@
 package org.hawkular.datamining.bus.listener;
 
 import org.hawkular.bus.common.consumer.BasicMessageListener;
+import org.hawkular.dataminig.api.EngineDataReceiver;
+import org.hawkular.dataminig.api.MetricFilter;
 import org.hawkular.datamining.bus.BusLogger;
 import org.hawkular.datamining.bus.model.MetricDataMessage;
-import org.hawkular.datamining.engine.MetricFilter;
-import org.hawkular.datamining.engine.receiver.StreamingJMSReceiver;
 
 /**
  * @author Pavol Loffay
  */
 public class MetricDataListener extends BasicMessageListener<MetricDataMessage> {
 
-    private StreamingJMSReceiver stringReceiver;
+    private final EngineDataReceiver engineDataReceiver;
 
 
-    public void setStreamingReceiver(StreamingJMSReceiver streamingReceiver) {
-        this.stringReceiver = streamingReceiver;
+    public MetricDataListener(EngineDataReceiver engineDataReceiver) {
+        this.engineDataReceiver = engineDataReceiver;
     }
 
     @Override
@@ -49,7 +49,7 @@ public class MetricDataListener extends BasicMessageListener<MetricDataMessage> 
                 BusLogger.LOGGER.debugf("source: %s", singleMetric.getSource());
                 BusLogger.LOGGER.debugf("value: %s", singleMetric.getValue());
 
-                stringReceiver.addMessage(String.valueOf(singleMetric.getValue()));
+                engineDataReceiver.store(String.valueOf(singleMetric.getValue()));
             }
         }
     }

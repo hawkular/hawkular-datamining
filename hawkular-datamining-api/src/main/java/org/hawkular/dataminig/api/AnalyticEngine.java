@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.engine;
+package org.hawkular.dataminig.api;
 
 /**
  * @author Pavol Loffay

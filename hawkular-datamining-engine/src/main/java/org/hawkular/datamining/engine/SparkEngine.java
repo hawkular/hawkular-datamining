@@ -26,6 +26,7 @@ import org.apache.spark.streaming.Durations;
 import org.apache.spark.streaming.api.java.JavaDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import org.apache.spark.streaming.receiver.Receiver;
+import org.hawkular.dataminig.api.AnalyticEngine;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -36,37 +37,46 @@ public class SparkEngine implements AnalyticEngine, Serializable {
 
     private Receiver<String> receiver;
     private JavaStreamingContext streamingContext;
-    private Duration batchDuration = Durations.seconds(1);
+    private Duration batchDuration = Durations.seconds(5);
+
+    private final Thread sparkJob;
 
 
     public SparkEngine(Receiver<String> receiver) throws IOException {
 
-        Configuration configuration = new Configuration();
+        EngineConfiguration configuration = new EngineConfiguration();
 
         this.receiver = receiver;
         this.streamingContext = new JavaStreamingContext(configuration.getSparkConf(), batchDuration);
+        sparkJob = new Thread(new StreamingJob());
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        EngineLogger.LOGGER.debugf("Jackson Databind version:" + objectMapper.version().toString());
-        EngineLogger.LOGGER.debug("Version should be 2.4.4");
+        // log the version of databind, higher version can cause problems
+        EngineLogger.LOGGER.jacksonDatabindVersion((new ObjectMapper()).version().toString());
     }
 
     @Override
     public void start() {
-
-        JavaDStream<String> inputDStream = streamingContext.receiverStream(receiver);
-        inputDStream.print();
-
-        streamingContext.start();
-//        streamingContext.awaitTermination();
-
-        streamingContext.close();
-        EngineLogger.LOGGER.startInfo();
+        sparkJob.start();
+        EngineLogger.LOGGER.engineStartInfo();
     }
 
     @Override
     public void stop() {
         streamingContext.stop();
-        EngineLogger.LOGGER.stopInfo();
+        EngineLogger.LOGGER.engineStopInfo();
+    }
+
+    private class StreamingJob implements Runnable {
+
+        @Override
+        public void run() {
+            JavaDStream<String> inputDStream = streamingContext.receiverStream(receiver);
+            inputDStream.print(); //output operation
+
+            streamingContext.start();
+            streamingContext.awaitTermination();
+
+            EngineLogger.LOGGER.debug("\n\n\n\n\nStreaming job stopped\n\n\n\n\n");
+        }
     }
 }

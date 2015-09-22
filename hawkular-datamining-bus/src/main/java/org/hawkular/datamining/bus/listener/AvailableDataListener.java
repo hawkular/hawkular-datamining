@@ -18,18 +18,16 @@
 package org.hawkular.datamining.bus.listener;
 
 import org.hawkular.bus.common.consumer.BasicMessageListener;
+import org.hawkular.datamining.bus.BusLogger;
 import org.hawkular.datamining.bus.model.AvailDataMessage;
-import org.jboss.logging.Logger;
 
 /**
  * @author Pavol Loffay
  */
 public class AvailableDataListener extends BasicMessageListener<AvailDataMessage> {
 
-    private static final Logger LOG = Logger.getLogger(AvailableDataListener.class);
-
     @Override
     protected void onBasicMessage(AvailDataMessage availDataMessage) {
-        LOG.debug(availDataMessage.toJSON());
+        BusLogger.LOGGER.debug(availDataMessage.toJSON());
     }
 }

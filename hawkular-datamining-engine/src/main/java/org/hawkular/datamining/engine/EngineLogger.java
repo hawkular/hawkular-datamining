@@ -34,9 +34,29 @@ public interface EngineLogger extends BasicLogger {
 
     @LogMessage(level = Logger.Level.INFO)
     @Message(value = "Datamining engine successfully started")
-    void startInfo();
+    void engineStartInfo();
 
     @LogMessage(level = Logger.Level.INFO)
     @Message(value = "Datamining engine stopped")
-    void stopInfo();
+    void engineStopInfo();
+
+    @LogMessage(level = Logger.Level.INFO)
+    @Message(value = "Datamining engine data listener successfully started")
+    void dataListenerStartInfo();
+
+    @LogMessage(level = Logger.Level.INFO)
+    @Message(value = "Datamining engine data listener successfully stopped")
+    void dataListenerStopInfo();
+
+    @LogMessage(level = Logger.Level.ERROR)
+    @Message(value = "Datamining engine data listener failed to start")
+    void dataListenerFailedStartError();
+
+    @LogMessage(level = Logger.Level.ERROR)
+    @Message(value = "Datamining engine data listener failed to stop")
+    void dataListenerFailedStopError();
+
+    @LogMessage(level = Logger.Level.INFO)
+    @Message(value = "Jackson Databind version: %s, should be 2.4.4")
+    void jacksonDatabindVersion(String message);
 }

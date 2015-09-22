@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.engine;
+package org.hawkular.dataminig.api;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -30,8 +30,6 @@ public class MetricFilter {
     static {
         subscriptions.add("MI~R~[dhcp130-144~Local~~]~MT~WildFly Memory Metrics~Heap Used");
         subscriptions.add("MI~R~[dhcp130-144~Local~~]~MT~WildFly Memory Metrics~NonHeap Used");
-
-        subscriptions.forEach(x -> EngineLogger.LOGGER.infof("Metric %s is being watched", x));
     }
 
 

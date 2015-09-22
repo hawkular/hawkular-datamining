@@ -34,7 +34,7 @@ public class EmbeddedExecutionTest extends BaseTest {
 
     public EmbeddedExecutionTest() throws IOException {
         ClassLoader classLoader = this.getClass().getClassLoader();
-        testFile = classLoader.getResource(Configuration.CONF_FILE);
+        testFile = classLoader.getResource(EngineConfiguration.CONF_FILE);
     }
 
     @Test

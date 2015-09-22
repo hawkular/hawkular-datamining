@@ -17,30 +17,40 @@
 
 package org.hawkular.datamining.dist;
 
-import javax.annotation.PostConstruct;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.inject.Inject;
+import java.io.IOException;
+
+import javax.enterprise.inject.Produces;
+import javax.inject.Singleton;
 
 import org.hawkular.dataminig.api.AnalyticEngine;
-import org.jboss.logging.Logger;
+import org.hawkular.datamining.bus.BusLogger;
+import org.hawkular.datamining.engine.SparkEngine;
+import org.hawkular.datamining.engine.receiver.JMSEngineDataReceiver;
+
 
 /**
  * @author Pavol Loffay
  */
-@Startup
-@Singleton
-public class DataMiningStartup {
+public class AnalyticEngineProducer {
 
-    private static final Logger LOG = Logger.getLogger(DataMiningStartup.class);
-
-    @Official
-    @Inject
     private AnalyticEngine analyticEngine;
 
+    @Official
+    @Produces
+    @Singleton
+    public AnalyticEngine getAnalyticEngine() {
 
-    @PostConstruct
-    public void postConstruct() {
-        LOG.debug("Ejb starting");
+        JMSEngineDataReceiver streamingJMSReceiver = new JMSEngineDataReceiver();
+
+        try {
+            this.analyticEngine = new SparkEngine(streamingJMSReceiver);
+            this.analyticEngine.start();
+
+        } catch (IOException ex)  {
+            BusLogger.LOGGER.initializedFailedError(ex);
+            ex.printStackTrace();
+        }
+
+        return analyticEngine;
     }
 }

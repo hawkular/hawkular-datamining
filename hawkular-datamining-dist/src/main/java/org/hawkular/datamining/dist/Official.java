@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.bus;
+package org.hawkular.datamining.dist;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

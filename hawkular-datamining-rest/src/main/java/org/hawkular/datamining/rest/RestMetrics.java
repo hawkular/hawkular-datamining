@@ -27,7 +27,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.hawkular.datamining.engine.MetricFilter;
+import org.hawkular.dataminig.api.MetricFilter;
 
 /**
  * @author Pavol Loffay
@@ -44,7 +44,7 @@ public class RestMetrics {
     }
 
     @POST
-    @Path("/{key}")
+    @Path("/metrics/{key}")
     public Response subscribe(@PathParam("key") String key) {
 
         if (null != key) {
@@ -55,7 +55,7 @@ public class RestMetrics {
     }
 
     @DELETE
-    @Path("/{key}")
+    @Path("/metrics/{key}")
     public Response unSubscribe(@PathParam("key") String key) {
 
         if (null != key) {

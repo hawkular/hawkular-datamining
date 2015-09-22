@@ -30,6 +30,17 @@
   <artifactId>hawkular-datamining-engine</artifactId>
 
   <dependencies>
+    <dependency>
+      <groupId>org.hawkular.datamining</groupId>
+      <artifactId>hawkular-datamining-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hawkular.datamining</groupId>
+      <artifactId>hawkular-datamining-bus</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <!-- Spark -->
     <dependency>
       <groupId>org.apache.spark</groupId>
