@@ -65,6 +65,7 @@ public class JMSEngineDataReceiver extends Receiver<String> implements EngineDat
             this.metricDataListener = new MetricDataListener(this);
             processor.listen(consumerConnectionContext, metricDataListener);
 
+            EngineLogger.LOGGER.dataListenerStartInfo();
         } catch (JMSException e) {
             EngineLogger.LOGGER.dataListenerFailedStartError();
         }
