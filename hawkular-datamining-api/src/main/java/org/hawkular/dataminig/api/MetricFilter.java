@@ -29,7 +29,7 @@ public class MetricFilter {
 
     static {
         subscriptions.add("MI~R~[dhcp130-144~Local~~]~MT~WildFly Memory Metrics~Heap Used");
-        subscriptions.add("MI~R~[dhcp130-144~Local~~]~MT~WildFly Memory Metrics~NonHeap Used");
+//        subscriptions.add("MI~R~[dhcp130-144~Local~~]~MT~WildFly Memory Metrics~NonHeap Used");
     }
 
 

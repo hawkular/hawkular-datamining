@@ -25,7 +25,7 @@ import javax.inject.Singleton;
 import org.hawkular.dataminig.api.AnalyticEngine;
 import org.hawkular.datamining.bus.BusLogger;
 import org.hawkular.datamining.engine.SparkEngine;
-import org.hawkular.datamining.engine.receiver.JMSEngineDataReceiver;
+import org.hawkular.datamining.engine.receiver.MetricDataReceiver;
 
 
 /**
@@ -40,10 +40,11 @@ public class AnalyticEngineProducer {
     @Singleton
     public AnalyticEngine getAnalyticEngine() {
 
-        JMSEngineDataReceiver streamingJMSReceiver = new JMSEngineDataReceiver();
+//        StringDataReceiver streamingJMSReceiver = new StringDataReceiver();
+        MetricDataReceiver metricDataReceiver = new MetricDataReceiver();
 
         try {
-            this.analyticEngine = new SparkEngine(streamingJMSReceiver);
+            this.analyticEngine = new SparkEngine(metricDataReceiver);
             this.analyticEngine.start();
 
         } catch (IOException ex)  {

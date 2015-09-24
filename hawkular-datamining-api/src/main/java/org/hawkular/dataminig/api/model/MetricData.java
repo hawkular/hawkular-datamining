@@ -15,14 +15,21 @@
  * limitations under the License.
  */
 
-package org.hawkular.dataminig.api;
-
-import java.io.Serializable;
+package org.hawkular.dataminig.api.model;
 
 /**
  * @author Pavol Loffay
  */
-public interface EngineDataReceiver<T extends Serializable> {
+public class MetricData extends AbstractTimeSeries {
 
-    void store(T data);
+    private String id;
+
+    public MetricData(String id, Double timestamp, Double value) {
+        super(value, timestamp);
+        this.id = id;
+    }
+
+    public String getId() {
+        return id;
+    }
 }

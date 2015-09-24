@@ -36,7 +36,7 @@ import org.hawkular.datamining.engine.EngineLogger;
 /**
  * @author Pavol Loffay
  */
-public class JMSEngineDataReceiver extends Receiver<String> implements EngineDataReceiver {
+public class StringDataReceiver extends Receiver<String> implements EngineDataReceiver<String> {
 
     private static final StorageLevel STORAGE_LEVEL = StorageLevel.MEMORY_ONLY();
 
@@ -44,7 +44,7 @@ public class JMSEngineDataReceiver extends Receiver<String> implements EngineDat
     private ConsumerConnectionContext consumerConnectionContext;
 
 
-    public JMSEngineDataReceiver() {
+    public StringDataReceiver() {
         super(STORAGE_LEVEL);
     }
 
@@ -62,7 +62,6 @@ public class JMSEngineDataReceiver extends Receiver<String> implements EngineDat
             this.consumerConnectionContext = factory.createConsumerConnectionContext(endpoint);
 
             MessageProcessor processor = new MessageProcessor();
-            this.metricDataListener = new MetricDataListener(this);
             processor.listen(consumerConnectionContext, metricDataListener);
 
             EngineLogger.LOGGER.dataListenerStartInfo();

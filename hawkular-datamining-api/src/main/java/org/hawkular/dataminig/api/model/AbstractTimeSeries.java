@@ -15,33 +15,34 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.engine;
+package org.hawkular.dataminig.api.model;
+
+import java.io.Serializable;
 
 /**
  * @author Pavol Loffay
  */
-public class MetricData {
+public abstract class AbstractTimeSeries implements Serializable {
 
-    private String id;
-    private long timestamp;
-    private double value;
+    private Double value;
+    private Double timestamp;
 
 
-    public MetricData(String id, long timestamp, double value) {
-        this.id = id;
-        this.timestamp = timestamp;
+    public AbstractTimeSeries(Double value, Double timestamp) {
         this.value = value;
+        this.timestamp = timestamp;
     }
 
-    public String getId() {
-        return id;
+    public Double getValue() {
+        return value;
     }
 
-    public long getTimestamp() {
+    public Double getTimestamp() {
         return timestamp;
     }
 
-    public double getValue() {
-        return value;
+    @Override
+    public String toString() {
+        return this.getClass().getName() + " { value = " + value + " , timestamp=" + timestamp + " }";
     }
 }
