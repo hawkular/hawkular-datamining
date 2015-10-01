@@ -15,19 +15,31 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.bus.listener;
+package org.hawkular.datamining.bus.message;
 
-import org.hawkular.bus.common.consumer.BasicMessageListener;
-import org.hawkular.datamining.bus.BusLogger;
-import org.hawkular.datamining.bus.message.AvailDataMessage;
+import org.hawkular.bus.common.AbstractMessage;
+import org.hawkular.dataminig.api.model.PredictionRequest;
 
 /**
  * @author Pavol Loffay
  */
-public class AvailableDataListener extends BasicMessageListener<AvailDataMessage> {
+public class PredictionRequestMessage extends AbstractMessage {
 
-    @Override
-    protected void onBasicMessage(AvailDataMessage availDataMessage) {
-        BusLogger.LOGGER.debug(availDataMessage.toJSON());
+    private PredictionRequest predictionRequest;
+
+
+    public PredictionRequestMessage() {
+    }
+
+    public PredictionRequestMessage(PredictionRequest predictionRequest) {
+        this.predictionRequest = predictionRequest;
+    }
+
+    public PredictionRequest getPredictionRequest() {
+        return predictionRequest;
+    }
+
+    public void setPredictionRequest(PredictionRequest predictionRequest) {
+        this.predictionRequest = predictionRequest;
     }
 }

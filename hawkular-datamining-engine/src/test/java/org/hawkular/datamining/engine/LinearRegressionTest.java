@@ -23,6 +23,7 @@ import java.util.Arrays;
 
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.ml.ann.ANNUpdater;
 import org.apache.spark.mllib.linalg.Vectors;
 import org.apache.spark.mllib.regression.LabeledPoint;
 import org.apache.spark.mllib.regression.LinearRegressionModel;
@@ -36,9 +37,9 @@ import scala.Tuple2;
  */
 public class LinearRegressionTest extends BaseTest {
 
-    private static final String DATA_FILE = "simple-data.txt";
+    private static final String DATA_FILE = "simple-data-scaled.txt";
 
-    private static final double GRADIENT_DESCENT_STEP = 0.01;
+    private static final double GRADIENT_DESCENT_STEP = 0.000000000001;
     private static final int NUMBER_OF_ITERATIONS = 100;
 
     private URL testFile;
@@ -65,9 +66,21 @@ public class LinearRegressionTest extends BaseTest {
         parsedData.cache();
         parsedData.foreach(x -> System.out.println("label " + x.label() + " feature" + x.features()));
 
+        LinearRegressionWithSGD linearRegressionWithSGD = new LinearRegressionWithSGD();
+        linearRegressionWithSGD.optimizer().setUpdater(new ANNUpdater());
+        linearRegressionWithSGD.optimizer().setNumIterations(NUMBER_OF_ITERATIONS);
+        linearRegressionWithSGD.optimizer().setStepSize(GRADIENT_DESCENT_STEP);
+
+        LinearRegressionModel xxModel = linearRegressionWithSGD.run(parsedData.rdd());
+
+//            StandardScaler standardScaler = new StandardScaler(true, rue).fit((RDD)parsedData.map(x -> x.features
+// ()));
+
+
         LinearRegressionModel regressionModel = LinearRegressionWithSGD.train(parsedData.rdd(),
                 NUMBER_OF_ITERATIONS,
                 GRADIENT_DESCENT_STEP);
+
 
         LabeledPoint newPoint = new LabeledPoint(0, Vectors.dense(66));
         JavaRDD<LabeledPoint> rddToAdd = sparkContext.parallelize(Arrays.asList(newPoint));
@@ -75,7 +88,7 @@ public class LinearRegressionTest extends BaseTest {
 
         // Evaluate model on training examples and compute training error
         JavaRDD<Tuple2<Double, Double>> valuesAndPreds = newData.map(x -> {
-                    double prediction = regressionModel.predict(x.features());
+                    double prediction = xxModel.predict(x.features());
 
 //                    System.out.println("Label = " + x.label());
 //                    System.out.println("Prediction = " + prediction);

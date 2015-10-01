@@ -20,7 +20,7 @@ package org.hawkular.dataminig.api.model;
 /**
  * @author Pavol Loffay
  */
-public class MetricData extends AbstractTimeSeries {
+public class MetricData extends TimeSeries {
 
     private String id;
 

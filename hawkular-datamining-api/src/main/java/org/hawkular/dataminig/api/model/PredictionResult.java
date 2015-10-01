@@ -17,32 +17,43 @@
 
 package org.hawkular.dataminig.api.model;
 
-import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Pavol Loffay
  */
-public abstract class AbstractTimeSeries implements Serializable {
+public class PredictionResult {
 
-    private Double value;
-    private Double timestamp;
+    private String metricId;
+    private List<TimeSeries> points = new ArrayList<>();
 
 
-    public AbstractTimeSeries(Double value, Double timestamp) {
-        this.value = value;
-        this.timestamp = timestamp;
+    public PredictionResult() {
     }
 
-    public Double getValue() {
-        return value;
+    public PredictionResult(String metricId, List<TimeSeries> points) {
+        this.metricId = metricId;
+        this.points = points;
     }
 
-    public Double getTimestamp() {
-        return timestamp;
+    public void addTimeSerie(TimeSeries timeSeries) {
+        points.add(timeSeries);
     }
 
-    @Override
-    public String toString() {
-        return this.getClass().getName() + " { value = " + value + " , timestamp=" + timestamp + " }";
+    public String getMetricId() {
+        return metricId;
+    }
+
+    public void setMetricId(String metricId) {
+        this.metricId = metricId;
+    }
+
+    public List<TimeSeries> getPoints() {
+        return points;
+    }
+
+    public void setPoints(List<TimeSeries> points) {
+        this.points = points;
     }
 }

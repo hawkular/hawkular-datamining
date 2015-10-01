@@ -22,7 +22,7 @@ import org.hawkular.dataminig.api.EngineDataReceiver;
 import org.hawkular.dataminig.api.MetricFilter;
 import org.hawkular.dataminig.api.model.MetricData;
 import org.hawkular.datamining.bus.BusLogger;
-import org.hawkular.datamining.bus.model.MetricDataMessage;
+import org.hawkular.datamining.bus.message.MetricDataMessage;
 
 /**
  * @author Pavol Loffay
