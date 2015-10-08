@@ -15,11 +15,11 @@ To build Hawkular Data mining, clone this repository and build from the top leve
 
 [source,shell]
 ----
-$ git clone https://github.com/hawkular/hawkular.git
+$ git clone https://github.com/hawkular/hawkular-datamining.git
 $ cd hawkular-datamining
 $ mvn clean install -Pdev
-$ start hawkular
-$ hawkular-datamining-dist/target/wildfly-9.0.0.Final/bin/standalone.sh --debug 9797
+$ # start application server
+$ hawkular-datamining-dist/target/wildfly-*/bin/standalone.sh --debug 9797
 ----
 By default port offset is set to 1000, It can be changed with -Djboss.socket.binding.port-offset=OFFSET
 
