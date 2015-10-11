@@ -17,17 +17,30 @@
 
 package org.hawkular.datamining.bus.listener;
 
+import java.util.List;
+
 import org.hawkular.bus.common.consumer.BasicMessageListener;
-import org.hawkular.datamining.bus.BusLogger;
-import org.hawkular.datamining.bus.message.AvailDataMessage;
+import org.hawkular.dataminig.api.EngineDataReceiver;
+import org.hawkular.dataminig.api.model.PredictionRequest;
+import org.hawkular.datamining.bus.message.PredictionRequestMessage;
 
 /**
  * @author Pavol Loffay
  */
-public class AvailableDataListener extends BasicMessageListener<AvailDataMessage> {
+public class PredictionRequestListener extends BasicMessageListener<PredictionRequestMessage> {
+
+    private final EngineDataReceiver engineDataReceiver;
+
+
+    public PredictionRequestListener(EngineDataReceiver engineDataReceiver) {
+        this.engineDataReceiver = engineDataReceiver;
+    }
 
     @Override
-    protected void onBasicMessage(AvailDataMessage availDataMessage) {
-        BusLogger.LOGGER.debug(availDataMessage.toJSON());
+    protected void onBasicMessage(PredictionRequestMessage metricDataMessage) {
+
+        List<PredictionRequest> predictionRequests = metricDataMessage.getPredictionRequests();
+
+        engineDataReceiver.store(predictionRequests);
     }
 }

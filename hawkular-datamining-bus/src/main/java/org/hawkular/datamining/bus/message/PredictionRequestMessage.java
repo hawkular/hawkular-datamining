@@ -15,21 +15,33 @@
  * limitations under the License.
  */
 
-package org.hawkular.dataminig.api.model;
+package org.hawkular.datamining.bus.message;
+
+import java.util.List;
+
+import org.hawkular.bus.common.AbstractMessage;
+import org.hawkular.dataminig.api.model.PredictionRequest;
 
 /**
  * @author Pavol Loffay
  */
-public class MetricData extends TimeSeries {
+public class PredictionRequestMessage extends AbstractMessage {
 
-    private String id;
+    private List<PredictionRequest> predictionRequests;
 
-    public MetricData(String id, Double timestamp, Double value) {
-        super(value, timestamp);
-        this.id = id;
+
+    public PredictionRequestMessage() {
     }
 
-    public String getId() {
-        return id;
+    public PredictionRequestMessage(List<PredictionRequest> predictionRequests) {
+        this.predictionRequests = predictionRequests;
+    }
+
+    public List<PredictionRequest> getPredictionRequests() {
+        return predictionRequests;
+    }
+
+    public void setPredictionRequests(List<PredictionRequest> predictionRequests) {
+        this.predictionRequests = predictionRequests;
     }
 }

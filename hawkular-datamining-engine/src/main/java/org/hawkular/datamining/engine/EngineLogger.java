@@ -49,8 +49,8 @@ public interface EngineLogger extends BasicLogger {
     void dataListenerStopInfo();
 
     @LogMessage(level = Logger.Level.ERROR)
-    @Message(value = "Datamining engine data listener failed to start")
-    void dataListenerFailedStartError();
+    @Message(value = "Datamining engine data listener[%s] failed to start")
+    void dataListenerFailedStartError(String clazz);
 
     @LogMessage(level = Logger.Level.ERROR)
     @Message(value = "Datamining engine data listener failed to stop")

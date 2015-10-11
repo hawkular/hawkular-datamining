@@ -15,19 +15,37 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.bus.listener;
+package org.hawkular.dataminig.api.model;
 
-import org.hawkular.bus.common.consumer.BasicMessageListener;
-import org.hawkular.datamining.bus.BusLogger;
-import org.hawkular.datamining.bus.message.AvailDataMessage;
+import java.io.Serializable;
 
 /**
  * @author Pavol Loffay
  */
-public class AvailableDataListener extends BasicMessageListener<AvailDataMessage> {
+public class TimeSeries implements Serializable {
+
+    private Double value;
+    private Double timestamp;
+
+
+    public TimeSeries() {
+    }
+
+    public TimeSeries(Double value, Double timestamp) {
+        this.value = value;
+        this.timestamp = timestamp;
+    }
+
+    public Double getValue() {
+        return value;
+    }
+
+    public Double getTimestamp() {
+        return timestamp;
+    }
 
     @Override
-    protected void onBasicMessage(AvailDataMessage availDataMessage) {
-        BusLogger.LOGGER.debug(availDataMessage.toJSON());
+    public String toString() {
+        return this.getClass().getName() + " { value = " + value + " , timestamp=" + timestamp + " }";
     }
 }

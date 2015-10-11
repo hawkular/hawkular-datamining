@@ -18,6 +18,8 @@
 package org.hawkular.datamining.engine.receiver;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 import javax.jms.JMSException;
 
@@ -39,6 +41,7 @@ import org.hawkular.datamining.engine.EngineLogger;
 public class MetricDataReceiver extends Receiver<MetricData> implements EngineDataReceiver<MetricData> {
 
     private static final StorageLevel STORAGE_LEVEL = StorageLevel.MEMORY_ONLY();
+    double firstTimestamp = System.currentTimeMillis();
 
     private MetricDataListener metricDataListener;
     private ConsumerConnectionContext consumerConnectionContext;
@@ -65,7 +68,7 @@ public class MetricDataReceiver extends Receiver<MetricData> implements EngineDa
 
             EngineLogger.LOGGER.dataListenerStartInfo();
         } catch (JMSException e) {
-            EngineLogger.LOGGER.dataListenerFailedStartError();
+            EngineLogger.LOGGER.dataListenerFailedStartError(this.getClass().getCanonicalName());
         }
 
     }
@@ -82,6 +85,23 @@ public class MetricDataReceiver extends Receiver<MetricData> implements EngineDa
 
     @Override
     public void store(MetricData data) {
-        super.store(data);
+
+        MetricData modified = modifyData(data);
+
+        EngineLogger.LOGGER.debugf("metric data = " + modified.toString());
+        super.store(modified);
+    }
+
+    @Override
+    public void store(Collection<MetricData> data) {
+        Collection<MetricData> modified = data.stream().map(x -> modifyData(x)).collect(Collectors.toList());
+
+        super.store(modified.iterator());
+    }
+
+    private MetricData modifyData(MetricData input) {
+        Double timestamp = input.getTimestamp() - firstTimestamp;
+
+        return new MetricData(input.getId(), timestamp, input.getValue());
     }
 }

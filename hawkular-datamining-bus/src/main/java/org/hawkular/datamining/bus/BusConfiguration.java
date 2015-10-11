@@ -22,5 +22,9 @@ package org.hawkular.datamining.bus;
  */
 public class BusConfiguration {
     public static final String BROKER_URL = "tcp://localhost:62626";
+
     public static final String TOPIC_METRIC_DATA = "HawkularMetricData";
+    public static final String TOPIC_PREDICTION_REQUEST = "HawkularPredictionRequestTopic";
+
+    public static final String TOPIC_PREDICTION_RESULT = "HawkularPredictionResultTopic";
 }

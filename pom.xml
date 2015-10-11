@@ -43,8 +43,8 @@
   </modules>
 
   <properties>
-    <version.org.hawkular.bus>0.3.3.Final</version.org.hawkular.bus>
-    <versin.org.apache.spark>1.5.0</versin.org.apache.spark>
+    <version.org.hawkular.bus>0.7.0.Final</version.org.hawkular.bus>
+    <versin.org.apache.spark>1.5.1</versin.org.apache.spark>
     <version.org.jboss.logging>3.2.1.Final</version.org.jboss.logging>
     <version.org.jboss.logging.jboss-logging-tools>2.0.0.Final</version.org.jboss.logging.jboss-logging-tools>
     <verison.javax.enterprise.cdi-api>1.2</verison.javax.enterprise.cdi-api>

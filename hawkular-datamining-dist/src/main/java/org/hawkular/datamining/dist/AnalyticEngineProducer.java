@@ -26,11 +26,13 @@ import org.hawkular.dataminig.api.AnalyticEngine;
 import org.hawkular.datamining.bus.BusLogger;
 import org.hawkular.datamining.engine.SparkEngine;
 import org.hawkular.datamining.engine.receiver.MetricDataReceiver;
+import org.hawkular.datamining.engine.receiver.PredictionRequestReceiver;
 
 
 /**
  * @author Pavol Loffay
  */
+@Singleton
 public class AnalyticEngineProducer {
 
     private AnalyticEngine analyticEngine;
@@ -40,11 +42,13 @@ public class AnalyticEngineProducer {
     @Singleton
     public AnalyticEngine getAnalyticEngine() {
 
-//        StringDataReceiver streamingJMSReceiver = new StringDataReceiver();
         MetricDataReceiver metricDataReceiver = new MetricDataReceiver();
+        PredictionRequestReceiver predictionRequestReceiver = new PredictionRequestReceiver();
 
         try {
-            this.analyticEngine = new SparkEngine(metricDataReceiver);
+            SparkEngine sparkEngine = new SparkEngine(metricDataReceiver, predictionRequestReceiver);
+            this.analyticEngine = sparkEngine;
+
             this.analyticEngine.start();
 
         } catch (IOException ex)  {

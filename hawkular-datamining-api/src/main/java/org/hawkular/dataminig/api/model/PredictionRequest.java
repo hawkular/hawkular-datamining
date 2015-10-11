@@ -22,27 +22,49 @@ import java.io.Serializable;
 /**
  * @author Pavol Loffay
  */
-public abstract class AbstractTimeSeries implements Serializable {
+public class PredictionRequest implements Serializable {
 
-    private Double value;
+    private String requestId;
+
+    private String metricId;
     private Double timestamp;
 
 
-    public AbstractTimeSeries(Double value, Double timestamp) {
-        this.value = value;
+    public PredictionRequest() {
+    }
+
+    public PredictionRequest(String requestId, String metricId, Double timestamp) {
+        this.requestId = requestId;
+        this.metricId = metricId;
         this.timestamp = timestamp;
     }
 
-    public Double getValue() {
-        return value;
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
+    }
+
+    public String getMetricId() {
+        return metricId;
+    }
+
+    public void setMetricId(String metricId) {
+        this.metricId = metricId;
     }
 
     public Double getTimestamp() {
         return timestamp;
     }
 
+    public void setTimestamp(Double timestamp) {
+        this.timestamp = timestamp;
+    }
+
     @Override
     public String toString() {
-        return this.getClass().getName() + " { value = " + value + " , timestamp=" + timestamp + " }";
+        return "Prediction data [metricId=" + metricId + ", features=" + timestamp.toString() + "]";
     }
 }
