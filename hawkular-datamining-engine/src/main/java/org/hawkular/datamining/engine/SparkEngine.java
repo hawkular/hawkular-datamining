@@ -62,7 +62,7 @@ import scala.Tuple2;
 public class SparkEngine implements AnalyticEngine, Serializable {
 
     private static final double STEP_SIZE =  0.000000000001;
-    private static final int ITERATIONS = 100;
+    private static final int ITERATIONS = 20;
 
     private Receiver<MetricData> metricDataReceiver;
     private Receiver<PredictionRequest> predictionRequestReceiver;
@@ -107,6 +107,7 @@ public class SparkEngine implements AnalyticEngine, Serializable {
             Map<String, StreamingLinearRegressionWithSGD> modelInsideMethod = new HashMap<>();
 
             JavaDStream<MetricData> metricDataDStream = streamingContext.receiverStream(metricDataReceiver);
+            metricDataDStream.cache();
 
             JavaDStream<LabeledPoint> streamToTrainOn = metricDataDStream.map(metricData -> new LabeledPoint(metricData
                     .getValue(), Vectors.dense(metricData.getTimestamp())));
@@ -118,6 +119,7 @@ public class SparkEngine implements AnalyticEngine, Serializable {
             // predict
             JavaDStream<PredictionRequest> predictionRequestDStream =
                     streamingContext.receiverStream(predictionRequestReceiver);
+            predictionRequestDStream.cache();
 
             JavaDStream<Vector> streamToPredict = predictionRequestDStream.map(request ->
                 Vectors.dense(request.getTimestamp()));

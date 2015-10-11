@@ -18,6 +18,7 @@
 package org.hawkular.datamining.rest;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -29,6 +30,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
+import javax.ws.rs.container.TimeoutHandler;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -45,6 +47,7 @@ import org.hawkular.datamining.bus.sender.PredictionsRequestSender;
 @Produces(MediaType.APPLICATION_JSON)
 public class RestPredictions {
 
+    private static final int REQUEST_TIMEOUT = 20;
     private static Double counter = 0.0;
 
     @Inject
@@ -63,6 +66,14 @@ public class RestPredictions {
         if (timestamps.isEmpty()) {
             return Response.status(Response.Status.OK).build();
         }
+        asyncResponse.setTimeoutHandler(new TimeoutHandler() {
+            @Override
+            public void handleTimeout(AsyncResponse asyncResponse) {
+                asyncResponse.resume(Response.status(Response.Status.SERVICE_UNAVAILABLE).build());
+            }
+        });
+        asyncResponse.setTimeout(REQUEST_TIMEOUT, TimeUnit.SECONDS);
+
 
         String predictionRequestId = String.valueOf(counter++);
 
@@ -82,7 +93,7 @@ public class RestPredictions {
                 // todo get by requestID
                 while ((result = predictionResultListener.cache.get(predictionRequestId)) == null) {
                     try {
-                        Thread.sleep(100);
+                        Thread.sleep(1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
