@@ -18,6 +18,8 @@
 package org.hawkular.datamining.engine.receiver;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 import javax.jms.JMSException;
 
@@ -88,6 +90,13 @@ public class MetricDataReceiver extends Receiver<MetricData> implements EngineDa
 
         EngineLogger.LOGGER.debugf("metric data = " + modified.toString());
         super.store(modified);
+    }
+
+    @Override
+    public void store(Collection<MetricData> data) {
+        Collection<MetricData> modified = data.stream().map(x -> modifyData(x)).collect(Collectors.toList());
+
+        super.store(modified.iterator());
     }
 
     private MetricData modifyData(MetricData input) {

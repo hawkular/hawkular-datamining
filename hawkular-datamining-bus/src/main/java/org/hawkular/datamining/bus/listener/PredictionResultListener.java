@@ -39,8 +39,8 @@ import org.hawkular.datamining.bus.message.PredictionResultMessage;
 @Singleton
 public class PredictionResultListener extends BasicMessageListener<PredictionResultMessage> {
 
-
     public Map<String, PredictionResult> cache = new ConcurrentHashMap<>();
+
 
     public PredictionResultListener() {
         try {
@@ -62,6 +62,6 @@ public class PredictionResultListener extends BasicMessageListener<PredictionRes
         BusLogger.LOGGER.debugf("Result received for metric %s", resultMessage.getPredictionResult().getMetricId());
 
         PredictionResult predictionResult = resultMessage.getPredictionResult();
-        cache.put(predictionResult.getMetricId(), predictionResult);
+        cache.put(predictionResult.getRequestId(), predictionResult);
     }
 }

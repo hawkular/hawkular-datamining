@@ -17,6 +17,8 @@
 
 package org.hawkular.datamining.bus.message;
 
+import java.util.List;
+
 import org.hawkular.bus.common.AbstractMessage;
 import org.hawkular.dataminig.api.model.PredictionRequest;
 
@@ -25,21 +27,21 @@ import org.hawkular.dataminig.api.model.PredictionRequest;
  */
 public class PredictionRequestMessage extends AbstractMessage {
 
-    private PredictionRequest predictionRequest;
+    private List<PredictionRequest> predictionRequests;
 
 
     public PredictionRequestMessage() {
     }
 
-    public PredictionRequestMessage(PredictionRequest predictionRequest) {
-        this.predictionRequest = predictionRequest;
+    public PredictionRequestMessage(List<PredictionRequest> predictionRequests) {
+        this.predictionRequests = predictionRequests;
     }
 
-    public PredictionRequest getPredictionRequest() {
-        return predictionRequest;
+    public List<PredictionRequest> getPredictionRequests() {
+        return predictionRequests;
     }
 
-    public void setPredictionRequest(PredictionRequest predictionRequest) {
-        this.predictionRequest = predictionRequest;
+    public void setPredictionRequests(List<PredictionRequest> predictionRequests) {
+        this.predictionRequests = predictionRequests;
     }
 }

@@ -25,6 +25,7 @@ import java.util.List;
  */
 public class PredictionResult {
 
+    private String requestId;
     private String metricId;
     private List<TimeSeries> points = new ArrayList<>();
 
@@ -32,12 +33,21 @@ public class PredictionResult {
     public PredictionResult() {
     }
 
-    public PredictionResult(String metricId, List<TimeSeries> points) {
+    public PredictionResult(String requestId, String metricId, List<TimeSeries> points) {
+        this.requestId = requestId;
         this.metricId = metricId;
         this.points = points;
     }
 
-    public void addTimeSerie(TimeSeries timeSeries) {
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
+    }
+
+    public void addTimeSeries(TimeSeries timeSeries) {
         points.add(timeSeries);
     }
 

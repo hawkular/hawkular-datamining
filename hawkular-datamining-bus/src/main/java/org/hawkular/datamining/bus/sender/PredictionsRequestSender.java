@@ -17,6 +17,8 @@
 
 package org.hawkular.datamining.bus.sender;
 
+import java.util.List;
+
 import javax.inject.Singleton;
 import javax.jms.JMSException;
 
@@ -42,9 +44,9 @@ public class PredictionsRequestSender {
         this.messageProcessor = new MessageProcessor();
     }
 
-    public void send(PredictionRequest predictionRequest) {
+    public void send(List<PredictionRequest> predictionRequests) {
 
-        PredictionRequestMessage message = new PredictionRequestMessage(predictionRequest);
+        PredictionRequestMessage message = new PredictionRequestMessage(predictionRequests);
 
         try (ConnectionContextFactory ccf = new ConnectionContextFactory(BusConfiguration.BROKER_URL)) {
 

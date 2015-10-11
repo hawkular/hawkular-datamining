@@ -18,6 +18,7 @@
 package org.hawkular.datamining.rest;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -44,6 +45,8 @@ import org.hawkular.datamining.bus.sender.PredictionsRequestSender;
 @Produces(MediaType.APPLICATION_JSON)
 public class RestPredictions {
 
+    private static Double counter = 0.0;
+
     @Inject
     private PredictionsRequestSender predictionsRequestSender;
 
@@ -55,19 +58,29 @@ public class RestPredictions {
     @Path("/predictions/{metricId}")
     public Response predict(@Suspended final AsyncResponse asyncResponse,
                             @PathParam("metricId") String metricId,
-                            @QueryParam("feature") List<Double> features) {
+                            @QueryParam("timestamp") List<Double> timestamps) {
 
-        features.forEach(x -> RestLogger.LOGGER.debugf("label -> ", x));
+        if (timestamps.isEmpty()) {
+            return Response.status(Response.Status.OK).build();
+        }
 
-        PredictionRequest predictionRequest = new PredictionRequest(metricId, features);
+        String predictionRequestId = String.valueOf(counter++);
 
+        // send prediction requests to engine
+        List<PredictionRequest> predictionRequests = timestamps.stream().map(timestamp -> {
+            return new PredictionRequest(predictionRequestId, metricId, timestamp);
+        }).collect(Collectors.toList());
+
+
+        // get predictions
         new Thread(new Runnable() {
             @Override
             public void run() {
-                predictionsRequestSender.send(predictionRequest);
+                predictionsRequestSender.send(predictionRequests);
 
                 PredictionResult result;
-                while ((result = predictionResultListener.cache.get(metricId)) == null) {
+                // todo get by requestID
+                while ((result = predictionResultListener.cache.get(predictionRequestId)) == null) {
                     try {
                         Thread.sleep(100);
                     } catch (InterruptedException e) {
@@ -75,7 +88,7 @@ public class RestPredictions {
                     }
                 }
 
-                predictionResultListener.cache.remove(metricId);
+                predictionResultListener.cache.remove(predictionRequestId);
                 asyncResponse.resume(result);
             }
         }).start();

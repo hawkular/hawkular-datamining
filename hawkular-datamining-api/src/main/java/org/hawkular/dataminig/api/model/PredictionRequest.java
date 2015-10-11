@@ -18,44 +18,53 @@
 package org.hawkular.dataminig.api.model;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author Pavol Loffay
  */
 public class PredictionRequest implements Serializable {
 
+    private String requestId;
+
     private String metricId;
-    private List<Double> features;
+    private Double timestamp;
 
 
     public PredictionRequest() {
     }
 
-    public PredictionRequest(String metricId, List<Double> features) {
+    public PredictionRequest(String requestId, String metricId, Double timestamp) {
+        this.requestId = requestId;
         this.metricId = metricId;
-        this.features = features != null ? features : Collections.EMPTY_LIST;
+        this.timestamp = timestamp;
+    }
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
     }
 
     public String getMetricId() {
         return metricId;
     }
 
-    public List<Double> getFeatures() {
-        return features;
-    }
-
     public void setMetricId(String metricId) {
         this.metricId = metricId;
     }
 
-    public void setFeatures(List<Double> features) {
-        this.features = features;
+    public Double getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Double timestamp) {
+        this.timestamp = timestamp;
     }
 
     @Override
     public String toString() {
-        return "Prediction data [metricId=" + metricId + ", features=" + features.toString() + "]";
+        return "Prediction data [metricId=" + metricId + ", features=" + timestamp.toString() + "]";
     }
 }

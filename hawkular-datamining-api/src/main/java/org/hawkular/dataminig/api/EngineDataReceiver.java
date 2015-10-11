@@ -18,6 +18,7 @@
 package org.hawkular.dataminig.api;
 
 import java.io.Serializable;
+import java.util.Collection;
 
 /**
  * @author Pavol Loffay
@@ -25,4 +26,5 @@ import java.io.Serializable;
 public interface EngineDataReceiver<T extends Serializable> {
 
     void store(T data);
+    void store(Collection<T> data);
 }

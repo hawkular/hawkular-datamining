@@ -17,6 +17,8 @@
 
 package org.hawkular.datamining.engine.receiver;
 
+import java.util.Collection;
+
 import javax.jms.JMSException;
 
 import org.apache.spark.storage.StorageLevel;
@@ -42,6 +44,7 @@ public class PredictionRequestReceiver extends Receiver<PredictionRequest>
     private PredictionRequestListener predictionRequestListener;
     private ConsumerConnectionContext consumerConnectionContext;
 
+
     public PredictionRequestReceiver() {
         super(storageLevel);
     }
@@ -54,6 +57,11 @@ public class PredictionRequestReceiver extends Receiver<PredictionRequest>
     @Override
     public void store(PredictionRequest data) {
         super.store(data);
+    }
+
+    @Override
+    public void store(Collection<PredictionRequest> data) {
+        super.store(data.iterator());
     }
 
     @Override

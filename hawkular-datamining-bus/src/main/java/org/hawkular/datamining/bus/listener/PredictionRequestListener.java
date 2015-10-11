@@ -17,6 +17,8 @@
 
 package org.hawkular.datamining.bus.listener;
 
+import java.util.List;
+
 import org.hawkular.bus.common.consumer.BasicMessageListener;
 import org.hawkular.dataminig.api.EngineDataReceiver;
 import org.hawkular.dataminig.api.model.PredictionRequest;
@@ -37,8 +39,8 @@ public class PredictionRequestListener extends BasicMessageListener<PredictionRe
     @Override
     protected void onBasicMessage(PredictionRequestMessage metricDataMessage) {
 
-        PredictionRequest predictionRequest = metricDataMessage.getPredictionRequest();
+        List<PredictionRequest> predictionRequests = metricDataMessage.getPredictionRequests();
 
-        engineDataReceiver.store(predictionRequest);
+        engineDataReceiver.store(predictionRequests);
     }
 }

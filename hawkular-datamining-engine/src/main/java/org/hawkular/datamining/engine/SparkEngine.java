@@ -20,9 +20,7 @@ package org.hawkular.datamining.engine;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.jms.JMSException;
@@ -121,33 +119,20 @@ public class SparkEngine implements AnalyticEngine, Serializable {
             JavaDStream<PredictionRequest> predictionRequestDStream =
                     streamingContext.receiverStream(predictionRequestReceiver);
 
-            JavaDStream<Vector> streamToPredict = predictionRequestDStream.flatMap(request -> {
-
-                List<Vector> timestamps = new ArrayList<Vector>();
-                for (Double x : request.getFeatures()) {
-                    timestamps.add(Vectors.dense(x));
-                }
-                return timestamps;
-            });
+            JavaDStream<Vector> streamToPredict = predictionRequestDStream.map(request ->
+                Vectors.dense(request.getTimestamp()));
 
             JavaDStream<Double> predictedValues = regressionWithSGD.predictOn(streamToPredict);
 
             /**
              * tuples
              */
-            JavaPairDStream<String, Vector> streamToPredictTuple = predictionRequestDStream.flatMapToPair(request -> {
-                List<Tuple2<String, Vector>> idTimestamp = new ArrayList<>();
-                for (Double x : request.getFeatures()) {
-                    Tuple2<String, Vector> idVector = new Tuple2<String, Vector>(request.getMetricId(),
-                            Vectors.dense(x));
-                    idTimestamp.add(idVector);
-                }
-
-                return idTimestamp;
-            });
-            JavaPairDStream<String, Double> predictedValuesTupes =
+            JavaPairDStream<PredictionRequest, Vector> streamToPredictTuple =
+                    predictionRequestDStream.mapToPair(request -> {
+                        return new Tuple2<PredictionRequest, Vector>(request, Vectors.dense(request.getTimestamp()));
+                    });
+            JavaPairDStream<PredictionRequest, Double> predictedValuesTupes =
                     regressionWithSGD.predictOnValues(streamToPredictTuple);
-
 
             /**
              * Predicted values output
@@ -158,6 +143,9 @@ public class SparkEngine implements AnalyticEngine, Serializable {
                 });
                 return null;
             });
+            /**
+             * Predicted tuples output
+             */
             predictedValuesTupes.foreach(rdd -> {
 
                 rdd.foreachPartition(partitionOfRecord -> {
@@ -165,16 +153,16 @@ public class SparkEngine implements AnalyticEngine, Serializable {
                     // create respond message
                     PredictionResult predictionResult = new PredictionResult();
                     partitionOfRecord.forEachRemaining(tuple -> {
-                        //send data to bus
-                        tuple._1();
-                        tuple._2();
+                        PredictionRequest predictionRequest = tuple._1();
+                        Double result = tuple._2();
 
-                        predictionResult.setMetricId(tuple._1());
-                        TimeSeries timeSeries = new TimeSeries(tuple._2(), 0.0);
-                        predictionResult.addTimeSerie(timeSeries);
+                        TimeSeries timeSeries = new TimeSeries(tuple._2(), tuple._1().getTimestamp());
+
+                        // TODO this repeats
+                        predictionResult.setMetricId(predictionRequest.getMetricId());
+                        predictionResult.setRequestId(predictionRequest.getRequestId());
+                        predictionResult.addTimeSeries(timeSeries);
                     });
-
-
 
                     /**
                      * Send message
