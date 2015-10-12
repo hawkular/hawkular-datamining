@@ -7,10 +7,9 @@ jdk:
 # see http://docs.travis-ci.com/user/workers/container-based-infrastructure/
 sudo: false
 
-#cache:
-#  directories:
-#  - $HOME/.m2
-#
+cache:
+  directories:
+  - $HOME/.m2
 
 install:
-- mvn -fae clean install
+- mvn -faes .travis.maven.settings.xml clean install
