@@ -34,6 +34,10 @@ public class PredictionRequestMessage extends AbstractMessage {
     }
 
     public PredictionRequestMessage(List<PredictionRequest> predictionRequests) {
+        if (predictionRequests == null || predictionRequests.isEmpty()) {
+            throw new IllegalArgumentException("There are no points to predict");
+        }
+
         this.predictionRequests = predictionRequests;
     }
 
@@ -42,6 +46,10 @@ public class PredictionRequestMessage extends AbstractMessage {
     }
 
     public void setPredictionRequests(List<PredictionRequest> predictionRequests) {
+        if (predictionRequests == null || predictionRequests.isEmpty()) {
+            throw new IllegalArgumentException("There should be prediction requests");
+        }
+
         this.predictionRequests = predictionRequests;
     }
 }

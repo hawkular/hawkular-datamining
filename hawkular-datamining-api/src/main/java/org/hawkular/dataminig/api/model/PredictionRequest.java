@@ -34,6 +34,10 @@ public class PredictionRequest implements Serializable {
     }
 
     public PredictionRequest(String requestId, String metricId, Double timestamp) {
+        if (timestamp == null) {
+            throw new IllegalArgumentException("Timestamp shouldn't be null");
+        }
+
         this.requestId = requestId;
         this.metricId = metricId;
         this.timestamp = timestamp;
