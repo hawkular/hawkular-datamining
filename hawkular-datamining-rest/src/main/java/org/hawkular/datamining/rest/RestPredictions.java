@@ -63,9 +63,6 @@ public class RestPredictions {
                             @PathParam("metricId") String metricId,
                             @QueryParam("timestamp") List<Double> timestamps) {
 
-        if (timestamps.isEmpty()) {
-            return Response.status(Response.Status.OK).build();
-        }
         asyncResponse.setTimeoutHandler(new TimeoutHandler() {
             @Override
             public void handleTimeout(AsyncResponse asyncResponse) {
@@ -82,12 +79,12 @@ public class RestPredictions {
             return new PredictionRequest(predictionRequestId, metricId, timestamp);
         }).collect(Collectors.toList());
 
+        predictionsRequestSender.send(predictionRequests);
 
         // get predictions
         new Thread(new Runnable() {
             @Override
             public void run() {
-                predictionsRequestSender.send(predictionRequests);
 
                 PredictionResult result;
                 // todo get by requestID
@@ -101,6 +98,8 @@ public class RestPredictions {
 
                 predictionResultListener.cache.remove(predictionRequestId);
                 asyncResponse.resume(result);
+
+
             }
         }).start();
 
