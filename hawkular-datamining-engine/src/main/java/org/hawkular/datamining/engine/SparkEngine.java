@@ -25,8 +25,6 @@ import java.util.Map;
 
 import javax.jms.JMSException;
 
-import org.apache.spark.api.java.function.Function;
-import org.apache.spark.ml.ann.ANNUpdater;
 import org.apache.spark.mllib.linalg.Vector;
 import org.apache.spark.mllib.linalg.Vectors;
 import org.apache.spark.mllib.regression.LabeledPoint;
@@ -61,7 +59,7 @@ import scala.Tuple2;
  */
 public class SparkEngine implements AnalyticEngine, Serializable {
 
-    private static final double STEP_SIZE =  0.000000000001;
+    private static final double STEP_SIZE =   0.0000000000000000000000005;
     private static final int ITERATIONS = 20;
 
     private Receiver<MetricData> metricDataReceiver;
@@ -126,6 +124,8 @@ public class SparkEngine implements AnalyticEngine, Serializable {
 
             JavaDStream<Double> predictedValues = regressionWithSGD.predictOn(streamToPredict);
 
+//            RidgeRegressionWithSGD
+
             /**
              * tuples
              */
@@ -156,14 +156,13 @@ public class SparkEngine implements AnalyticEngine, Serializable {
                     PredictionResult predictionResult = new PredictionResult();
                     partitionOfRecord.forEachRemaining(tuple -> {
                         PredictionRequest predictionRequest = tuple._1();
-                        Double result = tuple._2();
 
                         TimeSeries timeSeries = new TimeSeries(tuple._2(), tuple._1().getTimestamp());
 
                         // TODO this repeats
                         predictionResult.setMetricId(predictionRequest.getMetricId());
                         predictionResult.setRequestId(predictionRequest.getRequestId());
-                        predictionResult.addTimeSeries(timeSeries);
+                        predictionResult.addPoint(timeSeries);
                     });
 
                     /**
@@ -195,23 +194,18 @@ public class SparkEngine implements AnalyticEngine, Serializable {
             EngineLogger.LOGGER.debug("\n\n\n\n\nStreaming job stopped\n\n\n\n\n");
         }
 
-        private JavaDStream<MetricData> a(JavaDStream<MetricData> stream, MetricData metricData) {
-
-            final Function<MetricData, Boolean> p = x -> x.getId().equals(metricData.getId());
-            JavaDStream<MetricData> XX = stream.filter(p);
-
-            return XX;
-        }
-
-
-
         public StreamingLinearRegressionWithSGD getNewModel() {
             StreamingLinearRegressionWithSGD model = new StreamingLinearRegressionWithSGD()
                     .setInitialWeights(Vectors.zeros(1));
 
             model.algorithm().optimizer().setNumIterations(ITERATIONS);
             model.algorithm().optimizer().setStepSize(STEP_SIZE);
-            model.algorithm().optimizer().setUpdater(new ANNUpdater());
+            model.algorithm().setIntercept(true);
+//            model.algorithm().optimizer().setUpdater(new L1Updater());
+//            model.algorithm().optimizer().setUpdater(new SimpleUpdater());
+//            model.algorithm().optimizer().setUpdater(new ANNUpdater());
+//            model.algorithm().optimizer().setUpdater(new ANNUpdater());
+//            model.algorithm().setFeatureScaling(true); // when I set it there is always point (0, 0)
 
             return model;
         }

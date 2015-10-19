@@ -47,7 +47,7 @@ public class PredictionResult {
         this.requestId = requestId;
     }
 
-    public void addTimeSeries(TimeSeries timeSeries) {
+    public void addPoint(TimeSeries timeSeries) {
         points.add(timeSeries);
     }
 
