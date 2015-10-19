@@ -17,6 +17,7 @@
 
 package org.hawkular.datamining.rest;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -36,8 +37,10 @@ import javax.ws.rs.core.Response;
 
 import org.hawkular.dataminig.api.model.PredictionRequest;
 import org.hawkular.dataminig.api.model.PredictionResult;
+import org.hawkular.dataminig.api.model.TimeSeries;
 import org.hawkular.datamining.bus.listener.PredictionResultListener;
 import org.hawkular.datamining.bus.sender.PredictionsRequestSender;
+import org.hawkular.datamining.engine.receiver.MetricDataReceiver;
 
 /**
  * @author Pavol Loffay
@@ -97,9 +100,16 @@ public class RestPredictions {
                 }
 
                 predictionResultListener.cache.remove(predictionRequestId);
+                List<TimeSeries> predictionResults = result.getPoints();
+                List<TimeSeries> resultModifiedTimestamps = new ArrayList<TimeSeries>(predictionResults.size());
+                resultModifiedTimestamps.addAll(predictionResults.stream()
+                        .map(timeSeries ->
+                                new TimeSeries(timeSeries.getValue(),
+                                               timeSeries.getTimestamp() + MetricDataReceiver.firstTimestamp))
+                        .collect(Collectors.toList()));
+
+                result.setPoints(resultModifiedTimestamps);
                 asyncResponse.resume(result);
-
-
             }
         }).start();
 

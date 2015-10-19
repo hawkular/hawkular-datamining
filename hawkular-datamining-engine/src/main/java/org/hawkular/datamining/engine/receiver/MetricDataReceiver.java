@@ -19,6 +19,7 @@ package org.hawkular.datamining.engine.receiver;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.jms.JMSException;
@@ -41,7 +42,9 @@ import org.hawkular.datamining.engine.EngineLogger;
 public class MetricDataReceiver extends Receiver<MetricData> implements EngineDataReceiver<MetricData> {
 
     private static final StorageLevel STORAGE_LEVEL = StorageLevel.MEMORY_ONLY();
-    double firstTimestamp = System.currentTimeMillis();
+
+//    public static final double firstTimestamp = System.currentTimeMillis() - 1000 * 60 * 60 * 24 * 7;
+    public static final double firstTimestamp = 0;
 
     private MetricDataListener metricDataListener;
     private ConsumerConnectionContext consumerConnectionContext;
@@ -66,6 +69,8 @@ public class MetricDataReceiver extends Receiver<MetricData> implements EngineDa
             this.metricDataListener = new MetricDataListener(this);
             processor.listen(consumerConnectionContext, metricDataListener);
 
+            batchLoadMetrics();
+
             EngineLogger.LOGGER.dataListenerStartInfo();
         } catch (JMSException e) {
             EngineLogger.LOGGER.dataListenerFailedStartError(this.getClass().getCanonicalName());
@@ -88,7 +93,8 @@ public class MetricDataReceiver extends Receiver<MetricData> implements EngineDa
 
         MetricData modified = modifyData(data);
 
-        EngineLogger.LOGGER.debugf("metric data = " + modified.toString());
+        EngineLogger.LOGGER.debugf("Original metric data = " + data.toString());
+        EngineLogger.LOGGER.debugf("Modified metric data = " + modified.toString());
         super.store(modified);
     }
 
@@ -100,8 +106,15 @@ public class MetricDataReceiver extends Receiver<MetricData> implements EngineDa
     }
 
     private MetricData modifyData(MetricData input) {
-        Double timestamp = input.getTimestamp() - firstTimestamp;
+        return new MetricData(input.getId(), input.getTimestamp() - firstTimestamp, input.getValue());
+    }
 
-        return new MetricData(input.getId(), timestamp, input.getValue());
+    private void batchLoadMetrics() {
+        BatchMetricsLoader batchLoader =
+                new BatchMetricsLoader("MI~R~[dhcp130-144~Local~~]~MT~WildFly Memory Metrics~Heap Used");
+
+        List<MetricData> oldMetrics = batchLoader.load();
+
+        store(oldMetrics);
     }
 }

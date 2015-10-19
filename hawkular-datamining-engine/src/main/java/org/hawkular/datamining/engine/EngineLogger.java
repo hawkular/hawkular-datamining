@@ -31,7 +31,6 @@ public interface EngineLogger extends BasicLogger {
 
     EngineLogger LOGGER = Logger.getMessageLogger(EngineLogger.class, "org.hawkular.datamining.engine");
 
-
     @LogMessage(level = Logger.Level.INFO)
     @Message(value = "Datamining engine successfully started")
     void engineStartInfo();
@@ -59,4 +58,8 @@ public interface EngineLogger extends BasicLogger {
     @LogMessage(level = Logger.Level.INFO)
     @Message(value = "Jackson Databind version: %s, should be 2.4.4")
     void jacksonDatabindVersion(String message);
+
+    @LogMessage(level = Logger.Level.ERROR)
+    @Message(value = "Metrics batch loading failed %s")
+    void batchLoadingfailed(String exMessage);
 }

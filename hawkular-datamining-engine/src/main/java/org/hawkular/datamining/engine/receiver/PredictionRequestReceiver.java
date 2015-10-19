@@ -18,6 +18,7 @@
 package org.hawkular.datamining.engine.receiver;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 import javax.jms.JMSException;
 
@@ -56,12 +57,20 @@ public class PredictionRequestReceiver extends Receiver<PredictionRequest>
 
     @Override
     public void store(PredictionRequest data) {
-        super.store(data);
+//        super.store(data);
+        super.store(modifyRequest(data));
     }
 
     @Override
     public void store(Collection<PredictionRequest> data) {
-        super.store(data.iterator());
+
+        super.store(data.stream().map(x -> modifyRequest(x)).collect(Collectors.toList()).iterator());
+//        super.store(data.iterator());
+    }
+
+    private PredictionRequest modifyRequest(PredictionRequest original) {
+        return new PredictionRequest(original.getRequestId(), original.getMetricId(), original.getTimestamp() -
+                MetricDataReceiver.firstTimestamp);
     }
 
     @Override
