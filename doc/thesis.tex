@@ -13,7 +13,7 @@
 \usepackage{blindtext}            % Lorem ipsum generator
 
 
-\thesistitle{Data minig} % enter thesis title  
+\thesistitle{Alert prediction in metric data based on machine learning methods} % enter thesis title  
 \thesissubtitle{Master thesis}  
 \thesisstudent{Pavol Loffay}    % name of the author  
 \thesiswoman{false}          % defines author’s gender  
@@ -31,15 +31,18 @@
 \end{ThesisDeclaration}
 
 \begin{ThesisThanks}            % The acknowledgements (optional)
-  I would like to thank my supervisor\,\dots
+  I would like to thank my supervisor Jiri Kremser, family and 
+  the people from Hawkular team.
 \end{ThesisThanks}
 
 \begin{ThesisAbstract}          % The abstract
-  The aim of the master work is to provide\,\dots
+  The aim of the master thesis was to develop a module for open source monitoring
+  and management platform Hawkular. This module is responsible for predicting
+  alerts based on time series. 
 \end{ThesisAbstract}
 
 \begin{ThesisKeyWords}          % The keywords
-  TODO\,\dots
+  Time Series, Hawkular, Alert Prediction, ARIMA, Apache Spark.
 \end{ThesisKeyWords}
 
 \tableofcontents                % The table of contents
@@ -47,9 +50,7 @@
 %   \listoffigures                  % The list of figures (optional)
 
 \MainMatter                     % The main matter
-\chapter{Introduction}          % Chapters
-TODO \cite{rfc_owamp}
-
+\input{content}
     
 % Bibliography goes here
 % Index goes here (optional)

@@ -1,3 +1,7 @@
 **/target
 *.iml
 **/.idea
+
+**/*.swp
+**/*-swp
+**/*_autosave

@@ -138,6 +138,7 @@
             <exclude>**/*.adoc</exclude>
             <exclude>**/*.txt</exclude>
             <exclude>*.sh</exclude>
+            <exclude>R/**</exclude>
           </excludes>
         </configuration>
       </plugin>
