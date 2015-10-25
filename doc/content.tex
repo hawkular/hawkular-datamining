@@ -1,33 +1,135 @@
 % Author: Pavol Loffay
-% Project: Master thesis - Hawkular alrt prediction
+% Project: Master thesis - Hawkular alert prediction
 % Date 20.2.2015
 
 \chapter{Introduction} 
-Alert prediction is very important because it can predict states of a system in
-advance.  
+Alert prediction is very important because it can predict critical states of a system in
+advance. It gives system administrators powerful feature to reduce downtime and
+of course ability to use all of the available resources in the system. 
 
 \section{Context}
-Implementation part of the master thesis developer as part of the project
-Hawkular, therefore it affects application architecture, used technologies and
-also used methods of forecasting.
+Implementation part of the master thesis is developed as part of the project
+Hawkular\footnote{Available at \url{http://www.hawkular.org}}. 
+Therefore application architecture and used technologies had to fit 
+in the overall project architecture.
 
-Project Hawkular is open source monitoring and management platform mainly
-developed by Red Hat. This application is designed to monitor Java middleware 
-like Wildfly, Apache Tomcat. For instance it can monitor heap usage, web
-sessions, used data sources \dots
+Hawkular is open source monitoring and management platform mainly
+developed by company Red Hat. It is successor of very successful RHQ
+project\footnote{Available at \url{https://rhq-project.github.io/rhq/}}.
+This application is designed to monitor Java middleware 
+like Wildfly and Apache Tomcat. For instance it can monitor heap usage, web
+sessions, used data sources etc.
 
 \section{Goals}
 The main goal of the application is to provide users with reliable predictions
-of alerts for the set of collected metrics. Displaying of forecast is also
-available in the user interface. This feature can help system administrators
-help in advance to react events like running out of memory.
+of alerts for the set of collected metrics. Displaying of forecast is also very
+important and should be available in the user interface. This feature can help 
+system administrators react on events like running out of memory well
+in advance.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 \chapter{Time Series Analysis}
+In this chapter are discussed various approaches for forecasting time series and
+also relevant theory which is helpful for understanding them.
+Methods are ordered from simpler to more complex. 
 
+In the early part of the thesis
+development system R was used to quickly show the results of forecasting and
+better understanding metric data by plotting them. 
+
+Firstly it is important to define time series; it is sequence of observations
+$ s_t \in \mathbb{R} $ usually ordered in time. In this thesis are used only
+discrete univariate time series. 
+
+Forecasting is a process of making prediction of the future based 
+on the past. In other words forecasting is possible because  
+future depends on the past or analogously because there is a relationship
+between the future and the past. However this relation is not deterministic and 
+can be hardly written in an analytical form.
+
+
+There are two forecasting types: qualitative and quantitative.
+Qualitative methods are mainly based on the opinion of the subject and are used 
+when past data are not available, hence not suitable for this project. 
+When there are past data available quantitative forecasting methods can be used. 
+
+\section{Simple quantitative methods}
+
+There are three simple forecasting methods:
+\begin{itemize}
+    \item Average method\,--\,forecasts are equal to the value of the mean of
+        historical data 
+        $$ \hat{y}_{T+h|T} = \overline{y} = (y_{1}+ \dots + y_{T}) / T $$
+    \item Na\"{i}ve method\,--\,forecasts are equal to the last observed value
+        $$ \hat{y}_{T+h|T} = y_{T} $$ 
+    \item Drift method\,--\,variation of na\"{i}ve method which allow the
+        forecasts to increase or decrease over time
+        $$ \hat{y}_{T+h|T} = y_{T} + \frac{h}{T-1} \sum_{t=2}^T{y_{t} - y_{t-1}} = 
+        y_{T} + h(\frac{y_{T}-y_{1}}{T-1}) $$
+\end{itemize}
+There in also seasonal variant of na\"{i}ve method. This method is suitable only
+for highly seasonal data. Forecast is simply equal to last observed value from
+the previous season.
+
+\section{Time series decomposition}
+In the time series can be seen various patterns. It is crucial to categorize
+some of them. These patters are useful to split into several components 
+each representing one of the underlying categories of pattern.
+
+Basic patterns are trend, seasonality, cycle and irregular component. 
+
+\begin{itemize}
+    \item \textbf{Trend $ T_{t} $}\,--\,exists if there is long term increase or decrease over
+        time. Can be linear or nonlinear (e.g. exponential growth)
+    \item \textbf{Seasonal $ S_{t} $}\,--\,exists when a series is influenced by seasonal factors.
+        Seasonality is always of fixed and known period.
+    \item \textbf{Cyclic $ C_{t} $}\,--\,exists it there long term wave\,--\,like patterns.
+        Unlike trend waves are not of fixed period.
+    \item \textbf{Irregular $ N_{t} $}\,--\,unpredictable random value
+\end{itemize}
+
+Decomposition can be in many forms for instance two of them are additive or multiplicative model.
+\begin{eqnarray}
+    y_{t} = T_{t} + S_{t} + C_{t} + N_{t} \\
+    y_{t} = T_{t} \times S_{t} \times C_{t} \times N_{t} 
+\end{eqnarray}
+
+
+\section{Averaging and smoothing models}
+
+\section{Linear Regression}
+
+\section{ARIMA}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\chapter{Used Forecasting Techniques}
+In the previous chapter several methods for forecasting were discussed, however
+in our system only a few of them were selected and implemented.
+
+\section{Metrics in Hawkular}
+In Hawkular there are three types of metrics: gauge, counter and availability. 
+All of them are univariate metrics of structure $ \{timestamp, value\} $.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 \chapter{Design and Implementation}
 \section{Architecture}
-\scalebox{0.5}{\includegraphics{img/architecture.png}}
+As was sad module was developed as module of Hawkular project, therefore was
+important to follow architecture of whole application. Alert prediction module
+was developed as standalone web application in Java language. Communication with
+other modules was accomplished through Java Message Service and REST calls. 
 
+Following diagram \ref{img_arch} shows how this module fits to Hawkular application.
+Almost all of the modules are developed separately and can work without each
+other. However this module is depended on metrics module and alerts. 
+\begin{figure}[H]
+    \begin{center}
+        %TODO change to UML component diagram
+        \scalebox{0.5}{\includegraphics{img/architecture.png}} 
+        \caption{Architecture}
+        \label{img_arch}
+    \end{center}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 \chapter{Conclusion}
 \cite{rfc_owamp} %TODO remove
 

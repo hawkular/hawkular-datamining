@@ -1,5 +1,5 @@
 % Author: Pavol Loffay
-% Project: Master thesis - Hawkular alrt prediction
+% Project: Master thesis - Hawkular alert prediction
 % Date 20.2.2015
 
 \documentclass[12pt,oneside]{fithesis2}
@@ -10,8 +10,18 @@
 \usepackage[scaled=0.86]{berasans}
 \usepackage[scaled=1.03]{inconsolata}
 \usepackage[plainpages = false,pdfpagelabels]{hyperref}
-\usepackage{blindtext}            % Lorem ipsum generator
 
+% my declared packages
+% Images
+\usepackage{graphicx}
+\usepackage{float} 
+% Math
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{amsmath}
+% Url
+\usepackage{url}
+\DeclareUrlCommand\url{\def\UrlLeft{<}\def\UrlRight{>} \urlstyle{tt}}
 
 \thesistitle{Alert prediction in metric data based on machine learning methods} % enter thesis title  
 \thesissubtitle{Master thesis}  
@@ -42,7 +52,7 @@
 \end{ThesisAbstract}
 
 \begin{ThesisKeyWords}          % The keywords
-  Time Series, Hawkular, Alert Prediction, ARIMA, Apache Spark.
+  Time Series, Hawkular, Alert Prediction, ARIMA, Apache Spark
 \end{ThesisKeyWords}
 
 \tableofcontents                % The table of contents

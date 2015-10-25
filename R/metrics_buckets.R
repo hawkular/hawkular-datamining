@@ -1,7 +1,7 @@
- library(RCurl)
- library(rjson)
- library(fpp)
- library(xts)
+library(RCurl)
+library(rjson)
+library(fpp)
+library(xts)
  
  tenant = '28026b36-8fe4-4332-84c8-524e173a68bf'
  metricId = 'MI~R~%5Bdhcp130-144~Local~~%5D~MT~WildFly%20Memory%20Metrics~Heap%20Used'
@@ -36,7 +36,6 @@ exponentialSmoothing = ses(df, alpha=0.2, initial="simple", h=3)
 #plot
 plot(df$start, df$avg, xlab='time', ylab='non Heap', xaxt='n', type='o', col='red', pch=20)
 
-
 axis(1, df$start, times)
 
  # moving average 
@@ -57,3 +56,15 @@ series = ts(zoo)
 typeof(series)
 class(series)
 names(df)
+
+# Fit autoregressive model to data
+ar(df[4])
+# moving averages
+ma(df[4])
+
+arima = auto.arima(df[4])
+pred = predict(arima, n.ahead=24)
+
+
+# opens new plot graph
+dev.new()
