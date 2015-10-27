@@ -7,6 +7,7 @@ library(xts)
  tenant = '28026b36-8fe4-4332-84c8-524e173a68bf'
  metricId = 'MI~R~%5Bdhcp130-144~Local~~%5D~MT~WildFly%20Memory%20Metrics~Heap%20Used'
  
+ 
   hours = 1
  buckets= 100
  now = Sys.time()
@@ -30,9 +31,10 @@ library(xts)
  avgForecast = meanf(as.numeric(ts))
  naive = naive(as.numeric(ts))
  drift = rwf(as.numeric(ts),drift=TRUE)
+ averageSmoothing = ma(ts, order=4)
+ exponentialSmoothing = ses(as.numeric(df$avg), initial='simple', h=4)
+ exponentialWithTrend_Holt = holt(as.numeric(df$avg), h=4)
  
- plot(df$start, df$avg, col='red', type='b', fcol='green', flty='l')
- dev.new()
- plot(avgForecast, plot.conf=TRUE, shaded=TRUE,  shadecols=NULL, col=1, fcol=4,  pi.col=1, pi.lty=2, ylim=NULL, main=NULL, ylab="", xlab="", type="l")
- 
- #fit = stl(ts)
+  #plot(df$start, df$avg, col='red', type='b', fcol='green', flty='l')
+ #dev.new()
+ #plot(avgForecast, plot.conf=TRUE, shaded=TRUE,  shadecols=NULL, col=1, fcol=4,  pi.col=1, pi.lty=2, ylim=NULL, main=NULL, ylab="", xlab="", type="l")

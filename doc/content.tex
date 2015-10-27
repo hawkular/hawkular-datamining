@@ -74,7 +74,8 @@ the previous season.
 \section{Time series decomposition}
 In the time series can be seen various patterns. It is crucial to categorize
 some of them. These patters are useful to split into several components 
-each representing one of the underlying categories of pattern.
+each representing one of the underlying categories of pattern. This approach is
+done when modelling 
 
 Basic patterns are trend, seasonality, cycle and irregular component. 
 
@@ -89,15 +90,41 @@ Basic patterns are trend, seasonality, cycle and irregular component.
 \end{itemize}
 
 Decomposition can be in many forms for instance two of them are additive or multiplicative model.
+
 \begin{eqnarray}
     y_{t} = T_{t} + S_{t} + C_{t} + N_{t} \\
     y_{t} = T_{t} \times S_{t} \times C_{t} \times N_{t} 
 \end{eqnarray}
 
+Seasonality can be modelled by using \emph{Dummy} variables.
+
+
 
 \section{Averaging and smoothing models}
+\subsection{Moving Average Smoothing}
+This model can eliminate some randomness in the data 
+\subsection{Exponential Smoothing}
+The concept behind simple exponential smoothing is to attach 
+larger weights to most recent observations than to observations from distant
+past. Forecasts are calculated using weighted averages where the weights 
+decrease exponentially as observations come from further in the past.
+In other words smaller weights are associated to older observations.
+
+$$ \hat{y}_{T+1|T} = \alpha y_{T} + \alpha(1-\alpha)y_{T-1} +
+    \alpha(1-\alpha)^2 y_{T-2} +\dots $$
+Smoothing parameter is $ 0 \leq \alpha \leq 1 $. Note, if $\alpha = 1$ then 
+$\hat{y}_{T+1|T} = y_{T}$ so forecasts are equal to the na\"{i}ve method.
+If the $\alpha $ is smaller more weight is given to observations from distance
+in past. 
+
+Simple exponential smoothing has flat forecast function, that means all forecast
+all the same. Smoothing can be generally used as technique to separate signal and noise.
+This method is useful if a series doesn't contain any trend.
 
 \section{Linear Regression}
+
+\section{White noise}
+\section{Stationarity}
 
 \section{ARIMA}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
@@ -129,6 +156,8 @@ other. However this module is depended on metrics module and alerts.
     \end{center}
 \end{figure}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\chapter{Evaluation}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 \chapter{Conclusion}
 \cite{rfc_owamp} %TODO remove
