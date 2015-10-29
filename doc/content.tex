@@ -121,12 +121,24 @@ Simple exponential smoothing has flat forecast function, that means all forecast
 all the same. Smoothing can be generally used as technique to separate signal and noise.
 This method is useful if a series doesn't contain any trend.
 
+\subsubsection{Holt's Liner Trend Method}
+Simple exponential smoothing can be extended to allow forecasting of data with a trend. 
+This was done by Charles C. Holt in 1957. This method is slightly more complicated than 
+original one without trend. In order to add trend component another equation is added. 
+$$ \hat{y}_{t+h|t} = l_{t} + hb_{t} $$
+$$ l_t = \alpha y_t + (1 - \alpha) (l_{t-1} + b_{t-1})$$
+$$ b_t = \beta^{*} (l_t - l_{t-1}) + (1 - \beta^{*})b_{t-1} $$
+
+Where $b_t$ denotes slope of the time series and $l_t$ level. There is also a new parameter $\beta$
+\,--\,smoothing parameter of the slope. It's rage is equal to $\alpha$, so $\alpha,\beta
+\in \interval[{0,1}]$. 
 \section{Linear Regression}
 
 \section{White noise}
 \section{Stationarity}
 
-\section{ARIMA}
+\section{Box\,--\,Jenkins Methods}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 \chapter{Used Forecasting Techniques}
 In the previous chapter several methods for forecasting were discussed, however

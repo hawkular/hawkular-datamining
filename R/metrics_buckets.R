@@ -9,7 +9,7 @@ library(xts)
  hours = 1
  buckets= 50
  now = Sys.time()
- startTime = (as.integer(now) - 2 * 3600) * 1000
+ startTime = (as.integer(now) - hours * 3600) * 1000
  
 #get data
  url = paste(c('http://jdoe:password@localhost:8080/hawkular/metrics/gauges/', metricId, '/data', '?start=', toString(startTime),'&buckets=', toString(buckets)), collapse='')
