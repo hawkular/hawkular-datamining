@@ -1,50 +1,55 @@
-# Decompose time seris 
-library(RCurl)
-library(rjson)
 library(fpp)
 library(xts)
+library(fUnitRoots)
+library(lsmeans)
 
- tenant = '28026b36-8fe4-4332-84c8-524e173a68bf'
- metricId = 'MI~R~%5Bdhcp130-144~Local~~%5D~MT~WildFly%20Memory%20Metrics~Heap%20Used'
+setwd('/home/pavol/projects/hawkular/hawkular-datamining/R')
+source('getBuckets')
+
+df <- getBuckets()
+ts = ts(unlist(df$avg), start=unlist(df$start[1]) / 1000)
+horizont <- 8
+col = c('red', 'blue', 'green', 'orange')
+
+
+#Simple predictions
+mean = meanf(ts, h=horizont)
+naive = naive(ts, h=horizont)
+drift = rwf(ts, drift=TRUE, h=horizont)
+plot(mean, plot.conf=FALSE, main="Simple forecasts", col='black', fcol=col[1], flwd=2)
+lines(naive$mean, col=col[2], lwd=2)
+lines(drift$mean, col=col[3], lwd=2)
+legend('topleft', lty=1, col=col, legend=c('Mean method','Naive method', 'Drift method'))
+dev.new()
+accuracy(mean)
+accuracy(naive)
+accuracy(drift)
+
+
+# Moving average, Exponential smoothing
+alpha= NULL
+beta= NULL
+maTs = ma(ts, order=3); ma = forecast(ma, h=horizont)
+ex = ses(ts, initial='simple', h=horizont, alpha=alpha)
+exHolt = holt(ts, h=(horizont + 1), alpha=alpha, beta=beta)
+exHoltExp = holt(ts, h=horizont, exponential=TRUE, alpha=alpha, beta=beta) #damped=TRUE
+plot(ex, plot.conf=FALSE, main="Exponential smoothing", col='black', fcol=col[1], flwd=2)
+lines(exHolt$mean, col=col[2], lwd=2)
+lines(exHoltExp$mean, col=col[3], lwd=2)
+legend('topleft', lty=1, col=col, legend=c('Exponential smoothing', 'Holt', 'Holt exp'))
+accuracy(ex)
+accuracy(exHolt)
+accuracy(exHoltExp)
+
+
+#Linear regression
+x = as.numeric(df$start)
+y = as.numeric(df$avg)
+reg = lm(y ~ x)
+summary(regression)
+reg_fore = forecast(regression, newdata=data.frame(x=c(as.integer(Sys.time()) * 1000)))
+#plot(reg_fore)
  
+# stationarity test, null hiposthesis is that series is non-stationarity => if p-value is high series is non-stationary
+#adfTest(as.numeric(ts), lags=0, type='nc')
  
- hours = 3
- buckets= 100
- now = Sys.time()
- startTime = (as.integer(now) - hours * 3600) * 1000
- 
- #get data
- url = paste(c('http://jdoe:password@localhost:8080/hawkular/metrics/gauges/', metricId, '/data', '?start=', toString(startTime),'&buckets=', toString(buckets)), collapse='')
- header = c(Accept='application/json', 'Hawkular-Tenant'= tenant)
- data = getURL(url, httpheader=header, httpauth=1)
-  
- #convert JSON to list of vectors
- json = fromJSON(paste(data, collapse=''))
- #convert data points into data frame
- df <- data.frame(do.call(rbind, json))
- 
- # time seris 
- ts = ts(df$avg, frequency=1)
- 
- #mean
- mean = mean(as.numeric(unlist(df[4])))
- avgForecast = meanf(as.numeric(ts))
- naive = naive(as.numeric(ts))
- drift = rwf(as.numeric(ts),drift=TRUE)
- averageSmoothing = ma(ts, order=4)
- exponentialSmoothing = ses(as.numeric(df$avg), initial='simple', h=4)
- exponentialWithTrend_Holt = holt(as.numeric(df$avg), h=20)
- exponentialWithTrend_Holt_exp = holt(as.numeric(df$avg), h=20, expnetial=TRUE)
- #holt_seasonal = hw(ts, seasonal="additive")
- 
- #Linear regression
- x = as.numeric(df$start)
- y = as.numeric(df$avg)
- reg = lm(y ~ x)
- summary(regression)
- reg_forecast = forecast(regression, newdata=data.frame(x=c(as.integer(Sys.time()) * 1000)))
- plot(forecast)
- 
- #plot(df$start, df$avg, col='red', type='b', fcol='green', flty='l')
- #dev.new()
- #plot(avgForecast, plot.conf=TRUE, shaded=TRUE,  shadecols=NULL, col=1, fcol=4,  pi.col=1, pi.lty=2, ylim=NULL, main=NULL, ylab="", xlab="", type="l")
