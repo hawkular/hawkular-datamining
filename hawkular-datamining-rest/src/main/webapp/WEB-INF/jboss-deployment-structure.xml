@@ -26,10 +26,10 @@
          WF loads jackson in higher version that uses spark(jackson 2.4.4)
          so we need to prevent WF loading in order to use our from lib
          -->
-    <exclusions>
+    <!--<exclusions>-->
       <!--<module name="com.fasterxml.jackson.core.jackson-databind"/>-->
-      <module name="org.jboss.resteasy.resteasy-jackson2-provider" />
-    </exclusions>
+      <!--<module name="org.jboss.resteasy.resteasy-jackson2-provider" />-->
+    <!--</exclusions>-->
 
   </deployment>
 </jboss-deployment-structure>

@@ -27,13 +27,13 @@ public class PredictionResult {
 
     private String requestId;
     private String metricId;
-    private List<TimeSeries> points = new ArrayList<>();
+    private List<DataPoint> points = new ArrayList<>();
 
 
     public PredictionResult() {
     }
 
-    public PredictionResult(String requestId, String metricId, List<TimeSeries> points) {
+    public PredictionResult(String requestId, String metricId, List<DataPoint> points) {
         this.requestId = requestId;
         this.metricId = metricId;
         this.points = points;
@@ -47,8 +47,8 @@ public class PredictionResult {
         this.requestId = requestId;
     }
 
-    public void addPoint(TimeSeries timeSeries) {
-        points.add(timeSeries);
+    public void addPoint(DataPoint dataPoint) {
+        points.add(dataPoint);
     }
 
     public String getMetricId() {
@@ -59,11 +59,11 @@ public class PredictionResult {
         this.metricId = metricId;
     }
 
-    public List<TimeSeries> getPoints() {
+    public List<DataPoint> getPoints() {
         return points;
     }
 
-    public void setPoints(List<TimeSeries> points) {
+    public void setPoints(List<DataPoint> points) {
         this.points = points;
     }
 }

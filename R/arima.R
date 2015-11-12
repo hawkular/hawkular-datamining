@@ -5,6 +5,7 @@ library(fpp)
 library(xts)
 library(fUnitRoots)
 library(gamlss)
+library(forecast)
 
 tenant = '28026b36-8fe4-4332-84c8-524e173a68bf'
 metricId = 'MI~R~%5Bdhcp130-144~Local~~%5D~MT~WildFly%20Memory%20Metrics~Heap%20Used'

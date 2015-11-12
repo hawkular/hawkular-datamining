@@ -15,19 +15,11 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.bus.listener;
-
-import org.hawkular.bus.common.consumer.BasicMessageListener;
-import org.hawkular.datamining.bus.BusLogger;
-import org.hawkular.datamining.bus.message.AvailDataMessage;
+package org.hawkular.dataminig.api;
 
 /**
  * @author Pavol Loffay
  */
-public class AvailableDataListener extends BasicMessageListener<AvailDataMessage> {
-
-    @Override
-    protected void onBasicMessage(AvailDataMessage availDataMessage) {
-        BusLogger.LOGGER.debug(availDataMessage.toJSON());
-    }
+public class Constants {
+    public static final String TENANT_HEADER_NAME = "Hawkular-Tenant";
 }

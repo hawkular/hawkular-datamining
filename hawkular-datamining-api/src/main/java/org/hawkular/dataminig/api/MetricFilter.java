@@ -17,7 +17,9 @@
 
 package org.hawkular.dataminig.api;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -25,27 +27,41 @@ import java.util.Set;
  */
 public class MetricFilter {
 
-    private static final Set<String> subscriptions = new HashSet<>();
+    private static final Map<String, Set<String>> subscriptions = new HashMap<>();
 
+
+    // TODO REMOVE
+    public static final String TENANT = "28026b36-8fe4-4332-84c8-524e173a68bf";
+    public static final String HEAP_USED_METRICS = "MI~R~[dhcp130-144~Local~~]~MT~WildFly Memory Metrics~Heap Used";
     static {
-        subscriptions.add("MI~R~[dhcp130-144~Local~~]~MT~WildFly Memory Metrics~Heap Used");
-//        subscriptions.add("MI~R~[dhcp130-144~Local~~]~MT~WildFly Memory Metrics~NonHeap Used");
+        Set<String> metrics = new HashSet<>();
+        metrics.add(HEAP_USED_METRICS);
+
+        subscriptions.put(TENANT, metrics);
     }
 
 
-    public static boolean subscribe(String key) {
-        return subscriptions.add(key);
+    public static boolean subscribe(String tenant, String metricsId) {
+        Set<String> tenantsSubscriptions = getTenantSubscription(tenant);
+        return tenantsSubscriptions.add(metricsId);
     }
 
-    public static boolean unSubscribe(String key) {
-        return subscriptions.remove(key);
+    public static boolean unSubscribe(String tenant, String metricsId) {
+        Set<String> tenantSubscriptions = getTenantSubscription(tenant);
+        return tenantSubscriptions.remove(metricsId);
     }
 
-    public static boolean contains(String key) {
-        return subscriptions.contains(key);
+    public static boolean contains(String tenant, String metricsId) {
+        return getTenantSubscription(tenant)
+                .contains(metricsId);
     }
 
-    public static Set<String> getAll() {
-        return new HashSet<>(subscriptions);
+    public static Set<String> getTenantSubscription(String tenant) {
+        Set<String> subscription = subscriptions.get(tenant);
+        if (subscription == null) {
+            subscription = new HashSet<>();
+        }
+
+        return subscription;
     }
 }

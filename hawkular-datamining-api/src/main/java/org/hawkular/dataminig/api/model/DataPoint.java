@@ -15,33 +15,37 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.dist;
+package org.hawkular.dataminig.api.model;
 
-import javax.annotation.PostConstruct;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.inject.Inject;
-
-import org.hawkular.dataminig.api.Official;
-import org.hawkular.datamining.engine.model.ForecastingEngine;
-import org.jboss.logging.Logger;
+import java.io.Serializable;
 
 /**
  * @author Pavol Loffay
  */
-@Startup
-@Singleton
-public class DataMiningStartup {
+public class DataPoint implements Serializable {
 
-    private static final Logger LOG = Logger.getLogger(DataMiningStartup.class);
-
-    @Official
-    @Inject
-    private ForecastingEngine forecastingEngine;
+    private Double value;
+    private Long timestamp;
 
 
-    @PostConstruct
-    public void postConstruct() {
-        LOG.debug("Ejb starting");
+    public DataPoint() {
+    }
+
+    public DataPoint(Double value, Long timestamp) {
+        this.value = value;
+        this.timestamp = timestamp;
+    }
+
+    public Double getValue() {
+        return value;
+    }
+
+    public Long getTimestamp() {
+        return timestamp;
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getName() + " { value = " + value + " , timestamp=" + timestamp + " }";
     }
 }

@@ -17,11 +17,17 @@
 
 package org.hawkular.dataminig.api;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import javax.inject.Qualifier;
+
 /**
  * @author Pavol Loffay
  */
-public interface AnalyticEngine {
-
-    void start();
-    void stop();
+@Qualifier
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD})
+public @interface Official {
 }

@@ -17,17 +17,29 @@
 
 package org.hawkular.datamining.dist;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import javax.inject.Qualifier;
+import javax.enterprise.inject.Produces;
+import javax.inject.Singleton;
+
+import org.hawkular.dataminig.api.Official;
+import org.hawkular.datamining.bus.listener.MetricDataListener;
+import org.hawkular.datamining.engine.model.ForecastingEngine;
+
 
 /**
  * @author Pavol Loffay
  */
-@Qualifier
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD})
-public @interface Official {
+@Singleton
+public class ForecastingEngineProducer {
+
+    @Official
+    @Produces
+    @Singleton
+    public ForecastingEngine getAnalyticEngine() {
+
+        ForecastingEngine forecastingEngine = new ForecastingEngine();
+
+        MetricDataListener metricDataListener = new MetricDataListener(forecastingEngine);
+
+        return forecastingEngine;
+    }
 }

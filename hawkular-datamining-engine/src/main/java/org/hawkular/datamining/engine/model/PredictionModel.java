@@ -15,37 +15,20 @@
  * limitations under the License.
  */
 
-package org.hawkular.dataminig.api.model;
+package org.hawkular.datamining.engine.model;
 
-import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
+
+import org.hawkular.dataminig.api.model.DataPoint;
 
 /**
  * @author Pavol Loffay
  */
-public class TimeSeries implements Serializable {
+public interface PredictionModel {
 
-    private Double value;
-    private Double timestamp;
+    void addDataPoint(DataPoint dataPoint);
+    void addDataPoints(Collection<DataPoint> dataPoints);
 
-
-    public TimeSeries() {
-    }
-
-    public TimeSeries(Double value, Double timestamp) {
-        this.value = value;
-        this.timestamp = timestamp;
-    }
-
-    public Double getValue() {
-        return value;
-    }
-
-    public Double getTimestamp() {
-        return timestamp;
-    }
-
-    @Override
-    public String toString() {
-        return this.getClass().getName() + " { value = " + value + " , timestamp=" + timestamp + " }";
-    }
+    List<DataPoint> predict(int nAhead);
 }

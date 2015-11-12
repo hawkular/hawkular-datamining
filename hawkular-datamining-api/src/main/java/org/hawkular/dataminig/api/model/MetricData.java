@@ -17,19 +17,32 @@
 
 package org.hawkular.dataminig.api.model;
 
+import java.io.Serializable;
+
 /**
  * @author Pavol Loffay
  */
-public class MetricData extends TimeSeries {
+public class MetricData implements Serializable {
 
-    private String id;
+    private String tenant;
+    private String metricId;
+    private DataPoint dataPoint;
 
-    public MetricData(String id, Double timestamp, Double value) {
-        super(value, timestamp);
-        this.id = id;
+    public MetricData(String tenant, String metricId, Long timestamp, Double value) {
+        this.tenant = tenant;
+        this.metricId = metricId;
+        this.dataPoint = new DataPoint(value, timestamp);
     }
 
-    public String getId() {
-        return id;
+    public String getMetricId() {
+        return metricId;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public DataPoint getDataPoint() {
+        return dataPoint;
     }
 }

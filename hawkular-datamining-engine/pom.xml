@@ -41,51 +41,15 @@
       <version>${project.version}</version>
     </dependency>
 
-    <!-- Spark -->
-    <dependency>
-      <groupId>org.apache.spark</groupId>
-      <artifactId>spark-core_2.10</artifactId>
-      <version>${versin.org.apache.spark}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>hadoop-mapreduce-client-app</artifactId>
-          <groupId>org.apache.hadoop</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>hadoop-mapreduce-client-jobclient</artifactId>
-          <groupId>org.apache.hadoop</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>hadoop-yarn-common</artifactId>
-          <groupId>org.apache.hadoop</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>hadoop-hdfs</artifactId>
-          <groupId>org.apache.hadoop</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.spark</groupId>
-      <artifactId>spark-mllib_2.10</artifactId>
-      <version>${versin.org.apache.spark}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>jackson-mapper-asl</artifactId>
-          <groupId>org.codehaus.jackson</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.spark</groupId>
-      <artifactId>spark-streaming_2.10</artifactId>
-      <version>${versin.org.apache.spark}</version>
-    </dependency>
-
     <dependency>
       <groupId>com.squareup.okhttp</groupId>
       <artifactId>okhttp</artifactId>
       <version>2.5.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-jackson2-provider</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>

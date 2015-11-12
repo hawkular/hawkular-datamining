@@ -119,6 +119,9 @@ public class RestPing {
         private Set<String> methods = new HashSet<>();
         private String uri;
 
+        public JaxRsResource() {
+        }
+
         public JaxRsResource(String uri) {
             this.uri = uri;
         }

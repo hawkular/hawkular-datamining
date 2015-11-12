@@ -15,22 +15,47 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.engine;
-
-import java.io.IOException;
-import java.io.Serializable;
-
-import org.apache.spark.SparkConf;
+package org.hawkular.dataminig.api.model;
 
 /**
  * @author Pavol Loffay
  */
-public abstract class BaseTest implements Serializable {
+public class BucketPoint {
 
-    protected transient SparkConf sparkConf;
+    private Double avg;
+    private Long start;
+    private Long end;
+    private Boolean empty;
 
-    public BaseTest() throws IOException {
-        EngineConfiguration configuration = new EngineConfiguration();
-        sparkConf = configuration.getSparkConf();
+    public Double getAvg() {
+        return avg;
+    }
+
+    public void setAvg(Double avg) {
+        this.avg = avg;
+    }
+
+    public Long getStart() {
+        return start;
+    }
+
+    public void setStart(Long start) {
+        this.start = start;
+    }
+
+    public Long getEnd() {
+        return end;
+    }
+
+    public void setEnd(Long end) {
+        this.end = end;
+    }
+
+    public Boolean getEmpty() {
+        return empty;
+    }
+
+    public void setEmpty(Boolean empty) {
+        this.empty = empty;
     }
 }

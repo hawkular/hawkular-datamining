@@ -18,13 +18,13 @@
 package org.hawkular.dataminig.api;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Pavol Loffay
  */
 public interface EngineDataReceiver<T extends Serializable> {
 
-    void store(T data);
-    void store(Collection<T> data);
+    void process(T data);
+    void process(List<T> data);
 }
