@@ -36,11 +36,12 @@ import org.hawkular.datamining.engine.BatchMetricsLoader;
 public class ForecastingEngine implements EngineDataReceiver<MetricData>,
         org.hawkular.datamining.api.ForecastingEngine {
 
-    //tenant, metric, model
+    //tenant, metric, model, TODO synchronize
     private Map<String, Map<String, ForecastingModel>> models = new HashMap<>();
 
 
     public ForecastingEngine() {
+        // list data from filter and initialize model
     }
 
     @Override
@@ -69,7 +70,7 @@ public class ForecastingEngine implements EngineDataReceiver<MetricData>,
         return points;
     }
 
-    private ForecastingModel getForecastingModel(String tenant, String metricsId) {
+    private synchronized ForecastingModel getForecastingModel(String tenant, String metricsId) {
         Map<String, ForecastingModel> metricsModels = models.get(tenant);
         if (metricsModels == null) {
             metricsModels = new HashMap<>();
@@ -95,6 +96,6 @@ public class ForecastingEngine implements EngineDataReceiver<MetricData>,
 
         List<DataPoint> dataPoints = batchLoader.loadPoints();
 
-        dataPoints.forEach(model::addDataPoint);
+        model.addDataPoints(dataPoints);
     }
 }

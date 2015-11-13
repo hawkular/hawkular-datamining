@@ -22,7 +22,7 @@ import java.io.Serializable;
 /**
  * @author Pavol Loffay
  */
-public class DataPoint implements Serializable {
+public class DataPoint implements Serializable, Comparable<DataPoint> {
 
     private Double value;
     private Long timestamp;
@@ -47,5 +47,21 @@ public class DataPoint implements Serializable {
     @Override
     public String toString() {
         return this.getClass().getName() + " { value = " + value + " , timestamp=" + timestamp + " }";
+    }
+
+    @Override
+    public int compareTo(DataPoint dataPoint) {
+        final int BEFORE = -1;
+        final int EQUAL = 0;
+        final int AFTER = 1;
+
+
+        if (this.getTimestamp() < dataPoint.getTimestamp()) {
+            return BEFORE;
+        } else if (this.getTimestamp() > dataPoint.getTimestamp()) {
+            return AFTER;
+        }
+
+        return EQUAL;
     }
 }

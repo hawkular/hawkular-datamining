@@ -19,6 +19,7 @@ package org.hawkular.datamining.engine.model;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.hawkular.datamining.api.model.DataPoint;
@@ -39,8 +40,8 @@ public class ForecastingModel implements PredictionModel {
     private String tenant;
     private String metricId;
 
-    private Long lastTimestamp;
-    private Long distance;
+    private long lastTimestamp;
+    private long distance;
 
     private LeastMeanSquaresFilter leastMeanSquaresFilter;
     private ExponentiallyWeightedMovingAverages ewma;
@@ -85,6 +86,7 @@ public class ForecastingModel implements PredictionModel {
 
             DataPoint dataPoint = new DataPoint((ewma + filter) + mean, null);
             result.add(dataPoint);
+            EngineLogger.LOGGER.debugf("Prediction: %s, %s", tenant, metricId, dataPoint);
         }
 
         return result;
@@ -99,7 +101,15 @@ public class ForecastingModel implements PredictionModel {
     }
 
     private void addData(List<DataPoint> dataPoints) {
-        lastTimestamp = dataPoints.get(dataPoints.size() - 1).getTimestamp();
+        // todo data from metrics arrives at <new>, <older>. Maybe its better to reverse itterate
+        Collections.sort(dataPoints);
+
+        long newLastTimestamp = dataPoints.get(dataPoints.size() - 1).getTimestamp();
+        if (newLastTimestamp < lastTimestamp) {
+            throw new IllegalArgumentException("Data point has older timestamp than current state.");
+        }
+
+        lastTimestamp = newLastTimestamp;
 
         ewma.addDataPoints(dataPoints);
         leastMeanSquaresFilter.addDataPoints(dataPoints);
