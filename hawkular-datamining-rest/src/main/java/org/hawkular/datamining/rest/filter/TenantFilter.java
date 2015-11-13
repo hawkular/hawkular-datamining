@@ -26,7 +26,7 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
-import org.hawkular.dataminig.api.Constants;
+import org.hawkular.datamining.api.Constants;
 
 /**
  * @author Pavol Loffay

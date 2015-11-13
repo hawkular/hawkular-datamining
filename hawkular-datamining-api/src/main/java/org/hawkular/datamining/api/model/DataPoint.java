@@ -15,34 +15,37 @@
  * limitations under the License.
  */
 
-package org.hawkular.dataminig.api.model;
+package org.hawkular.datamining.api.model;
 
 import java.io.Serializable;
 
 /**
  * @author Pavol Loffay
  */
-public class MetricData implements Serializable {
+public class DataPoint implements Serializable {
 
-    private String tenant;
-    private String metricId;
-    private DataPoint dataPoint;
+    private Double value;
+    private Long timestamp;
 
-    public MetricData(String tenant, String metricId, Long timestamp, Double value) {
-        this.tenant = tenant;
-        this.metricId = metricId;
-        this.dataPoint = new DataPoint(value, timestamp);
+
+    public DataPoint() {
     }
 
-    public String getMetricId() {
-        return metricId;
+    public DataPoint(Double value, Long timestamp) {
+        this.value = value;
+        this.timestamp = timestamp;
     }
 
-    public String getTenant() {
-        return tenant;
+    public Double getValue() {
+        return value;
     }
 
-    public DataPoint getDataPoint() {
-        return dataPoint;
+    public Long getTimestamp() {
+        return timestamp;
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getName() + " { value = " + value + " , timestamp=" + timestamp + " }";
     }
 }

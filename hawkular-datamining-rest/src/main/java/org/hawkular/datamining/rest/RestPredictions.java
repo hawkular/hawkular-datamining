@@ -31,9 +31,9 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.hawkular.dataminig.api.Constants;
-import org.hawkular.dataminig.api.Official;
-import org.hawkular.dataminig.api.model.DataPoint;
+import org.hawkular.datamining.api.Constants;
+import org.hawkular.datamining.api.Official;
+import org.hawkular.datamining.api.model.DataPoint;
 import org.hawkular.datamining.engine.model.ForecastingEngine;
 
 /**

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.hawkular.dataminig.api;
+package org.hawkular.datamining.api;
 
 import java.util.HashMap;
 import java.util.HashSet;

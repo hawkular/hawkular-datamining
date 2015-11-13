@@ -15,47 +15,34 @@
  * limitations under the License.
  */
 
-package org.hawkular.dataminig.api.model;
+package org.hawkular.datamining.api.model;
+
+import java.io.Serializable;
 
 /**
  * @author Pavol Loffay
  */
-public class BucketPoint {
+public class MetricData implements Serializable {
 
-    private Double avg;
-    private Long start;
-    private Long end;
-    private Boolean empty;
+    private String tenant;
+    private String metricId;
+    private DataPoint dataPoint;
 
-    public Double getAvg() {
-        return avg;
+    public MetricData(String tenant, String metricId, Long timestamp, Double value) {
+        this.tenant = tenant;
+        this.metricId = metricId;
+        this.dataPoint = new DataPoint(value, timestamp);
     }
 
-    public void setAvg(Double avg) {
-        this.avg = avg;
+    public String getMetricId() {
+        return metricId;
     }
 
-    public Long getStart() {
-        return start;
+    public String getTenant() {
+        return tenant;
     }
 
-    public void setStart(Long start) {
-        this.start = start;
-    }
-
-    public Long getEnd() {
-        return end;
-    }
-
-    public void setEnd(Long end) {
-        this.end = end;
-    }
-
-    public Boolean getEmpty() {
-        return empty;
-    }
-
-    public void setEmpty(Boolean empty) {
-        this.empty = empty;
+    public DataPoint getDataPoint() {
+        return dataPoint;
     }
 }

@@ -15,37 +15,47 @@
  * limitations under the License.
  */
 
-package org.hawkular.dataminig.api.model;
-
-import java.io.Serializable;
+package org.hawkular.datamining.api.model;
 
 /**
  * @author Pavol Loffay
  */
-public class DataPoint implements Serializable {
+public class BucketPoint {
 
-    private Double value;
-    private Long timestamp;
+    private Double avg;
+    private Long start;
+    private Long end;
+    private Boolean empty;
 
-
-    public DataPoint() {
+    public Double getAvg() {
+        return avg;
     }
 
-    public DataPoint(Double value, Long timestamp) {
-        this.value = value;
-        this.timestamp = timestamp;
+    public void setAvg(Double avg) {
+        this.avg = avg;
     }
 
-    public Double getValue() {
-        return value;
+    public Long getStart() {
+        return start;
     }
 
-    public Long getTimestamp() {
-        return timestamp;
+    public void setStart(Long start) {
+        this.start = start;
     }
 
-    @Override
-    public String toString() {
-        return this.getClass().getName() + " { value = " + value + " , timestamp=" + timestamp + " }";
+    public Long getEnd() {
+        return end;
+    }
+
+    public void setEnd(Long end) {
+        this.end = end;
+    }
+
+    public Boolean getEmpty() {
+        return empty;
+    }
+
+    public void setEmpty(Boolean empty) {
+        this.empty = empty;
     }
 }

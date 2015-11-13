@@ -15,15 +15,19 @@
  * limitations under the License.
  */
 
-package org.hawkular.dataminig.api;
+package org.hawkular.datamining.api;
 
-import java.util.List;
-
-import org.hawkular.dataminig.api.model.DataPoint;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import javax.inject.Qualifier;
 
 /**
  * @author Pavol Loffay
  */
-public interface ForecastingEngine {
-    List<DataPoint> predict(String tenant, String metricsId, int nAhead);
+@Qualifier
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD})
+public @interface Official {
 }

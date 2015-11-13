@@ -21,9 +21,9 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.List;
 
-import org.hawkular.dataminig.api.Constants;
-import org.hawkular.dataminig.api.model.BucketPoint;
-import org.hawkular.dataminig.api.model.DataPoint;
+import org.hawkular.datamining.api.Constants;
+import org.hawkular.datamining.api.model.BucketPoint;
+import org.hawkular.datamining.api.model.DataPoint;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;

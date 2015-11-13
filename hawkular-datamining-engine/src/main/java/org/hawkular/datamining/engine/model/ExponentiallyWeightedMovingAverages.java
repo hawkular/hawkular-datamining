@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.hawkular.dataminig.api.model.DataPoint;
+import org.hawkular.datamining.api.model.DataPoint;
 
 /**
  * @author Pavol Loffay
@@ -46,7 +46,7 @@ public class ExponentiallyWeightedMovingAverages implements PredictionModel {
     }
 
     @Override
-    public void addDataPoints(Collection<DataPoint> dataPoints) {
+    public void addDataPoints(List<DataPoint> dataPoints) {
         process(dataPoints);
     }
 

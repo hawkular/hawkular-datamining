@@ -18,7 +18,7 @@
 package org.hawkular.datamining.bus.message;
 
 import org.hawkular.bus.common.AbstractMessage;
-import org.hawkular.dataminig.api.model.PredictionResult;
+import org.hawkular.datamining.api.model.PredictionResult;
 
 /**
  * @author Pavol Loffay

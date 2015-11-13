@@ -20,7 +20,7 @@ package org.hawkular.datamining.dist;
 import javax.enterprise.inject.Produces;
 import javax.inject.Singleton;
 
-import org.hawkular.dataminig.api.Official;
+import org.hawkular.datamining.api.Official;
 import org.hawkular.datamining.bus.listener.MetricDataListener;
 import org.hawkular.datamining.engine.model.ForecastingEngine;
 

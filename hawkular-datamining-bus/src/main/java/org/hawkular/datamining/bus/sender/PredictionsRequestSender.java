@@ -26,7 +26,7 @@ import org.hawkular.bus.common.ConnectionContextFactory;
 import org.hawkular.bus.common.Endpoint;
 import org.hawkular.bus.common.MessageProcessor;
 import org.hawkular.bus.common.producer.ProducerConnectionContext;
-import org.hawkular.dataminig.api.model.PredictionRequest;
+import org.hawkular.datamining.api.model.PredictionRequest;
 import org.hawkular.datamining.bus.BusConfiguration;
 import org.hawkular.datamining.bus.BusLogger;
 import org.hawkular.datamining.bus.message.PredictionRequestMessage;

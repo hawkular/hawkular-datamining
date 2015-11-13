@@ -15,32 +15,28 @@
  * limitations under the License.
  */
 
-package org.hawkular.dataminig.api.model;
+package org.hawkular.datamining.api.model;
 
-import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Pavol Loffay
  */
-public class PredictionRequest implements Serializable {
+public class PredictionResult {
 
     private String requestId;
-
     private String metricId;
-    private Double timestamp;
+    private List<DataPoint> points = new ArrayList<>();
 
 
-    public PredictionRequest() {
+    public PredictionResult() {
     }
 
-    public PredictionRequest(String requestId, String metricId, Double timestamp) {
-        if (timestamp == null) {
-            throw new IllegalArgumentException("Timestamp shouldn't be null");
-        }
-
+    public PredictionResult(String requestId, String metricId, List<DataPoint> points) {
         this.requestId = requestId;
         this.metricId = metricId;
-        this.timestamp = timestamp;
+        this.points = points;
     }
 
     public String getRequestId() {
@@ -51,6 +47,10 @@ public class PredictionRequest implements Serializable {
         this.requestId = requestId;
     }
 
+    public void addPoint(DataPoint dataPoint) {
+        points.add(dataPoint);
+    }
+
     public String getMetricId() {
         return metricId;
     }
@@ -59,16 +59,11 @@ public class PredictionRequest implements Serializable {
         this.metricId = metricId;
     }
 
-    public Double getTimestamp() {
-        return timestamp;
+    public List<DataPoint> getPoints() {
+        return points;
     }
 
-    public void setTimestamp(Double timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    @Override
-    public String toString() {
-        return "Prediction data [metricId=" + metricId + ", features=" + timestamp.toString() + "]";
+    public void setPoints(List<DataPoint> points) {
+        this.points = points;
     }
 }

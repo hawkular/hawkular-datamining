@@ -15,11 +15,16 @@
  * limitations under the License.
  */
 
-package org.hawkular.dataminig.api;
+package org.hawkular.datamining.api;
+
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author Pavol Loffay
  */
-public class Constants {
-    public static final String TENANT_HEADER_NAME = "Hawkular-Tenant";
+public interface EngineDataReceiver<T extends Serializable> {
+
+    void process(T data);
+    void process(List<T> data);
 }

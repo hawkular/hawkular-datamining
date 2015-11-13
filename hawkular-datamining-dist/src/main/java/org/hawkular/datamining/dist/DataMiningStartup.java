@@ -22,7 +22,7 @@ import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
 
-import org.hawkular.dataminig.api.Official;
+import org.hawkular.datamining.api.Official;
 import org.hawkular.datamining.engine.model.ForecastingEngine;
 import org.jboss.logging.Logger;
 

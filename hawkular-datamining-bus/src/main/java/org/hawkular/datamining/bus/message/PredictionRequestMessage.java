@@ -20,7 +20,7 @@ package org.hawkular.datamining.bus.message;
 import java.util.List;
 
 import org.hawkular.bus.common.AbstractMessage;
-import org.hawkular.dataminig.api.model.PredictionRequest;
+import org.hawkular.datamining.api.model.PredictionRequest;
 
 /**
  * @author Pavol Loffay

@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.hawkular.dataminig.api.model.DataPoint;
+import org.hawkular.datamining.api.model.DataPoint;
 
 /**
  * @author Pavol Loffay
@@ -50,14 +50,14 @@ public class LeastMeanSquaresFilter implements PredictionModel {
     }
 
     @Override
-    public void addDataPoints(Collection<DataPoint> dataPoints) {
+    public void addDataPoints(List<DataPoint> dataPoints) {
         process(dataPoints);
     }
 
     @Override
     public List<DataPoint> predict(int nAhead) {
 
-        double value = currentFilterPrediction();
+        double value = currentPrediction(false);
         DataPoint dataPoint = new DataPoint(value, null);
         return Arrays.asList(dataPoint);
     }
@@ -70,22 +70,28 @@ public class LeastMeanSquaresFilter implements PredictionModel {
                 continue;
             }
 
-            double currentPrediction = currentFilterPrediction();
+            double currentPrediction = currentPrediction(true);
             double error = (dataPoint.getValue() - (currentPrediction));
 
             // update weights
             for (int i = 0; i < filterLength; i++) {
-                weights[i] = weights[i] - alpha * error * oldPoints[i];
+                weights[i] = weights[i] - (alpha * error * oldPoints[i]);
+//                weights[i] = weights[i] - (error * oldPoints[i]) / (oldPoints[i] * oldPoints[i]);
             }
 
             updateFilterPoints(dataPoint.getValue());
         }
     }
 
-    private double currentFilterPrediction() {
+    private double currentPrediction(boolean negative) {
         double oldPrediction = 0;
         for (int i = 0; i < filterLength; i++) {
-            oldPrediction += (-weights[i]) * oldPoints[i];
+            if (negative) {
+                oldPrediction += (-weights[i]) * oldPoints[i];
+            }
+            else {
+                oldPrediction += (weights[i]) * oldPoints[i];
+            }
         }
 
         return oldPrediction;

@@ -19,10 +19,10 @@ package org.hawkular.datamining.engine.model;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
-import org.hawkular.dataminig.api.model.DataPoint;
+import org.hawkular.datamining.api.model.DataPoint;
+import org.hawkular.datamining.engine.EngineLogger;
 
 /**
  * @author Pavol Loffay
@@ -33,10 +33,12 @@ public class ForecastingModel implements PredictionModel {
     public static final double EWMA_BETA = 0.005;
     // lms
     public static final double[] LMS_WEIGHTS = new double[] {3, -1};
+    // TODO this has to be calculated from data, or use normalized version
     public static final double LMS_ALPHA = 0.000000000000000000000000001;
 
     private String tenant;
     private String metricId;
+    private Long lastTimestamp;
 
     private LeastMeanSquaresFilter leastMeanSquaresFilter;
     private ExponentiallyWeightedMovingAverages ewma;
@@ -56,7 +58,7 @@ public class ForecastingModel implements PredictionModel {
     }
 
     @Override
-    public void addDataPoints(Collection<DataPoint> dataPoints) {
+    public void addDataPoints(List<DataPoint> dataPoints) {
         addData(dataPoints);
     }
 
@@ -68,10 +70,18 @@ public class ForecastingModel implements PredictionModel {
         List<DataPoint> predictionFilter = leastMeanSquaresFilter.predict(nAhead);
 
         for (int i = 0; i < predictionEWMA.size() && i  < predictionFilter.size(); i++) {
+
+            EngineLogger.LOGGER.debugf("Filter predicted %f", predictionFilter);
+            EngineLogger.LOGGER.debugf("EWMA predicted %f", predictionEWMA);
+
             double ewma = predictionEWMA.get(i).getValue();
             double filter = predictionFilter.get(i).getValue();
 
-            DataPoint dataPoint = new DataPoint(ewma + filter, null);
+            double mean = (ewma + filter) / 2;
+            ewma = ewma - mean;
+            filter = filter - mean;
+
+            DataPoint dataPoint = new DataPoint((ewma + filter) + mean, null);
             result.add(dataPoint);
         }
 
@@ -86,7 +96,7 @@ public class ForecastingModel implements PredictionModel {
         return metricId;
     }
 
-    private void addData(Collection<DataPoint> dataPoints) {
+    private void addData(List<DataPoint> dataPoints) {
         ewma.addDataPoints(dataPoints);
         leastMeanSquaresFilter.addDataPoints(dataPoints);
     }

@@ -30,8 +30,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.hawkular.dataminig.api.Constants;
-import org.hawkular.dataminig.api.MetricFilter;
+import org.hawkular.datamining.api.Constants;
+import org.hawkular.datamining.api.MetricFilter;
 
 /**
  * @author Pavol Loffay

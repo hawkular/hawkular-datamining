@@ -23,9 +23,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import org.hawkular.dataminig.api.MetricFilter;
-import org.hawkular.dataminig.api.model.BucketPoint;
-import org.hawkular.dataminig.api.model.DataPoint;
+import org.hawkular.datamining.api.MetricFilter;
+import org.hawkular.datamining.api.model.BucketPoint;
+import org.hawkular.datamining.api.model.DataPoint;
 import org.hawkular.datamining.engine.BatchMetricsLoader;
 import org.junit.Test;
 

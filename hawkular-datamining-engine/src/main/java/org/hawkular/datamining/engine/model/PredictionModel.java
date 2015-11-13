@@ -17,10 +17,9 @@
 
 package org.hawkular.datamining.engine.model;
 
-import java.util.Collection;
 import java.util.List;
 
-import org.hawkular.dataminig.api.model.DataPoint;
+import org.hawkular.datamining.api.model.DataPoint;
 
 /**
  * @author Pavol Loffay
@@ -28,7 +27,7 @@ import org.hawkular.dataminig.api.model.DataPoint;
 public interface PredictionModel {
 
     void addDataPoint(DataPoint dataPoint);
-    void addDataPoints(Collection<DataPoint> dataPoints);
+    void addDataPoints(List<DataPoint> dataPoints);
 
     List<DataPoint> predict(int nAhead);
 }

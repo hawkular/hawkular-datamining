@@ -23,17 +23,18 @@ import java.util.Map;
 
 import javax.inject.Singleton;
 
-import org.hawkular.dataminig.api.EngineDataReceiver;
-import org.hawkular.dataminig.api.MetricFilter;
-import org.hawkular.dataminig.api.model.DataPoint;
-import org.hawkular.dataminig.api.model.MetricData;
+import org.hawkular.datamining.api.EngineDataReceiver;
+import org.hawkular.datamining.api.MetricFilter;
+import org.hawkular.datamining.api.model.DataPoint;
+import org.hawkular.datamining.api.model.MetricData;
 import org.hawkular.datamining.engine.BatchMetricsLoader;
 
 /**
  * @author Pavol Loffay
  */
 @Singleton
-public class ForecastingEngine implements EngineDataReceiver<MetricData>, org.hawkular.dataminig.api.ForecastingEngine {
+public class ForecastingEngine implements EngineDataReceiver<MetricData>,
+        org.hawkular.datamining.api.ForecastingEngine {
 
     //tenant, metric, model
     private Map<String, Map<String, ForecastingModel>> models = new HashMap<>();
