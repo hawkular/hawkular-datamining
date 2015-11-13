@@ -20,6 +20,7 @@ package org.hawkular.datamining.engine.model;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Singleton;
 
@@ -41,7 +42,17 @@ public class ForecastingEngine implements EngineDataReceiver<MetricData>,
 
 
     public ForecastingEngine() {
+        // todo
         // list data from filter and initialize model
+        Map<String, Set<String>> subscriptions = MetricFilter.getAllSubscriptions();
+        for (Map.Entry<String, Set<String>> setEntry: subscriptions.entrySet()) {
+            String tenant = setEntry.getKey();
+
+            for (String metricsId : setEntry.getValue()) {
+                ForecastingModel model = getForecastingModel(tenant, metricsId);
+                initializeModel(model);
+            }
+        }
     }
 
     @Override

@@ -64,4 +64,8 @@ public class MetricFilter {
 
         return subscription;
     }
+
+    public static Map<String, Set<String>> getAllSubscriptions() {
+        return subscriptions;
+    }
 }
