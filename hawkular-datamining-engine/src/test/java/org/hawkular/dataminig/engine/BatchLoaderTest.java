@@ -27,11 +27,13 @@ import org.hawkular.datamining.api.MetricFilter;
 import org.hawkular.datamining.api.model.BucketPoint;
 import org.hawkular.datamining.api.model.DataPoint;
 import org.hawkular.datamining.engine.BatchMetricsLoader;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * @author Pavol Loffay
  */
+@Ignore
 public class BatchLoaderTest {
 
     @Test

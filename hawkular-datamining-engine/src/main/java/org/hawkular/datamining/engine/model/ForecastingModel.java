@@ -38,7 +38,9 @@ public class ForecastingModel implements PredictionModel {
 
     private String tenant;
     private String metricId;
+
     private Long lastTimestamp;
+    private Long distance;
 
     private LeastMeanSquaresFilter leastMeanSquaresFilter;
     private ExponentiallyWeightedMovingAverages ewma;
@@ -71,11 +73,11 @@ public class ForecastingModel implements PredictionModel {
 
         for (int i = 0; i < predictionEWMA.size() && i  < predictionFilter.size(); i++) {
 
-            EngineLogger.LOGGER.debugf("Filter predicted %f", predictionFilter);
-            EngineLogger.LOGGER.debugf("EWMA predicted %f", predictionEWMA);
-
             double ewma = predictionEWMA.get(i).getValue();
             double filter = predictionFilter.get(i).getValue();
+
+            EngineLogger.LOGGER.debugf("Filter predicted %f", filter);
+            EngineLogger.LOGGER.debugf("EWMA predicted %f", ewma);
 
             double mean = (ewma + filter) / 2;
             ewma = ewma - mean;
@@ -97,6 +99,8 @@ public class ForecastingModel implements PredictionModel {
     }
 
     private void addData(List<DataPoint> dataPoints) {
+        lastTimestamp = dataPoints.get(dataPoints.size() - 1).getTimestamp();
+
         ewma.addDataPoints(dataPoints);
         leastMeanSquaresFilter.addDataPoints(dataPoints);
     }
