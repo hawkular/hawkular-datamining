@@ -18,7 +18,6 @@
 package org.hawkular.datamining.engine.model;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import org.hawkular.datamining.api.model.DataPoint;
@@ -58,12 +57,12 @@ public class ExponentiallyWeightedMovingAverages implements PredictionModel {
         return Arrays.asList(dataPoint);
     }
 
-    private void process(Collection<DataPoint> dataPoints) {
+    private void process(List<DataPoint> dataPoints) {
 
-        dataPoints.forEach(point -> {
+        for (DataPoint point: dataPoints) {
             double level_old = level;
             level = alpha * point.getValue() + (1 - alpha) * (level + slope);
             slope = beta * (level - level_old) + (1 - beta) * (slope);
-        });
+        }
     }
 }

@@ -41,7 +41,7 @@ public class ForecastingModel implements PredictionModel {
     private String metricId;
 
     private long lastTimestamp;
-    private long distance;
+    private long distance; //todo
 
     private LeastMeanSquaresFilter leastMeanSquaresFilter;
     private ExponentiallyWeightedMovingAverages ewma;

@@ -24,8 +24,8 @@ import java.io.Serializable;
  */
 public class DataPoint implements Serializable, Comparable<DataPoint> {
 
-    private Double value;
     private Long timestamp;
+    private Double value;
 
 
     public DataPoint() {
@@ -51,17 +51,12 @@ public class DataPoint implements Serializable, Comparable<DataPoint> {
 
     @Override
     public int compareTo(DataPoint dataPoint) {
-        final int BEFORE = -1;
-        final int EQUAL = 0;
-        final int AFTER = 1;
-
-
         if (this.getTimestamp() < dataPoint.getTimestamp()) {
-            return BEFORE;
+            return -1;
         } else if (this.getTimestamp() > dataPoint.getTimestamp()) {
-            return AFTER;
+            return 1;
         }
 
-        return EQUAL;
+        return 0;
     }
 }
