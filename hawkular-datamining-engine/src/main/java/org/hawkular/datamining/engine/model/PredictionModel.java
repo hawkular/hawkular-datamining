@@ -15,19 +15,19 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.dist;
+package org.hawkular.datamining.engine.model;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import javax.inject.Qualifier;
+import java.util.List;
+
+import org.hawkular.datamining.api.model.DataPoint;
 
 /**
  * @author Pavol Loffay
  */
-@Qualifier
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD})
-public @interface Official {
+public interface PredictionModel {
+
+    void addDataPoint(DataPoint dataPoint);
+    void addDataPoints(List<DataPoint> dataPoints);
+
+    List<DataPoint> predict(int nAhead);
 }

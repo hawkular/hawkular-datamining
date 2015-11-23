@@ -15,19 +15,31 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.bus.listener;
+package org.hawkular.datamining.dist;
 
-import org.hawkular.bus.common.consumer.BasicMessageListener;
-import org.hawkular.datamining.bus.BusLogger;
-import org.hawkular.datamining.bus.message.AvailDataMessage;
+import javax.enterprise.inject.Produces;
+import javax.inject.Singleton;
+
+import org.hawkular.datamining.api.Official;
+import org.hawkular.datamining.bus.listener.MetricDataListener;
+import org.hawkular.datamining.engine.model.ForecastingEngine;
+
 
 /**
  * @author Pavol Loffay
  */
-public class AvailableDataListener extends BasicMessageListener<AvailDataMessage> {
+@Singleton
+public class ForecastingEngineProducer {
 
-    @Override
-    protected void onBasicMessage(AvailDataMessage availDataMessage) {
-        BusLogger.LOGGER.debug(availDataMessage.toJSON());
+    @Official
+    @Produces
+    @Singleton
+    public ForecastingEngine getAnalyticEngine() {
+
+        ForecastingEngine forecastingEngine = new ForecastingEngine();
+
+        MetricDataListener metricDataListener = new MetricDataListener(forecastingEngine);
+
+        return forecastingEngine;
     }
 }

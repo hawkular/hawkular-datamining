@@ -28,11 +28,16 @@ for n = 3:L-1
 	w(:, n+1) = w(:, n) - alfa * e * x (n-1: -1: n-N);  	
 	
 	#plot(filter(w(1, n),  w(2, n), ni));
-	printf("xp= %d\n", size(xp));
-	size(xp)
-	printf("e = %d\n", e);
-	printf("x =" );
-	x (n-1: -1: n-N)
+	#printf("xp= %d\n", size(xp));
+	#size(xp)
+	 #x(n-1:-1:n-N)
+	#-w (:, n)'
+	alfa * e * x (n-1: -1: n-N)
+	#x(n-1:-1:n-N)
+	printf("e = %f\n", xp);
+	w(:, n)
+	#printf("x =" );
+	#x(n-1: -1: n-N)
 end
 
 figure(1);

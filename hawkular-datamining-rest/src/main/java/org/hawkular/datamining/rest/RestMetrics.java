@@ -17,9 +17,12 @@
 
 package org.hawkular.datamining.rest;
 
+import java.util.Set;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -27,39 +30,44 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.hawkular.dataminig.api.MetricFilter;
+import org.hawkular.datamining.api.Constants;
+import org.hawkular.datamining.api.MetricFilter;
 
 /**
  * @author Pavol Loffay
  */
-@Path("/metrics")
+@Path("/")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class RestMetrics {
 
-    @GET
-    public Response getAll() {
+    @HeaderParam(Constants.TENANT_HEADER_NAME)
+    private String tenant;
 
-        return Response.status(Response.Status.OK).entity(MetricFilter.getAll()).build();
+    @GET
+    @Path("/metrics")
+    public Response getAll() {
+        Set<String> tenantsSubscriptions = MetricFilter.getTenantSubscription(tenant);
+        return Response.status(Response.Status.OK).entity(tenantsSubscriptions).build();
     }
 
     @POST
-    @Path("/metrics/{key}")
-    public Response subscribe(@PathParam("key") String key) {
+    @Path("/metrics/{id}")
+    public Response subscribe(@PathParam("id") String metricsId) {
 
-        if (null != key) {
-            MetricFilter.subscribe(key);
+        if (null != metricsId) {
+            MetricFilter.subscribe(tenant, metricsId);
         }
 
         return Response.status(Response.Status.OK).build();
     }
 
     @DELETE
-    @Path("/metrics/{key}")
-    public Response unSubscribe(@PathParam("key") String key) {
+    @Path("/metrics/{id}")
+    public Response unSubscribe(@PathParam("id") String metricsId) {
 
-        if (null != key) {
-            MetricFilter.unSubscribe(key);
+        if (null != metricsId && !metricsId.isEmpty()) {
+            MetricFilter.unSubscribe(tenant, metricsId);
         }
 
         return Response.status(Response.Status.OK).build();

@@ -15,23 +15,23 @@
  * limitations under the License.
  */
 
-package org.hawkular.dataminig.api.model;
+package org.hawkular.datamining.api.model;
 
 import java.io.Serializable;
 
 /**
  * @author Pavol Loffay
  */
-public class TimeSeries implements Serializable {
+public class DataPoint implements Serializable, Comparable<DataPoint> {
 
+    private Long timestamp;
     private Double value;
-    private Double timestamp;
 
 
-    public TimeSeries() {
+    public DataPoint() {
     }
 
-    public TimeSeries(Double value, Double timestamp) {
+    public DataPoint(Double value, Long timestamp) {
         this.value = value;
         this.timestamp = timestamp;
     }
@@ -40,12 +40,23 @@ public class TimeSeries implements Serializable {
         return value;
     }
 
-    public Double getTimestamp() {
+    public Long getTimestamp() {
         return timestamp;
     }
 
     @Override
     public String toString() {
         return this.getClass().getName() + " { value = " + value + " , timestamp=" + timestamp + " }";
+    }
+
+    @Override
+    public int compareTo(DataPoint dataPoint) {
+        if (this.getTimestamp() < dataPoint.getTimestamp()) {
+            return -1;
+        } else if (this.getTimestamp() > dataPoint.getTimestamp()) {
+            return 1;
+        }
+
+        return 0;
     }
 }

@@ -17,10 +17,17 @@
 
 package org.hawkular.datamining.bus.listener;
 
+import javax.jms.JMSException;
+
+import org.hawkular.bus.common.ConnectionContextFactory;
+import org.hawkular.bus.common.Endpoint;
+import org.hawkular.bus.common.MessageProcessor;
 import org.hawkular.bus.common.consumer.BasicMessageListener;
-import org.hawkular.dataminig.api.EngineDataReceiver;
-import org.hawkular.dataminig.api.MetricFilter;
-import org.hawkular.dataminig.api.model.MetricData;
+import org.hawkular.bus.common.consumer.ConsumerConnectionContext;
+import org.hawkular.datamining.api.EngineDataReceiver;
+import org.hawkular.datamining.api.MetricFilter;
+import org.hawkular.datamining.api.model.MetricData;
+import org.hawkular.datamining.bus.BusConfiguration;
 import org.hawkular.datamining.bus.BusLogger;
 import org.hawkular.datamining.bus.message.MetricDataMessage;
 
@@ -34,6 +41,17 @@ public class MetricDataListener extends BasicMessageListener<MetricDataMessage> 
 
     public MetricDataListener(EngineDataReceiver engineDataReceiver) {
         this.engineDataReceiver = engineDataReceiver;
+
+        try {
+            ConnectionContextFactory factory = new ConnectionContextFactory(BusConfiguration.BROKER_URL);
+            Endpoint endpoint = new Endpoint(Endpoint.Type.TOPIC, BusConfiguration.TOPIC_METRIC_DATA);
+            ConsumerConnectionContext consumerConnectionContext = factory.createConsumerConnectionContext(endpoint);
+
+            MessageProcessor processor = new MessageProcessor();
+            processor.listen(consumerConnectionContext, this);
+        } catch (JMSException ex) {
+
+        }
     }
 
     @Override
@@ -45,17 +63,17 @@ public class MetricDataListener extends BasicMessageListener<MetricDataMessage> 
         for (MetricDataMessage.SingleMetric singleMetric: metricData.getData()) {
 
 //             filter data
-            if (MetricFilter.contains(singleMetric.getSource())) {
+            if (MetricFilter.contains(tenantId, singleMetric.getSource())) {
                 BusLogger.LOGGER.debugf("\ntenant %s", tenantId);
                 BusLogger.LOGGER.debugf("source: %s", singleMetric.getSource());
                 BusLogger.LOGGER.debugf("value: %s", singleMetric.getValue());
 
 
-                MetricData engineData = new MetricData(singleMetric.getSource(),
-                        new Double(singleMetric.getTimestamp()),
+                MetricData engineData = new MetricData(tenantId, singleMetric.getSource(),
+                        singleMetric.getTimestamp(),
                         singleMetric.getValue());
 
-                engineDataReceiver.store(engineData);
+                engineDataReceiver.process(engineData);
             }
         }
     }

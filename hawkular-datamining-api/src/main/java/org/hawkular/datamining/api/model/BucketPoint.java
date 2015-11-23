@@ -15,31 +15,47 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.bus.message;
-
-import org.hawkular.bus.common.AbstractMessage;
-import org.hawkular.dataminig.api.model.PredictionResult;
+package org.hawkular.datamining.api.model;
 
 /**
  * @author Pavol Loffay
  */
-public class PredictionResultMessage extends AbstractMessage {
+public class BucketPoint {
 
-    private PredictionResult predictionResult;
+    private Double avg;
+    private Long start;
+    private Long end;
+    private Boolean empty;
 
-
-    public PredictionResultMessage() {
+    public Double getAvg() {
+        return avg;
     }
 
-    public PredictionResultMessage(PredictionResult predictionResult) {
-        this.predictionResult = predictionResult;
+    public void setAvg(Double avg) {
+        this.avg = avg;
     }
 
-    public PredictionResult getPredictionResult() {
-        return predictionResult;
+    public Long getStart() {
+        return start;
     }
 
-    public void setPredictionResult(PredictionResult predictionResult) {
-        this.predictionResult = predictionResult;
+    public void setStart(Long start) {
+        this.start = start;
+    }
+
+    public Long getEnd() {
+        return end;
+    }
+
+    public void setEnd(Long end) {
+        this.end = end;
+    }
+
+    public Boolean getEmpty() {
+        return empty;
+    }
+
+    public void setEmpty(Boolean empty) {
+        this.empty = empty;
     }
 }

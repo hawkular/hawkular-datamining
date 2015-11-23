@@ -17,30 +17,24 @@
 
 package org.hawkular.datamining.rest;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.container.AsyncResponse;
-import javax.ws.rs.container.Suspended;
-import javax.ws.rs.container.TimeoutHandler;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.hawkular.dataminig.api.model.PredictionRequest;
-import org.hawkular.dataminig.api.model.PredictionResult;
-import org.hawkular.dataminig.api.model.TimeSeries;
-import org.hawkular.datamining.bus.listener.PredictionResultListener;
-import org.hawkular.datamining.bus.sender.PredictionsRequestSender;
-import org.hawkular.datamining.engine.receiver.MetricDataReceiver;
+import org.hawkular.datamining.api.Constants;
+import org.hawkular.datamining.api.Official;
+import org.hawkular.datamining.api.model.DataPoint;
+import org.hawkular.datamining.engine.model.ForecastingEngine;
 
 /**
  * @author Pavol Loffay
@@ -50,70 +44,21 @@ import org.hawkular.datamining.engine.receiver.MetricDataReceiver;
 @Produces(MediaType.APPLICATION_JSON)
 public class RestPredictions {
 
-    private static final int REQUEST_TIMEOUT = 20;
-    private static Double counter = 0.0;
+    @HeaderParam(Constants.TENANT_HEADER_NAME)
+    private String tenant;
 
     @Inject
-    private PredictionsRequestSender predictionsRequestSender;
-
-    @Inject
-    private PredictionResultListener predictionResultListener;
+    @Official
+    private ForecastingEngine forecastingEngine;
 
 
     @GET
-    @Path("/predictions/{metricId}")
-    public Response predict(@Suspended final AsyncResponse asyncResponse,
-                            @PathParam("metricId") String metricId,
-                            @QueryParam("timestamp") List<Double> timestamps) {
+    @Path("/predict/{metricId}")
+    public Response predict(@PathParam("metricId") String metricId,
+                            @DefaultValue("1") @QueryParam("ahead") int ahead) {
 
-        asyncResponse.setTimeoutHandler(new TimeoutHandler() {
-            @Override
-            public void handleTimeout(AsyncResponse asyncResponse) {
-                asyncResponse.resume(Response.status(Response.Status.SERVICE_UNAVAILABLE).build());
-            }
-        });
-        asyncResponse.setTimeout(REQUEST_TIMEOUT, TimeUnit.SECONDS);
+        List<DataPoint> dataPoints = forecastingEngine.predict(tenant, metricId, ahead);
 
-
-        String predictionRequestId = String.valueOf(counter++);
-
-        // send prediction requests to engine
-        List<PredictionRequest> predictionRequests = timestamps.stream().map(timestamp -> {
-            return new PredictionRequest(predictionRequestId, metricId, timestamp);
-        }).collect(Collectors.toList());
-
-        predictionsRequestSender.send(predictionRequests);
-
-        // get predictions
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                PredictionResult result;
-                // todo get by requestID
-                while ((result = predictionResultListener.cache.get(predictionRequestId)) == null) {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                predictionResultListener.cache.remove(predictionRequestId);
-                List<TimeSeries> predictionResults = result.getPoints();
-                List<TimeSeries> resultModifiedTimestamps = new ArrayList<TimeSeries>(predictionResults.size());
-                resultModifiedTimestamps.addAll(predictionResults.stream()
-                        .map(timeSeries ->
-                                new TimeSeries(timeSeries.getValue(),
-                                               timeSeries.getTimestamp() + MetricDataReceiver.firstTimestamp))
-                        .collect(Collectors.toList()));
-
-                result.setPoints(resultModifiedTimestamps);
-                asyncResponse.resume(result);
-            }
-        }).start();
-
-
-        return Response.ok().build();
+        return Response.ok().entity(dataPoints).build();
     }
 }

@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.hawkular</groupId>
     <artifactId>hawkular-parent</artifactId>
-    <version>19</version>
+    <version>25</version>
   </parent>
 
   <groupId>org.hawkular.datamining</groupId>
@@ -43,13 +43,13 @@
   </modules>
 
   <properties>
-    <version.org.hawkular.bus>0.7.0.Final</version.org.hawkular.bus>
-    <versin.org.apache.spark>1.5.1</versin.org.apache.spark>
+    <version.org.hawkular.bus>0.7.2.Final</version.org.hawkular.bus>
+
+    <version.com.squareup.okhttp>2.5.0</version.com.squareup.okhttp>
     <version.org.jboss.logging>3.2.1.Final</version.org.jboss.logging>
     <version.org.jboss.logging.jboss-logging-tools>2.0.0.Final</version.org.jboss.logging.jboss-logging-tools>
     <verison.javax.enterprise.cdi-api>1.2</verison.javax.enterprise.cdi-api>
     <version.org.jboss.spec.javax.ejb.jboss-ejb-api_3.2_spec>1.0.0.Final</version.org.jboss.spec.javax.ejb.jboss-ejb-api_3.2_spec>
-    <version.com.fasterxml.jackson.core>2.4.4</version.com.fasterxml.jackson.core>
   </properties>
 
   <scm>
@@ -98,22 +98,6 @@
 
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-annotations</artifactId>
-        <version>${version.com.fasterxml.jackson.core}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-core</artifactId>
-        <version>${version.com.fasterxml.jackson.core}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-        <version>${version.com.fasterxml.jackson.core}</version>
-      </dependency>
-
       <dependency>
         <groupId>org.wildfly.bom</groupId>
         <artifactId>jboss-javaee-7.0-wildfly</artifactId>

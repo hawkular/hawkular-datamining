@@ -15,33 +15,11 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.dist;
-
-import javax.annotation.PostConstruct;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.inject.Inject;
-
-import org.hawkular.datamining.api.Official;
-import org.hawkular.datamining.engine.model.ForecastingEngine;
-import org.jboss.logging.Logger;
+package org.hawkular.datamining.api;
 
 /**
  * @author Pavol Loffay
  */
-@Startup
-@Singleton
-public class DataMiningStartup {
-
-    private static final Logger LOG = Logger.getLogger(DataMiningStartup.class);
-
-    @Official
-    @Inject
-    private ForecastingEngine forecastingEngine;
-
-
-    @PostConstruct
-    public void postConstruct() {
-        LOG.debug("Ejb starting");
-    }
+public class Constants {
+    public static final String TENANT_HEADER_NAME = "Hawkular-Tenant";
 }

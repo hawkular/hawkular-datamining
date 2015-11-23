@@ -15,13 +15,15 @@
  * limitations under the License.
  */
 
-package org.hawkular.dataminig.api;
+package org.hawkular.datamining.api;
+
+import java.util.List;
+
+import org.hawkular.datamining.api.model.DataPoint;
 
 /**
  * @author Pavol Loffay
  */
-public interface AnalyticEngine {
-
-    void start();
-    void stop();
+public interface ForecastingEngine {
+    List<DataPoint> predict(String tenant, String metricsId, int nAhead);
 }

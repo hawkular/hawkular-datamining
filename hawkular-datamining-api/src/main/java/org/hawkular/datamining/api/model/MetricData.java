@@ -15,22 +15,34 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.engine;
+package org.hawkular.datamining.api.model;
 
-import java.io.IOException;
 import java.io.Serializable;
-
-import org.apache.spark.SparkConf;
 
 /**
  * @author Pavol Loffay
  */
-public abstract class BaseTest implements Serializable {
+public class MetricData implements Serializable {
 
-    protected transient SparkConf sparkConf;
+    private String tenant;
+    private String metricId;
+    private DataPoint dataPoint;
 
-    public BaseTest() throws IOException {
-        EngineConfiguration configuration = new EngineConfiguration();
-        sparkConf = configuration.getSparkConf();
+    public MetricData(String tenant, String metricId, Long timestamp, Double value) {
+        this.tenant = tenant;
+        this.metricId = metricId;
+        this.dataPoint = new DataPoint(value, timestamp);
+    }
+
+    public String getMetricId() {
+        return metricId;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public DataPoint getDataPoint() {
+        return dataPoint;
     }
 }

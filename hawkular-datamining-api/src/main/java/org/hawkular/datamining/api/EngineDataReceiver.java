@@ -15,21 +15,16 @@
  * limitations under the License.
  */
 
-package org.hawkular.dataminig.api.model;
+package org.hawkular.datamining.api;
+
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author Pavol Loffay
  */
-public class MetricData extends TimeSeries {
+public interface EngineDataReceiver<T extends Serializable> {
 
-    private String id;
-
-    public MetricData(String id, Double timestamp, Double value) {
-        super(value, timestamp);
-        this.id = id;
-    }
-
-    public String getId() {
-        return id;
-    }
+    void process(T data);
+    void process(List<T> data);
 }
