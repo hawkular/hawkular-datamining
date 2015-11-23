@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.hawkular.datamining.api.model.DataPoint;
 import org.hawkular.datamining.engine.EngineLogger;
+import org.hawkular.datamining.engine.UrlUtils;
 
 /**
  * @author Pavol Loffay
@@ -38,10 +39,13 @@ public class ForecastingModel implements PredictionModel {
     public static final double LMS_ALPHA = 0.000000000000000000000000001;
 
     private String tenant;
+    private String feed;
     private String metricId;
 
+    // in ms
     private long lastTimestamp;
-    private long distance; //todo
+    // in seconds
+    private long interval;
 
     private LeastMeanSquaresFilter leastMeanSquaresFilter;
     private ExponentiallyWeightedMovingAverages ewma;
@@ -50,6 +54,7 @@ public class ForecastingModel implements PredictionModel {
     public ForecastingModel(String tenant, String metricId) {
         this.tenant = tenant;
         this.metricId = metricId;
+        this.feed = UrlUtils.getFeedIdFromMetricId(metricId);
 
         this.ewma = new ExponentiallyWeightedMovingAverages(EWMA_ALPHA, EWMA_BETA);
         this.leastMeanSquaresFilter = new LeastMeanSquaresFilter(LMS_ALPHA, LMS_WEIGHTS);
@@ -66,13 +71,18 @@ public class ForecastingModel implements PredictionModel {
     }
 
     @Override
+    public DataPoint predict() {
+        return predict(1).get(0);
+    }
+
+    @Override
     public List<DataPoint> predict(int nAhead) {
 
         List<DataPoint> result = new ArrayList<>();
         List<DataPoint> predictionEWMA = ewma.predict(nAhead);
         List<DataPoint> predictionFilter = leastMeanSquaresFilter.predict(nAhead);
 
-        for (int i = 0; i < predictionEWMA.size() && i  < predictionFilter.size(); i++) {
+        for (int i = 0; i < predictionEWMA.size() && i < predictionFilter.size(); i++) {
 
             double ewma = predictionEWMA.get(i).getValue();
             double filter = predictionFilter.get(i).getValue();
@@ -84,7 +94,7 @@ public class ForecastingModel implements PredictionModel {
             ewma = ewma - mean;
             filter = filter - mean;
 
-            DataPoint dataPoint = new DataPoint((ewma + filter) + mean, null);
+            DataPoint dataPoint = new DataPoint((ewma + filter) + mean, lastTimestamp + i * interval * 1000); // ms
             result.add(dataPoint);
             EngineLogger.LOGGER.debugf("Prediction: %s, %s", tenant, metricId, dataPoint);
         }
@@ -98,6 +108,10 @@ public class ForecastingModel implements PredictionModel {
 
     public String getMetricId() {
         return metricId;
+    }
+
+    public void setInterval(long interval) {
+        this.interval = interval;
     }
 
     private void addData(List<DataPoint> dataPoints) {

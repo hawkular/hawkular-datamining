@@ -28,7 +28,10 @@ import org.hawkular.datamining.api.EngineDataReceiver;
 import org.hawkular.datamining.api.MetricFilter;
 import org.hawkular.datamining.api.model.DataPoint;
 import org.hawkular.datamining.api.model.MetricData;
-import org.hawkular.datamining.engine.BatchMetricsLoader;
+import org.hawkular.datamining.engine.InventoryStorageAdapter;
+import org.hawkular.datamining.engine.MetricsStorageAdapter;
+import org.hawkular.datamining.engine.UrlUtils;
+import org.hawkular.inventory.api.model.Metric;
 
 /**
  * @author Pavol Loffay
@@ -36,6 +39,9 @@ import org.hawkular.datamining.engine.BatchMetricsLoader;
 @Singleton
 public class ForecastingEngine implements EngineDataReceiver<MetricData>,
         org.hawkular.datamining.api.ForecastingEngine {
+
+    private MetricsStorageAdapter metricsStorageAdapter = new MetricsStorageAdapter();
+    private InventoryStorageAdapter inventoryStorageAdapter = new InventoryStorageAdapter();
 
     //tenant, metric, model, TODO synchronize
     private Map<String, Map<String, ForecastingModel>> models = new HashMap<>();
@@ -67,9 +73,7 @@ public class ForecastingEngine implements EngineDataReceiver<MetricData>,
 
     @Override
     public void process(List<MetricData> data) {
-        // TODO
-        throw new UnsupportedOperationException();
-
+        data.forEach(x -> process(x));
     }
 
     @Override
@@ -103,9 +107,12 @@ public class ForecastingEngine implements EngineDataReceiver<MetricData>,
 
     private void initializeModel(ForecastingModel model) {
 
-        BatchMetricsLoader batchLoader = new BatchMetricsLoader(model.getTenant(), model.getMetricId());
+        List<DataPoint> dataPoints = metricsStorageAdapter.loadPoints(model.getMetricId(), model.getTenant());
+        Metric metric = inventoryStorageAdapter.getMetricDefinition(model.getMetricId(),
+                UrlUtils.getFeedIdFromMetricId(model.getMetricId()),model.getTenant());
 
-        List<DataPoint> dataPoints = batchLoader.loadPoints();
+        Long interval = metric.getInterval() == null ? metric.getType().getInterval() : metric.getInterval();
+        model.setInterval(interval);
 
         model.addDataPoints(dataPoints);
     }

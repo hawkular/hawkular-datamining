@@ -15,20 +15,22 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.engine.model;
+package org.hawkular.datamining.engine;
 
-import java.util.List;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.notNullValue;
 
-import org.hawkular.datamining.api.model.DataPoint;
+import org.hawkular.datamining.api.MetricFilter;
+import org.junit.Test;
 
 /**
  * @author Pavol Loffay
  */
-public interface PredictionModel {
+public class MetricIdParserTest {
 
-    void addDataPoint(DataPoint dataPoint);
-    void addDataPoints(List<DataPoint> dataPoints);
-
-    DataPoint predict();
-    List<DataPoint> predict(int nAhead);
+    @Test
+    public void testParseMetricId() {
+        String feedId = UrlUtils.getFeedIdFromMetricId(MetricFilter.HEAP_USED_METRICS);
+        assertThat(feedId, notNullValue());
+    }
 }

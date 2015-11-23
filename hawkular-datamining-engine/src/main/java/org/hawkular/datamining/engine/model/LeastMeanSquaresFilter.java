@@ -17,6 +17,7 @@
 
 package org.hawkular.datamining.engine.model;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -28,21 +29,24 @@ import org.hawkular.datamining.api.model.DataPoint;
  */
 public class LeastMeanSquaresFilter implements PredictionModel {
 
-    private final double alpha;
+    private final double alphaLearningRate;
     private final int filterLength;
     private double[] weights;
     private double[] oldPoints;
 
     private int initialized = 0;
 
-    public LeastMeanSquaresFilter(double alpha, double[] weights) {
-        this.alpha = alpha;
+    public LeastMeanSquaresFilter(double alphaLearningRate, double[] weights) {
+        this.alphaLearningRate = alphaLearningRate;
         this.weights = weights;
         this.filterLength = weights.length;
 
         this.oldPoints = new double[filterLength];
     }
 
+    public double[] getWeights() {
+        return Arrays.copyOf(weights, weights.length);
+    }
 
     @Override
     public void addDataPoint(DataPoint dataPoint) {
@@ -56,10 +60,24 @@ public class LeastMeanSquaresFilter implements PredictionModel {
 
     @Override
     public List<DataPoint> predict(int nAhead) {
+        LeastMeanSquaresFilter lmsPredict = new LeastMeanSquaresFilter(this.alphaLearningRate, this.weights);
 
-        double value = currentPrediction(false);
-        DataPoint dataPoint = new DataPoint(value, null);
-        return Arrays.asList(dataPoint);
+        List<DataPoint> result = new ArrayList<>(nAhead);
+        for (int i = 0; i < nAhead; i++) {
+            DataPoint predictedPoint = lmsPredict.predict();
+            result.add(predictedPoint);
+
+            lmsPredict.process(Arrays.asList(predictedPoint));
+        }
+
+        return result;
+    }
+
+    @Override
+    public  DataPoint predict() {
+        double prediction = currentPrediction();
+
+        return new DataPoint(prediction, 1L);
     }
 
     private void process(Collection<DataPoint> dataPoints) {
@@ -70,12 +88,12 @@ public class LeastMeanSquaresFilter implements PredictionModel {
                 continue;
             }
 
-            double currentPrediction = currentPrediction(true);
+            double currentPrediction = currentPrediction();
             double error = (dataPoint.getValue() - (currentPrediction));
 
             // update weights
             for (int i = 0; i < filterLength; i++) {
-                weights[i] = weights[i] - (alpha * error * oldPoints[i]);
+                weights[i] = weights[i] - (alphaLearningRate * error * oldPoints[i]);
 //                weights[i] = weights[i] - (error * oldPoints[i]) / (oldPoints[i] * oldPoints[i]);
             }
 
@@ -83,15 +101,10 @@ public class LeastMeanSquaresFilter implements PredictionModel {
         }
     }
 
-    private double currentPrediction(boolean negative) {
+    private double currentPrediction() {
         double oldPrediction = 0;
         for (int i = 0; i < filterLength; i++) {
-            if (negative) {
-                oldPrediction += (-weights[i]) * oldPoints[i];
-            }
-            else {
-                oldPrediction += (weights[i]) * oldPoints[i];
-            }
+                oldPrediction  += (-weights[i]) * oldPoints[i];
         }
 
         return oldPrediction;

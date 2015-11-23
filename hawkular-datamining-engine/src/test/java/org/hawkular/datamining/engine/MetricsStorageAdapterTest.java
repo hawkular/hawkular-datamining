@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.hawkular.dataminig.engine;
+package org.hawkular.datamining.engine;
 
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -26,7 +26,6 @@ import java.util.List;
 import org.hawkular.datamining.api.MetricFilter;
 import org.hawkular.datamining.api.model.BucketPoint;
 import org.hawkular.datamining.api.model.DataPoint;
-import org.hawkular.datamining.engine.BatchMetricsLoader;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -34,25 +33,25 @@ import org.junit.Test;
  * @author Pavol Loffay
  */
 @Ignore
-public class BatchLoaderTest {
+public class MetricsStorageAdapterTest {
 
     @Test
     public void testDataPointsLoading() {
 
-        BatchMetricsLoader batchMetricsLoader = new BatchMetricsLoader(MetricFilter.TENANT,
-                MetricFilter.HEAP_USED_METRICS);
+        MetricsStorageAdapter metricsStorageAdapter = new MetricsStorageAdapter();
 
-        List<DataPoint> dataPoints =  batchMetricsLoader.loadPoints();
+        List<DataPoint> dataPoints =  metricsStorageAdapter.loadPoints(MetricFilter.HEAP_USED_METRICS,
+                MetricFilter.TENANT);
 
         assertThat(dataPoints, notNullValue());
     }
 
     @Test
     public void testBucketDataLoading() {
-        BatchMetricsLoader batchMetricsLoader = new BatchMetricsLoader(MetricFilter.TENANT,
-                MetricFilter.HEAP_USED_METRICS);
+        MetricsStorageAdapter metricsStorageAdapter = new MetricsStorageAdapter();
 
-        List<BucketPoint> dataPoints =  batchMetricsLoader.loadBuckets(20);
+        List<BucketPoint> dataPoints =  metricsStorageAdapter.loadBuckets(20, MetricFilter.HEAP_USED_METRICS,
+                MetricFilter.TENANT);
 
         assertThat(dataPoints, notNullValue());
         assertTrue(dataPoints.size() > 0);

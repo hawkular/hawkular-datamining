@@ -29,7 +29,6 @@ public class MetricFilter {
 
     private static final Map<String, Set<String>> subscriptions = new HashMap<>();
 
-
     // TODO REMOVE
     public static final String TENANT = "28026b36-8fe4-4332-84c8-524e173a68bf";
     public static final String HEAP_USED_METRICS = "MI~R~[dhcp130-144~Local~~]~MT~WildFly Memory Metrics~Heap Used";

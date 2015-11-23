@@ -17,6 +17,7 @@
 
 package org.hawkular.datamining.engine.model;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,16 +28,16 @@ import org.hawkular.datamining.api.model.DataPoint;
  */
 public class ExponentiallyWeightedMovingAverages implements PredictionModel {
 
-    private double alpha;
-    private double beta;
+    private double levelSmoothing;
+    private double trendSmoothing;
 
     private double level;
     private double slope;
 
 
-    public ExponentiallyWeightedMovingAverages(double alpha, double beta) {
-        this.alpha = alpha;
-        this.beta = beta;
+    public ExponentiallyWeightedMovingAverages(double levelSmoothing, double trendSmoothing) {
+        this.levelSmoothing = levelSmoothing;
+        this.trendSmoothing = trendSmoothing;
     }
 
     @Override
@@ -50,19 +51,35 @@ public class ExponentiallyWeightedMovingAverages implements PredictionModel {
     }
 
     @Override
+    public DataPoint predict() {
+        double prediction = calculatePrediction(1);
+        return new DataPoint(prediction, 1L);
+    }
+
+    @Override
     public List<DataPoint> predict(int nAhead) {
 
-        double value = level + nAhead * slope;
-        DataPoint dataPoint = new DataPoint(value, null);
-        return Arrays.asList(dataPoint);
+        List<DataPoint> result = new ArrayList<>(nAhead);
+        for (int i = 0; i < nAhead; i++) {
+            double prediction = calculatePrediction(nAhead);
+            DataPoint predictedPoint = new DataPoint(prediction,(long) i);
+
+            result.add(predictedPoint);
+        }
+
+        return result;
     }
 
     private void process(List<DataPoint> dataPoints) {
 
         for (DataPoint point: dataPoints) {
             double level_old = level;
-            level = alpha * point.getValue() + (1 - alpha) * (level + slope);
-            slope = beta * (level - level_old) + (1 - beta) * (slope);
+            level = levelSmoothing * point.getValue() + (1 - levelSmoothing) * (level + slope);
+            slope = trendSmoothing * (level - level_old) + (1 - trendSmoothing) * (slope);
         }
+    }
+
+    private double calculatePrediction(int nAhead) {
+        return level + nAhead * slope;
     }
 }
