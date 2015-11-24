@@ -44,10 +44,11 @@ import org.jboss.resteasy.core.ResourceMethodRegistry;
 /**
  * @author Pavol Loffay
  */
-@Path("/")
+@Path(RestPing.URL)
 @Produces(value = MediaType.APPLICATION_JSON)
 @Consumes(value = MediaType.APPLICATION_JSON)
 public class RestPing {
+    public static final String URL = "/";
 
     @Context
     private Dispatcher dispatcher;
@@ -61,7 +62,7 @@ public class RestPing {
     }
 
     @GET
-    @Path("/")
+    @Path(RestPing.URL)
     public Response ping(@Context Dispatcher dispatcher) {
         return Response.status(Response.Status.OK).entity(jaxRsInfo).build();
     }

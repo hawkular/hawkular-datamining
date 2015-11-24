@@ -35,6 +35,19 @@ import org.junit.Test;
  */
 public class LeastMeanSquaresFilterTest {
 
+    /**
+     * Test for AR(2) process = 1.75 0.8745
+     *
+     * Also checks convergence to zero - series mean
+     *
+     * Series generated in Matlab with
+     * rand('twister', sum(100 * clock))
+     * ni = rand(1, 10000) - 0.5;
+     * a = [1 1.75 0.8745];
+     * b = 1;
+     * x = filter(b, a, ni);
+     * x = x(:);
+     */
     @Test
     public void testSeries() throws IOException {
 
@@ -73,11 +86,23 @@ public class LeastMeanSquaresFilterTest {
         double[] weights = leastMeanSquaresFilter.getWeights();
         double expectedAr1 = 1.75;
         double expectedAr2 = 0.8745;
-        double actuarAr1 = weights[0];
-        double actuarAr2 = weights[1];
+        double actualAr1 = weights[0];
+        double actualAr2 = weights[1];
         double maxError = 0.1;
 
-        assertThat(actuarAr1).isBetween(expectedAr1 - maxError, expectedAr1 + maxError);
-        assertThat(actuarAr2).isBetween(expectedAr2 - maxError, expectedAr2 + maxError);
+        assertThat(actualAr1).isBetween(expectedAr1 - maxError, expectedAr1 + maxError);
+        assertThat(actualAr2).isBetween(expectedAr2 - maxError, expectedAr2 + maxError);
+
+
+        /**
+         * Check convergence to zero
+         */
+        List<DataPoint> predictions = leastMeanSquaresFilter.predict(150);
+        maxError = 0.01;
+        double expectedlastPrediction = 0;
+        DataPoint lastPredictedPoint = predictions.get(predictions.size() - 1);
+
+        assertThat(lastPredictedPoint.getValue()).isBetween(expectedlastPrediction - maxError,
+                expectedlastPrediction + maxError);
     }
 }

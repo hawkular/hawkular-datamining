@@ -20,6 +20,8 @@ package org.hawkular.datamining.rest.filter;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
@@ -27,6 +29,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
 import org.hawkular.datamining.api.Constants;
+import org.hawkular.datamining.rest.RestPing;
 
 /**
  * @author Pavol Loffay
@@ -35,9 +38,11 @@ import org.hawkular.datamining.api.Constants;
 public class TenantFilter implements ContainerRequestFilter {
 
     private static final String MISSING_TENANT_MSG;
-
+    private static final Set<String> pathsWithoutTenantHeader = new HashSet<>();
     static {
         MISSING_TENANT_MSG = "Tenant is not specified. Use '" + Constants.TENANT_HEADER_NAME + "' header.";
+
+        pathsWithoutTenantHeader.add(RestPing.URL);
     }
 
     @Override
@@ -46,6 +51,11 @@ public class TenantFilter implements ContainerRequestFilter {
         String tenant = requestContext.getHeaders().getFirst(Constants.TENANT_HEADER_NAME);
         if (tenant != null && !tenant.trim().isEmpty()) {
             // We're good already
+            return;
+        }
+
+        // Some destinations are available without tenant header
+        if (pathsWithoutTenantHeader.contains(requestContext.getUriInfo().getPath())) {
             return;
         }
 
