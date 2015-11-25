@@ -15,33 +15,30 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.dist;
-
-import javax.annotation.PostConstruct;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.inject.Inject;
-
-import org.hawkular.datamining.api.Official;
-import org.hawkular.datamining.engine.ForecastingEngine;
-import org.jboss.logging.Logger;
+package org.hawkular.datamining.api.exception;
 
 /**
  * @author Pavol Loffay
  */
-@Startup
-@Singleton
-public class DataMiningStartup {
+public class SubscriptionNotFoundException extends DataMiningException {
 
-    private static final Logger LOG = Logger.getLogger(DataMiningStartup.class);
+    private String tenant;
+    private String metricId;
 
-    @Official
-    @Inject
-    private ForecastingEngine forecastingEngine;
+    public SubscriptionNotFoundException(String tenant) {
+        this.tenant = tenant;
+    }
 
+    public SubscriptionNotFoundException(String tenant, String metricId) {
+        this.tenant = tenant;
+        this.metricId = metricId;
+    }
 
-    @PostConstruct
-    public void postConstruct() {
-        LOG.debug("Ejb starting");
+    @Override
+    public String getMessage() {
+        String msg = "There is no subscription for " + tenant;
+        msg = metricId != null ? msg + ", on" + metricId : msg;
+
+        return msg;
     }
 }

@@ -25,7 +25,6 @@ import org.hawkular.bus.common.MessageProcessor;
 import org.hawkular.bus.common.consumer.BasicMessageListener;
 import org.hawkular.bus.common.consumer.ConsumerConnectionContext;
 import org.hawkular.datamining.api.EngineDataReceiver;
-import org.hawkular.datamining.api.MetricFilter;
 import org.hawkular.datamining.api.model.MetricData;
 import org.hawkular.datamining.bus.BusConfiguration;
 import org.hawkular.datamining.bus.BusLogger;
@@ -50,7 +49,7 @@ public class MetricDataListener extends BasicMessageListener<MetricDataMessage> 
             MessageProcessor processor = new MessageProcessor();
             processor.listen(consumerConnectionContext, this);
         } catch (JMSException ex) {
-
+            BusLogger.LOGGER.failerToStart(ex);
         }
     }
 
@@ -62,19 +61,10 @@ public class MetricDataListener extends BasicMessageListener<MetricDataMessage> 
 
         for (MetricDataMessage.SingleMetric singleMetric: metricData.getData()) {
 
-//             filter data
-            if (MetricFilter.contains(tenantId, singleMetric.getSource())) {
-                BusLogger.LOGGER.debugf("\ntenant %s", tenantId);
-                BusLogger.LOGGER.debugf("source: %s", singleMetric.getSource());
-                BusLogger.LOGGER.debugf("value: %s", singleMetric.getValue());
+            MetricData engineData = new MetricData(tenantId, singleMetric.getSource(),
+                    singleMetric.getTimestamp(), singleMetric.getValue());
 
-
-                MetricData engineData = new MetricData(tenantId, singleMetric.getSource(),
-                        singleMetric.getTimestamp(),
-                        singleMetric.getValue());
-
-                engineDataReceiver.process(engineData);
-            }
+            engineDataReceiver.process(engineData);
         }
     }
 }

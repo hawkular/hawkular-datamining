@@ -15,33 +15,20 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.dist;
-
-import javax.annotation.PostConstruct;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.inject.Inject;
-
-import org.hawkular.datamining.api.Official;
-import org.hawkular.datamining.engine.ForecastingEngine;
-import org.jboss.logging.Logger;
+package org.hawkular.datamining.api.exception;
 
 /**
  * @author Pavol Loffay
  */
-@Startup
-@Singleton
-public class DataMiningStartup {
-
-    private static final Logger LOG = Logger.getLogger(DataMiningStartup.class);
-
-    @Official
-    @Inject
-    private ForecastingEngine forecastingEngine;
+public class SubscriptionAlreadyExistsException extends DataMiningException {
 
 
-    @PostConstruct
-    public void postConstruct() {
-        LOG.debug("Ejb starting");
+    public SubscriptionAlreadyExistsException() {
     }
+
+    @Override
+    public String getMessage() {
+        return "Subscription already exists.";
+    }
+
 }

@@ -18,11 +18,13 @@
 package org.hawkular.datamining.dist;
 
 import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.hawkular.datamining.api.ModelSubscription;
 import org.hawkular.datamining.api.Official;
 import org.hawkular.datamining.bus.listener.MetricDataListener;
-import org.hawkular.datamining.engine.model.ForecastingEngine;
+import org.hawkular.datamining.engine.ForecastingEngine;
 
 
 /**
@@ -31,12 +33,15 @@ import org.hawkular.datamining.engine.model.ForecastingEngine;
 @Singleton
 public class ForecastingEngineProducer {
 
+    @Inject
+    private ModelSubscription subscriptionManager;
+
     @Official
     @Produces
     @Singleton
     public ForecastingEngine getAnalyticEngine() {
 
-        ForecastingEngine forecastingEngine = new ForecastingEngine();
+        ForecastingEngine forecastingEngine = new ForecastingEngine(subscriptionManager);
 
         MetricDataListener metricDataListener = new MetricDataListener(forecastingEngine);
 

@@ -15,33 +15,22 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.dist;
+package org.hawkular.datamining.rest.exception.mapper;
 
-import javax.annotation.PostConstruct;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.inject.Inject;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
 
-import org.hawkular.datamining.api.Official;
-import org.hawkular.datamining.engine.ForecastingEngine;
-import org.jboss.logging.Logger;
+import org.hawkular.datamining.api.exception.SubscriptionAlreadyExistsException;
 
 /**
  * @author Pavol Loffay
  */
-@Startup
-@Singleton
-public class DataMiningStartup {
+@Provider
+public class SubscriptionAlreadyExistExceptionMapper implements ExceptionMapper<SubscriptionAlreadyExistsException> {
 
-    private static final Logger LOG = Logger.getLogger(DataMiningStartup.class);
-
-    @Official
-    @Inject
-    private ForecastingEngine forecastingEngine;
-
-
-    @PostConstruct
-    public void postConstruct() {
-        LOG.debug("Ejb starting");
+    @Override
+    public Response toResponse(SubscriptionAlreadyExistsException exception) {
+        return Response.status(Response.Status.CONFLICT).build();
     }
 }

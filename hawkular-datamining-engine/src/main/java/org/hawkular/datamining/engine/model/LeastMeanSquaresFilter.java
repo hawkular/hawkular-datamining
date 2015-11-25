@@ -21,12 +21,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.hawkular.datamining.api.TimeSeriesModel;
 import org.hawkular.datamining.api.model.DataPoint;
 
 /**
  * @author Pavol Loffay
  */
-public class LeastMeanSquaresFilter implements PredictionModel {
+public class LeastMeanSquaresFilter implements TimeSeriesModel {
 
     private final double alphaLearningRate;
     private final int filterLength;

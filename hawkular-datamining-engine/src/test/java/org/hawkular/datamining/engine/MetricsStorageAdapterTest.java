@@ -23,7 +23,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import org.hawkular.datamining.api.MetricFilter;
 import org.hawkular.datamining.api.model.BucketPoint;
 import org.hawkular.datamining.api.model.DataPoint;
 import org.junit.Ignore;
@@ -40,8 +39,8 @@ public class MetricsStorageAdapterTest {
 
         MetricsStorageAdapter metricsStorageAdapter = new MetricsStorageAdapter();
 
-        List<DataPoint> dataPoints =  metricsStorageAdapter.loadPoints(MetricFilter.HEAP_USED_METRICS,
-                MetricFilter.TENANT);
+        List<DataPoint> dataPoints =  metricsStorageAdapter.loadPoints(SubscriptionManager.HEAP_USED_METRICS,
+                SubscriptionManager.TENANT);
 
         assertThat(dataPoints, notNullValue());
     }
@@ -50,8 +49,8 @@ public class MetricsStorageAdapterTest {
     public void testBucketDataLoading() {
         MetricsStorageAdapter metricsStorageAdapter = new MetricsStorageAdapter();
 
-        List<BucketPoint> dataPoints =  metricsStorageAdapter.loadBuckets(20, MetricFilter.HEAP_USED_METRICS,
-                MetricFilter.TENANT);
+        List<BucketPoint> dataPoints =  metricsStorageAdapter.loadBuckets(20, SubscriptionManager.HEAP_USED_METRICS,
+                SubscriptionManager.TENANT);
 
         assertThat(dataPoints, notNullValue());
         assertTrue(dataPoints.size() > 0);

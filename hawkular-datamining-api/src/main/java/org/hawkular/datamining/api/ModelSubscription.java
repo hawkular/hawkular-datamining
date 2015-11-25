@@ -15,33 +15,32 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.dist;
+package org.hawkular.datamining.api;
 
-import javax.annotation.PostConstruct;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.inject.Inject;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import org.hawkular.datamining.api.Official;
-import org.hawkular.datamining.engine.ForecastingEngine;
-import org.jboss.logging.Logger;
+import org.hawkular.datamining.api.model.Metric;
 
 /**
  * @author Pavol Loffay
  */
-@Startup
-@Singleton
-public class DataMiningStartup {
+public interface ModelSubscription {
 
-    private static final Logger LOG = Logger.getLogger(DataMiningStartup.class);
+    void subscribe(Metric metric);
 
-    @Official
-    @Inject
-    private ForecastingEngine forecastingEngine;
+    void unSubscribe(String tenant, String metricId);
 
+    boolean subscribes(String tenant, String metricId);
 
-    @PostConstruct
-    public void postConstruct() {
-        LOG.debug("Ejb starting");
-    }
+    Metric subscription(String tenant, String metricId);
+
+    Set<Metric> getSubscriptions(String tenant);
+
+    Map<String, Map<String, TimeSeriesLinkedModel>> getAllSubscriptions();
+
+    TimeSeriesLinkedModel getModel(String tenant, String metricId);
+
+    List<TimeSeriesLinkedModel> getAllModels();
 }

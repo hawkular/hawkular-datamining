@@ -22,14 +22,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.hawkular.datamining.api.TimeSeriesLinkedModel;
 import org.hawkular.datamining.api.model.DataPoint;
+import org.hawkular.datamining.api.model.Metric;
 import org.hawkular.datamining.engine.EngineLogger;
-import org.hawkular.datamining.engine.UrlUtils;
 
 /**
  * @author Pavol Loffay
  */
-public class ForecastingModel implements PredictionModel {
+public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
     // ewma
     public static final double EWMA_ALPHA = 0.005;
     public static final double EWMA_BETA = 0.005;
@@ -38,26 +39,30 @@ public class ForecastingModel implements PredictionModel {
     // TODO this has to be calculated from data, or use normalized version
     public static final double LMS_ALPHA = 0.000000000000000000000000001;
 
-    private String tenant;
-    private String feed;
-    private String metricId;
+    private Metric metric;
 
     // in ms
     private long lastTimestamp;
-    // in seconds
-    private long interval;
 
     private LeastMeanSquaresFilter leastMeanSquaresFilter;
     private ExponentiallyWeightedMovingAverages ewma;
 
 
-    public ForecastingModel(String tenant, String metricId) {
-        this.tenant = tenant;
-        this.metricId = metricId;
-        this.feed = UrlUtils.getFeedIdFromMetricId(metricId);
+    public CombinedTimeSeriesModel(Metric metric) {
+        this.metric = metric;
 
         this.ewma = new ExponentiallyWeightedMovingAverages(EWMA_ALPHA, EWMA_BETA);
         this.leastMeanSquaresFilter = new LeastMeanSquaresFilter(LMS_ALPHA, LMS_WEIGHTS);
+    }
+
+    @Override
+    public void setInterval(Long interval) {
+        this.metric.setInterval(interval);
+    }
+
+    @Override
+    public Metric getLinkedMetric() {
+        return metric;
     }
 
     @Override
@@ -94,24 +99,14 @@ public class ForecastingModel implements PredictionModel {
             ewma = ewma - mean;
             filter = filter - mean;
 
-            DataPoint dataPoint = new DataPoint((ewma + filter) + mean, lastTimestamp + i * interval * 1000); // ms
+            DataPoint dataPoint = new DataPoint((ewma + filter) + mean,
+                    lastTimestamp + i * metric.getInterval()* 1000);
             result.add(dataPoint);
-            EngineLogger.LOGGER.debugf("Prediction: %s, %s", tenant, metricId, dataPoint);
+
+            EngineLogger.LOGGER.debugf("Prediction: %s, %s", metric.getTenant(), metric.getId(), dataPoint);
         }
 
         return result;
-    }
-
-    public String getTenant() {
-        return tenant;
-    }
-
-    public String getMetricId() {
-        return metricId;
-    }
-
-    public void setInterval(long interval) {
-        this.interval = interval;
     }
 
     private void addData(List<DataPoint> dataPoints) {

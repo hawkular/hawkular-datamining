@@ -21,7 +21,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsNull.notNullValue;
 
-import org.hawkular.datamining.api.MetricFilter;
 import org.hawkular.inventory.api.model.Metric;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -35,11 +34,11 @@ public class InventoryStorageAdapterTest {
     @Test
     public void testGetMetricDefinition() throws Exception {
 
-        String metricId = MetricFilter.HEAP_USED_METRICS;
+        String metricId = SubscriptionManager.HEAP_USED_METRICS;
 
         InventoryStorageAdapter inventoryStorageAdapter = new InventoryStorageAdapter();
-        Metric metric = inventoryStorageAdapter.getMetricDefinition(metricId, UrlUtils.getFeedIdFromMetricId(metricId),
-                MetricFilter.TENANT);
+        Metric metric = inventoryStorageAdapter.getMetricDefinition(metricId, org.hawkular.datamining.api.model
+                .Metric.getFeed(metricId), SubscriptionManager.TENANT);
 
         assertThat(metric, is(notNullValue()));
     }

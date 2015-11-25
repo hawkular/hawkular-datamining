@@ -21,12 +21,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.hawkular.datamining.api.TimeSeriesModel;
 import org.hawkular.datamining.api.model.DataPoint;
 
 /**
  * @author Pavol Loffay
  */
-public class ExponentiallyWeightedMovingAverages implements PredictionModel {
+public class ExponentiallyWeightedMovingAverages implements TimeSeriesModel {
 
     private double levelSmoothing;
     private double trendSmoothing;

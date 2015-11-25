@@ -55,7 +55,7 @@ public class InventoryStorageAdapter {
     public Metric getMetricDefinition(String metricId, String feedId, String tenant) {
 
         String url = INVENTORY_BASE_URL +
-                        "/feeds/" + UrlUtils.getFeedIdFromMetricId(metricId) +
+                        "/feeds/" + feedId +
                         "/metrics/" + UrlUtils.encodeUrlPath(metricId);
 
         Request request = UrlUtils.buildJsonRequest(url, Collections.emptyMap());

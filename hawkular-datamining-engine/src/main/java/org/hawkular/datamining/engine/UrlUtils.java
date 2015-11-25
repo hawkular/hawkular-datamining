@@ -21,8 +21,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,8 +33,6 @@ import com.squareup.okhttp.Response;
  * @author Pavol Loffay
  */
 public class UrlUtils {
-
-    private static final Pattern resourcePattern = Pattern.compile("\\~\\[([a-zA-Z0-9~-]+)\\]\\~");
 
     private static String credentials;
     static {
@@ -61,21 +57,6 @@ public class UrlUtils {
         }
 
         return result;
-    }
-
-    public static String getFeedIdFromMetricId(String metricId) {
-
-        Matcher matcher = resourcePattern.matcher(metricId);
-
-        String feedId = null;
-        if (matcher.find()) {
-            feedId = matcher.group(1);
-        } else {
-            // todo throw ex
-        }
-
-        feedId = feedId.substring(0, feedId.indexOf("~"));
-        return feedId;
     }
 
     public static Request buildJsonRequest(String url, Map<String, String> headers) {
