@@ -20,6 +20,8 @@ package org.hawkular.datamining.engine;
 import java.io.IOException;
 import java.util.Collections;
 
+import org.hawkular.datamining.api.model.MetricType;
+import org.hawkular.datamining.api.storage.InventoryStorage;
 import org.hawkular.inventory.api.model.Metric;
 import org.hawkular.inventory.json.InventoryJacksonConfig;
 
@@ -31,7 +33,7 @@ import com.squareup.okhttp.Request;
 /**
  * @author Pavol Loffay
  */
-public class InventoryStorageAdapter {
+public class InventoryStorageAdapter implements InventoryStorage {
     private  String INVENTORY_BASE_URL;
 
     private final ObjectMapper objectMapper;
@@ -52,17 +54,20 @@ public class InventoryStorageAdapter {
         InventoryJacksonConfig .configure(this.objectMapper);
     }
 
-    public Metric getMetricDefinition(String metricId, String feedId, String tenant) {
+    public org.hawkular.datamining.api.model.Metric getMetricDefinition(String tenant, String metricId, String feed) {
 
         String url = INVENTORY_BASE_URL +
-                        "/feeds/" + feedId +
+                        "/feeds/" + feed +
                         "/metrics/" + UrlUtils.encodeUrlPath(metricId);
 
         Request request = UrlUtils.buildJsonRequest(url, Collections.emptyMap());
 
-        Metric metric = UrlUtils.execute(request, new TypeReference<Metric>(){}, okHttpClient,
+        Metric inventoryMetric = UrlUtils.execute(request, new TypeReference<Metric>(){}, okHttpClient,
                 objectMapper);
 
+        org.hawkular.datamining.api.model.Metric metric =
+                new org.hawkular.datamining.api.model.Metric(tenant, metricId, inventoryMetric.getCollectionInterval()
+                , new MetricType(inventoryMetric.getType().getCollectionInterval()));
         return metric;
     }
 }

@@ -15,31 +15,15 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.engine;
+package org.hawkular.datamining.api.storage;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsNull.notNullValue;
 
 import org.hawkular.datamining.api.model.Metric;
-import org.junit.Ignore;
-import org.junit.Test;
 
 /**
  * @author Pavol Loffay
  */
-@Ignore
-public class InventoryStorageAdapterTest {
+public interface InventoryStorage {
 
-    @Test
-    public void testGetMetricDefinition() throws Exception {
-
-        String metricId = SubscriptionManager.HEAP_USED_METRICS;
-
-        InventoryStorageAdapter inventoryStorageAdapter = new InventoryStorageAdapter();
-        Metric metric = inventoryStorageAdapter.getMetricDefinition(metricId, org.hawkular.datamining.api.model
-                .Metric.getFeed(metricId), SubscriptionManager.TENANT);
-
-        assertThat(metric, is(notNullValue()));
-    }
+    Metric getMetricDefinition(String tenant, String metricId, String feedId);
 }

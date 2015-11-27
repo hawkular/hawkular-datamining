@@ -30,11 +30,14 @@ public class Metric {
     private String tenant;
     private String id;
     private Long interval;
+    private MetricType metricType;
 
-    public Metric(String tenant, String id, Long interval) {
+
+    public Metric(String tenant, String id, Long interval, MetricType metricType) {
         this.tenant = tenant;
         this.id = id;
         this.interval = interval;
+        this.metricType = metricType;
     }
 
     public Metric(Metric that) {
@@ -68,6 +71,14 @@ public class Metric {
 
     public Long getInterval() {
         return interval;
+    }
+
+    public MetricType getMetricType() {
+        return metricType;
+    }
+
+    public void setMetricType(MetricType metricType) {
+        this.metricType = metricType;
     }
 
     public static String getFeed(String metricId) {

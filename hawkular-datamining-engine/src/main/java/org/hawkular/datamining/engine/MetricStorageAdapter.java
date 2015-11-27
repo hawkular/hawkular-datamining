@@ -24,6 +24,7 @@ import java.util.List;
 import org.hawkular.datamining.api.Constants;
 import org.hawkular.datamining.api.model.BucketPoint;
 import org.hawkular.datamining.api.model.DataPoint;
+import org.hawkular.datamining.api.storage.MetricStorage;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -34,15 +35,14 @@ import com.squareup.okhttp.Request;
 /**
  * @author Pavol Loffay
  */
-public class MetricsStorageAdapter {
+public class MetricStorageAdapter implements MetricStorage {
 
     private  String BASE_URL;
-
 
     private final OkHttpClient okHttpClient;
     private final ObjectMapper objectMapper;
 
-    public MetricsStorageAdapter() {
+    public MetricStorageAdapter() {
 
         try {
             EngineConfiguration engineConfiguration = new EngineConfiguration();

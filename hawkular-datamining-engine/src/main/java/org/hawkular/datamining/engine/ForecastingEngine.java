@@ -23,8 +23,8 @@ import org.hawkular.datamining.api.EngineDataReceiver;
 import org.hawkular.datamining.api.ModelSubscription;
 import org.hawkular.datamining.api.TimeSeriesLinkedModel;
 import org.hawkular.datamining.api.model.DataPoint;
+import org.hawkular.datamining.api.model.Metric;
 import org.hawkular.datamining.api.model.MetricData;
-import org.hawkular.inventory.api.model.Metric;
 
 /**
  * @author Pavol Loffay
@@ -32,7 +32,7 @@ import org.hawkular.inventory.api.model.Metric;
 public class ForecastingEngine implements EngineDataReceiver<MetricData>,
         org.hawkular.datamining.api.ForecastingEngine {
 
-    private final MetricsStorageAdapter metricsStorageAdapter = new MetricsStorageAdapter();
+    private final MetricStorageAdapter metricStorageAdapter = new MetricStorageAdapter();
     private final InventoryStorageAdapter inventoryStorageAdapter = new InventoryStorageAdapter();
 
     private final ModelSubscription subscriptionManager;
@@ -78,14 +78,14 @@ public class ForecastingEngine implements EngineDataReceiver<MetricData>,
 
     private void initializeModel(TimeSeriesLinkedModel model) {
 
-        org.hawkular.datamining.api.model.Metric metric = model.getLinkedMetric();
+        Metric metric = model.getLinkedMetric();
 
-        List<DataPoint> dataPoints = metricsStorageAdapter.loadPoints(metric.getId(), metric.getTenant());
-        Metric metricDefinition = inventoryStorageAdapter.getMetricDefinition(metric.getId(), metric.getFeed(),
-                metric.getTenant());
+        List<DataPoint> dataPoints = metricStorageAdapter.loadPoints(metric.getId(), metric.getTenant());
+        Metric inventoryMetric = inventoryStorageAdapter.getMetricDefinition(metric.getTenant(), metric.getId(),
+                metric.getFeed());
 
-        Long inventoryInterval = metricDefinition.getCollectionInterval() == null ?
-                metricDefinition.getType().getCollectionInterval() : metricDefinition.getCollectionInterval();
+        Long inventoryInterval = inventoryMetric.getInterval() == null ?
+                inventoryMetric.getMetricType().getInterval() : inventoryMetric.getInterval();
 
         Long interval = metric.getInterval() == null ? inventoryInterval : metric.getInterval();
 

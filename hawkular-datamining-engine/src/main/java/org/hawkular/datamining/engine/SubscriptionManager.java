@@ -31,6 +31,7 @@ import org.hawkular.datamining.api.TimeSeriesLinkedModel;
 import org.hawkular.datamining.api.exception.SubscriptionAlreadyExistsException;
 import org.hawkular.datamining.api.exception.SubscriptionNotFoundException;
 import org.hawkular.datamining.api.model.Metric;
+import org.hawkular.datamining.api.model.MetricType;
 import org.hawkular.datamining.engine.model.CombinedTimeSeriesModel;
 
 /**
@@ -47,7 +48,8 @@ public class SubscriptionManager implements ModelSubscription {
     public static final String HEAP_USED_METRICS = "MI~R~[dhcp130-144~Local~~]~MT~WildFly Memory Metrics~Heap Used";
     static {
         Map<String, TimeSeriesLinkedModel> metricModels = new HashMap<>();
-        metricModels.put(HEAP_USED_METRICS, new CombinedTimeSeriesModel(new Metric(TENANT, HEAP_USED_METRICS, 60L)));
+        metricModels.put(HEAP_USED_METRICS, new CombinedTimeSeriesModel(new Metric(TENANT, HEAP_USED_METRICS, 60L,
+                new MetricType(30L))));
 
         subscriptions.put(TENANT, metricModels);
     }
@@ -85,8 +87,7 @@ public class SubscriptionManager implements ModelSubscription {
             throw new SubscriptionAlreadyExistsException();
         }
 
-        model = new CombinedTimeSeriesModel(new Metric(metric.getTenant(), metric.getId(),
-                metric.getInterval()));
+        model = new CombinedTimeSeriesModel(metric);
 
         tenantsModels.put(metric.getId(), model);
     }

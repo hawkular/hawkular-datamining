@@ -37,9 +37,9 @@ public class MetricsStorageAdapterTest {
     @Test
     public void testDataPointsLoading() {
 
-        MetricsStorageAdapter metricsStorageAdapter = new MetricsStorageAdapter();
+        MetricStorageAdapter metricStorageAdapter = new MetricStorageAdapter();
 
-        List<DataPoint> dataPoints =  metricsStorageAdapter.loadPoints(SubscriptionManager.HEAP_USED_METRICS,
+        List<DataPoint> dataPoints =  metricStorageAdapter.loadPoints(SubscriptionManager.HEAP_USED_METRICS,
                 SubscriptionManager.TENANT);
 
         assertThat(dataPoints, notNullValue());
@@ -47,9 +47,9 @@ public class MetricsStorageAdapterTest {
 
     @Test
     public void testBucketDataLoading() {
-        MetricsStorageAdapter metricsStorageAdapter = new MetricsStorageAdapter();
+        MetricStorageAdapter metricStorageAdapter = new MetricStorageAdapter();
 
-        List<BucketPoint> dataPoints =  metricsStorageAdapter.loadBuckets(20, SubscriptionManager.HEAP_USED_METRICS,
+        List<BucketPoint> dataPoints =  metricStorageAdapter.loadBuckets(20, SubscriptionManager.HEAP_USED_METRICS,
                 SubscriptionManager.TENANT);
 
         assertThat(dataPoints, notNullValue());
