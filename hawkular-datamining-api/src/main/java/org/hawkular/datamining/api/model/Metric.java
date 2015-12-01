@@ -29,15 +29,23 @@ public class Metric {
 
     private String tenant;
     private String id;
+    // collectionInterval in seconds
     private Long interval;
+    // predictionInterval in seconds
+    private Long predictionInterval;
     private MetricType metricType;
 
 
     public Metric(String tenant, String id, Long interval, MetricType metricType) {
+        this(tenant, id, interval, metricType, null);
+    }
+
+    public Metric(String tenant, String id, Long interval, MetricType metricType, Long predictionInterval) {
         this.tenant = tenant;
         this.id = id;
         this.interval = interval;
         this.metricType = metricType;
+        this.predictionInterval = predictionInterval;
     }
 
     public Metric(Metric that) {
@@ -79,6 +87,14 @@ public class Metric {
 
     public void setMetricType(MetricType metricType) {
         this.metricType = metricType;
+    }
+
+    public Long getPredictionInterval() {
+        return predictionInterval;
+    }
+
+    public void setPredictionInterval(Long predictionInterval) {
+        this.predictionInterval = predictionInterval;
     }
 
     public static String getFeed(String metricId) {

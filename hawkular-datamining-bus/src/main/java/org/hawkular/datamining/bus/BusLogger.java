@@ -43,5 +43,5 @@ public interface BusLogger extends BasicLogger {
 
     @LogMessage(level = Logger.Level.ERROR)
     @Message(value = "Failed to send message to the bus = %s")
-    void failedToSendMessageError(String message);
+    void failedToSendMessage(String message);
 }

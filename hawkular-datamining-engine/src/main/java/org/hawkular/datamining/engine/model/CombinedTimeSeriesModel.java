@@ -39,7 +39,7 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
     // TODO this has to be calculated from data, or use normalized version
     public static final double LMS_ALPHA = 0.000000000000000000000000001;
 
-    private Metric metric;
+    private final Metric metric;
 
     // in ms
     private long lastTimestamp;
@@ -83,6 +83,22 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
     @Override
     public List<DataPoint> predict(int nAhead) {
 
+
+        if (nAhead == 0) {
+            Long collectionInterval = metric.getInterval() == null ?
+                    metric.getMetricType().getInterval() :
+                    metric.getInterval();
+            Long predictionInterval = metric.getPredictionInterval();
+
+            nAhead = (int) (predictionInterval / collectionInterval);
+            EngineLogger.LOGGER.debugf("Automatic prediction, nAhead= %d", nAhead);
+        }
+
+        /**
+         * Calculate
+         * from prediction interval calculate how far - how many aHead we need to predict
+         */
+
         List<DataPoint> result = new ArrayList<>();
         List<DataPoint> predictionEWMA = ewma.predict(nAhead);
         List<DataPoint> predictionFilter = leastMeanSquaresFilter.predict(nAhead);
@@ -100,7 +116,7 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
             filter = filter - mean;
 
             DataPoint dataPoint = new DataPoint((ewma + filter) + mean,
-                    lastTimestamp + i * metric.getInterval()* 1000);
+                    lastTimestamp + i * metric.getInterval() * 1000);
             result.add(dataPoint);
 
             EngineLogger.LOGGER.debugf("Prediction: %s, %s", metric.getTenant(), metric.getId(), dataPoint);

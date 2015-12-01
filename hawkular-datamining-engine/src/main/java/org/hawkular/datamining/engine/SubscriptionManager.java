@@ -48,8 +48,8 @@ public class SubscriptionManager implements ModelSubscription {
     public static final String HEAP_USED_METRICS = "MI~R~[dhcp130-144~Local~~]~MT~WildFly Memory Metrics~Heap Used";
     static {
         Map<String, TimeSeriesLinkedModel> metricModels = new HashMap<>();
-        metricModels.put(HEAP_USED_METRICS, new CombinedTimeSeriesModel(new Metric(TENANT, HEAP_USED_METRICS, 60L,
-                new MetricType(30L))));
+        metricModels.put(HEAP_USED_METRICS, new CombinedTimeSeriesModel(
+                new Metric(TENANT, HEAP_USED_METRICS, 60L, new MetricType(30L), 60L * 60L)));
 
         subscriptions.put(TENANT, metricModels);
     }

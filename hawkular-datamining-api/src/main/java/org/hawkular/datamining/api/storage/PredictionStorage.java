@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.api;
+package org.hawkular.datamining.api.storage;
 
 import java.util.List;
 
@@ -24,18 +24,7 @@ import org.hawkular.datamining.api.model.DataPoint;
 /**
  * @author Pavol Loffay
  */
-public interface TimeSeriesModel {
+public interface PredictionStorage {
 
-    void addDataPoint(DataPoint dataPoint);
-    void addDataPoints(List<DataPoint> dataPoints);
-
-    /**
-     * one step ahead prediction
-     */
-    DataPoint predict();
-
-    /**
-     * How many steps we need to predict ahead
-     */
-    List<DataPoint> predict(int nAhead);
+    void send(List<DataPoint> predictedPoints, String tenant, String metricId);
 }

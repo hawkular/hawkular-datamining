@@ -25,6 +25,9 @@ import org.hawkular.datamining.api.TimeSeriesLinkedModel;
 import org.hawkular.datamining.api.model.DataPoint;
 import org.hawkular.datamining.api.model.Metric;
 import org.hawkular.datamining.api.model.MetricData;
+import org.hawkular.datamining.api.storage.PredictionStorage;
+import org.hawkular.datamining.bus.BusConfiguration;
+import org.hawkular.datamining.bus.sender.PredictionSender;
 
 /**
  * @author Pavol Loffay
@@ -37,11 +40,15 @@ public class ForecastingEngine implements EngineDataReceiver<MetricData>,
 
     private final ModelSubscription subscriptionManager;
 
+    private PredictionStorage predictionOutput;
 
     public ForecastingEngine(ModelSubscription subscriptionManager) {
         this.subscriptionManager = subscriptionManager;
 
         initializeAll();
+
+        this.predictionOutput = new PredictionSender(BusConfiguration.TOPIC_METRIC_DATA, BusConfiguration.BROKER_URL);
+
     }
 
     @Override
@@ -52,8 +59,11 @@ public class ForecastingEngine implements EngineDataReceiver<MetricData>,
 
         EngineLogger.LOGGER.debugf("Process %s, %s", metricData.getTenant(), metricData.getMetricId());
 
-        TimeSeriesLinkedModel model=  subscriptionManager.getModel(metricData.getTenant(), metricData.getMetricId());
+        TimeSeriesLinkedModel model = subscriptionManager.getModel(metricData.getTenant(), metricData.getMetricId());
         model.addDataPoint(metricData.getDataPoint());
+
+        List<DataPoint> predicted = predict(metricData.getTenant(), metricData.getMetricId(), 0);
+        predictionOutput.send(predicted, metricData.getTenant(), metricData.getMetricId());
     }
 
     @Override

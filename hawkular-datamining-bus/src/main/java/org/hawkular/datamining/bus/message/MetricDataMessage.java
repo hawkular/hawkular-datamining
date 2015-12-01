@@ -17,6 +17,7 @@
 
 package org.hawkular.datamining.bus.message;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hawkular.bus.common.AbstractMessage;
@@ -56,7 +57,19 @@ public class MetricDataMessage extends AbstractMessage {
         @JsonInclude
         List<SingleMetric> data;
 
+
         public MetricData() {
+        }
+
+        public MetricData(List<SingleMetric> singleMetrics, String tenantId) {
+            this.data = singleMetrics;
+        }
+
+        public MetricData(SingleMetric singleMetric, String tenantId) {
+            this.tenantId = tenantId;
+
+            this.data = new ArrayList<>();
+            this.data.add(singleMetric);
         }
 
         public String getTenantId() {
@@ -73,6 +86,14 @@ public class MetricDataMessage extends AbstractMessage {
 
         public void setData(List<SingleMetric> data) {
             this.data = data;
+        }
+
+        public void addData(SingleMetric data) {
+            if (this.data == null) {
+                this.data = new ArrayList<>();
+            }
+
+            this.data.add(data);
         }
 
         @Override

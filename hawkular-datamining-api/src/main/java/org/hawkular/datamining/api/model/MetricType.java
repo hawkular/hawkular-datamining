@@ -23,13 +23,18 @@ package org.hawkular.datamining.api.model;
 public class MetricType {
 
     private Long interval;
-
+    private Long predictionInterval;
 
     public MetricType() {
     }
 
     public MetricType(Long interval) {
+        this(interval, null);
+    }
+
+    public MetricType(Long interval, Long predictionInterval) {
         this.interval = interval;
+        this.predictionInterval = predictionInterval;
     }
 
     public Long getInterval() {
@@ -38,5 +43,13 @@ public class MetricType {
 
     public void setInterval(Long interval) {
         this.interval = interval;
+    }
+
+    public Long getPredictionInterval() {
+        return predictionInterval;
+    }
+
+    public void setPredictionInterval(Long predictionInterval) {
+        this.predictionInterval = predictionInterval;
     }
 }
