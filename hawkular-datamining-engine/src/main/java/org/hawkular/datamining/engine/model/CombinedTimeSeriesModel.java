@@ -108,8 +108,8 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
             double ewma = predictionEWMA.get(i).getValue();
             double filter = predictionFilter.get(i).getValue();
 
-            EngineLogger.LOGGER.debugf("Filter predicted %f", filter);
-            EngineLogger.LOGGER.debugf("EWMA predicted %f", ewma);
+//            EngineLogger.LOGGER.debugf("Filter predicted %f", filter);
+//            EngineLogger.LOGGER.debugf("EWMA predicted %f", ewma);
 
             double mean = (ewma + filter) / 2;
             ewma = ewma - mean;
@@ -119,7 +119,7 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
                     lastTimestamp + i * metric.getInterval() * 1000);
             result.add(dataPoint);
 
-            EngineLogger.LOGGER.debugf("Prediction: %s, %s", metric.getTenant(), metric.getId(), dataPoint);
+//            EngineLogger.LOGGER.debugf("Prediction: %s, %s", metric.getTenant(), metric.getId(), dataPoint);
         }
 
         return result;

@@ -40,11 +40,12 @@
     <module>hawkular-datamining-rest</module>
     <module>hawkular-datamining-dist</module>
     <module>hawkular-datamining-api</module>
+    <module>hawkular-datamining-inventory-integration</module>
   </modules>
 
   <properties>
     <version.org.hawkular.bus>0.7.2.Final</version.org.hawkular.bus>
-    <version.org.hawkular.inventory>0.9.0.Final</version.org.hawkular.inventory>
+    <version.org.hawkular.inventory>0.10.0.Final-SNAPSHOT</version.org.hawkular.inventory>
 
     <version.com.squareup.okhttp>2.5.0</version.com.squareup.okhttp>
     <version.org.jboss.logging>3.2.1.Final</version.org.jboss.logging>

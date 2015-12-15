@@ -20,7 +20,7 @@ package org.hawkular.datamining.engine;
 import java.util.List;
 
 import org.hawkular.datamining.api.EngineDataReceiver;
-import org.hawkular.datamining.api.ModelSubscription;
+import org.hawkular.datamining.api.SubscriptionManager;
 import org.hawkular.datamining.api.TimeSeriesLinkedModel;
 import org.hawkular.datamining.api.model.DataPoint;
 import org.hawkular.datamining.api.model.Metric;
@@ -38,17 +38,16 @@ public class ForecastingEngine implements EngineDataReceiver<MetricData>,
     private final MetricStorageAdapter metricStorageAdapter = new MetricStorageAdapter();
     private final InventoryStorageAdapter inventoryStorageAdapter = new InventoryStorageAdapter();
 
-    private final ModelSubscription subscriptionManager;
+    private final SubscriptionManager subscriptionManager;
 
     private PredictionStorage predictionOutput;
 
-    public ForecastingEngine(ModelSubscription subscriptionManager) {
+    public ForecastingEngine(SubscriptionManager subscriptionManager) {
         this.subscriptionManager = subscriptionManager;
 
-        initializeAll();
+        //initializeAll();
 
         this.predictionOutput = new PredictionSender(BusConfiguration.TOPIC_METRIC_DATA, BusConfiguration.BROKER_URL);
-
     }
 
     @Override
@@ -57,13 +56,13 @@ public class ForecastingEngine implements EngineDataReceiver<MetricData>,
             return;
         }
 
-        EngineLogger.LOGGER.debugf("Process %s, %s", metricData.getTenant(), metricData.getMetricId());
+//        EngineLogger.LOGGER.debugf("Process %s, %s", metricData.getTenant(), metricData.getMetricId());
 
         TimeSeriesLinkedModel model = subscriptionManager.getModel(metricData.getTenant(), metricData.getMetricId());
         model.addDataPoint(metricData.getDataPoint());
 
         List<DataPoint> predicted = predict(metricData.getTenant(), metricData.getMetricId(), 0);
-        predictionOutput.send(predicted, metricData.getTenant(), metricData.getMetricId());
+//        predictionOutput.send(predicted, metricData.getTenant(), metricData.getMetricId());
     }
 
     @Override

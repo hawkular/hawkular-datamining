@@ -51,8 +51,6 @@ public class PredictionSender implements PredictionStorage {
     @Override
     public void send(List<DataPoint> predictedPoints, String tenant, String metricId) {
 
-//        org.apache.activemq.ActiveMQConnectionFactory a = new ActiveMQConnectionFactory(brokerUrl);
-
         MetricDataMessage message = convertToMessage(predictedPoints, tenant, "prediction_" + metricId);
 
         try (ConnectionContextFactory ccf = new ConnectionContextFactory(brokerUrl)) {

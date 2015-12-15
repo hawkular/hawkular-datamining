@@ -15,26 +15,32 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.engine;
+package org.hawkular.datamining.api;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.hawkular.datamining.api.model.Metric;
 
 /**
  * @author Pavol Loffay
  */
-@Ignore
-public class InventoryStorageAdapterTest {
+public interface SubscriptionManager {
 
-    @Test
-    public void testGetMetricDefinition() throws Exception {
+    void subscribe(Metric metric);
 
-        String metricId = CacheSubscriptionManager.HEAP_USED_METRICS;
+    void unSubscribe(String tenant, String metricId);
 
-//        InventoryStorageAdapter inventoryStorageAdapter = new InventoryStorageAdapter();
-//        Metric metric = inventoryStorageAdapter.getMetricDefinition(metricId, org.hawkular.datamining.api.model
-//                .Metric.getFeed(metricId), CacheManager.TENANT);
-//
-//        assertThat(metric, is(notNullValue()));
-    }
+    boolean subscribes(String tenant, String metricId);
+
+    Metric subscription(String tenant, String metricId);
+
+    Set<Metric> getSubscriptions(String tenant);
+
+    Map<String, Map<String, TimeSeriesLinkedModel>> getAllSubscriptions();
+
+    TimeSeriesLinkedModel getModel(String tenant, String metricId);
+
+    List<TimeSeriesLinkedModel> getAllModels();
 }

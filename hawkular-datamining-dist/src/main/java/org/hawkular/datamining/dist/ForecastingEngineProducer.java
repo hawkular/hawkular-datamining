@@ -21,9 +21,10 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.hawkular.datamining.api.ModelSubscription;
 import org.hawkular.datamining.api.Official;
+import org.hawkular.datamining.api.SubscriptionManager;
 import org.hawkular.datamining.bus.listener.MetricDataListener;
+import org.hawkular.datamining.bus.sender.InventoryInitializer;
 import org.hawkular.datamining.engine.ForecastingEngine;
 
 
@@ -34,7 +35,7 @@ import org.hawkular.datamining.engine.ForecastingEngine;
 public class ForecastingEngineProducer {
 
     @Inject
-    private ModelSubscription subscriptionManager;
+    private SubscriptionManager subscriptionManager;
 
     @Official
     @Produces
@@ -44,6 +45,9 @@ public class ForecastingEngineProducer {
         ForecastingEngine forecastingEngine = new ForecastingEngine(subscriptionManager);
 
         MetricDataListener metricDataListener = new MetricDataListener(forecastingEngine);
+//        InventoryChangesListener inventoryChangesListener = new InventoryChangesListener();
+
+        InventoryInitializer inventoryInitializer = new InventoryInitializer();
 
         return forecastingEngine;
     }

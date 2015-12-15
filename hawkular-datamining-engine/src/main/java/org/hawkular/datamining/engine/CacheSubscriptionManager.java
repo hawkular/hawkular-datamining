@@ -26,30 +26,29 @@ import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import org.hawkular.datamining.api.ModelSubscription;
+import org.hawkular.datamining.api.SubscriptionManager;
 import org.hawkular.datamining.api.TimeSeriesLinkedModel;
 import org.hawkular.datamining.api.exception.SubscriptionAlreadyExistsException;
 import org.hawkular.datamining.api.exception.SubscriptionNotFoundException;
 import org.hawkular.datamining.api.model.Metric;
-import org.hawkular.datamining.api.model.MetricType;
 import org.hawkular.datamining.engine.model.CombinedTimeSeriesModel;
 
 /**
  * @author Pavol Loffay
  */
 @ApplicationScoped
-public class SubscriptionManager implements ModelSubscription {
+public class CacheSubscriptionManager implements SubscriptionManager {
 
     // todo should not be static
     private static final Map<String, Map<String, TimeSeriesLinkedModel>> subscriptions = new HashMap<>();
 
     // TODO REMOVE
     public static final String TENANT = "28026b36-8fe4-4332-84c8-524e173a68bf";
-    public static final String HEAP_USED_METRICS = "MI~R~[dhcp130-144~Local~~]~MT~WildFly Memory Metrics~Heap Used";
+    public static final String HEAP_USED_METRICS = "MI~R~[Local~~]~MT~WildFly Memory Metrics~Heap Used";
     static {
         Map<String, TimeSeriesLinkedModel> metricModels = new HashMap<>();
-        metricModels.put(HEAP_USED_METRICS, new CombinedTimeSeriesModel(
-                new Metric(TENANT, HEAP_USED_METRICS, 60L, new MetricType(30L), 60L * 60L)));
+//        metricModels.put(HEAP_USED_METRICS, new CombinedTimeSeriesModel(
+//                new Metric(TENANT, HEAP_USED_METRICS, 60L, new MetricType(30L), 60L * 60L)));
 
         subscriptions.put(TENANT, metricModels);
     }

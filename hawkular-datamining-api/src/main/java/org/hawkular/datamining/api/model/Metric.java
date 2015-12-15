@@ -17,7 +17,6 @@
 
 package org.hawkular.datamining.api.model;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -27,8 +26,9 @@ public class Metric {
 
     private static final Pattern resourcePattern = Pattern.compile("\\~\\[([a-zA-Z0-9~-]+)\\]\\~");
 
-    private String tenant;
-    private String id;
+    private final String id;
+    private final String tenant;
+    private final String feed;
     // collectionInterval in seconds
     private Long interval;
     // predictionInterval in seconds
@@ -36,12 +36,14 @@ public class Metric {
     private MetricType metricType;
 
 
-    public Metric(String tenant, String id, Long interval, MetricType metricType) {
-        this(tenant, id, interval, metricType, null);
+    public Metric(String tenant, String feed, String id, Long interval, MetricType metricType) {
+        this(tenant, feed, id, interval, metricType, null);
     }
 
-    public Metric(String tenant, String id, Long interval, MetricType metricType, Long predictionInterval) {
+    public Metric(String tenant, String feed, String id, Long interval, MetricType metricType,
+                  Long predictionInterval) {
         this.tenant = tenant;
+        this.feed = feed;
         this.id = id;
         this.interval = interval;
         this.metricType = metricType;
@@ -51,13 +53,15 @@ public class Metric {
     public Metric(Metric that) {
         this.tenant = that.getTenant();
         this.id = that.getId();
-        this.interval = that.interval;
+        this.feed = that.getFeed();
+        this.interval = that.getInterval();
     }
 
     public Metric(RestBlueprint restBlueprint, String tenant) {
         this.interval = restBlueprint.getInterval();
         this.id = restBlueprint.getMetricId();
         this.tenant = tenant;
+        this.feed = null;
     }
 
     public void setInterval(Long interval) {
@@ -69,8 +73,7 @@ public class Metric {
     }
 
     public String getFeed() {
-
-        return getFeed(id);
+        return feed;
     }
 
     public String getId() {
@@ -95,20 +98,6 @@ public class Metric {
 
     public void setPredictionInterval(Long predictionInterval) {
         this.predictionInterval = predictionInterval;
-    }
-
-    public static String getFeed(String metricId) {
-        Matcher matcher = resourcePattern.matcher(metricId);
-
-        String feedId = null;
-        if (matcher.find()) {
-            feedId = matcher.group(1);
-        } else {
-            // todo throw ex
-        }
-
-        feedId = feedId.substring(0, feedId.indexOf("~"));
-        return feedId;
     }
 
     @Override

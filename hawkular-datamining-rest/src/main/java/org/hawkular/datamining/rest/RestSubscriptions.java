@@ -33,7 +33,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.hawkular.datamining.api.Constants;
-import org.hawkular.datamining.api.ModelSubscription;
+import org.hawkular.datamining.api.SubscriptionManager;
 import org.hawkular.datamining.api.model.Metric;
 
 /**
@@ -45,7 +45,7 @@ import org.hawkular.datamining.api.model.Metric;
 public class RestSubscriptions {
 
     @Inject
-    private ModelSubscription subscriptionManager;
+    private SubscriptionManager subscriptionManager;
 
     @HeaderParam(Constants.TENANT_HEADER_NAME)
     private String tenant;

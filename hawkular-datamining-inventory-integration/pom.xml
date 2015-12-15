@@ -17,7 +17,6 @@
     limitations under the License.
 
 -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -28,6 +27,20 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>hawkular-datamining-api</artifactId>
+  <artifactId>hawkular-datamining-inventory-integration</artifactId>
 
+  <dependencies>
+    <dependency>
+      <groupId>org.hawkular.datamining</groupId>
+      <artifactId>hawkular-datamining-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hawkular.inventory</groupId>
+      <artifactId>hawkular-inventory-bus-api</artifactId>
+      <version>${version.org.hawkular.inventory}</version>
+    </dependency>
+
+  </dependencies>
 </project>

@@ -15,32 +15,17 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.api;
+package org.hawkular.datamining.inventory.util;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.hawkular.datamining.api.model.Metric;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * @author Pavol Loffay
  */
-public interface ModelSubscription {
-
-    void subscribe(Metric metric);
-
-    void unSubscribe(String tenant, String metricId);
-
-    boolean subscribes(String tenant, String metricId);
-
-    Metric subscription(String tenant, String metricId);
-
-    Set<Metric> getSubscriptions(String tenant);
-
-    Map<String, Map<String, TimeSeriesLinkedModel>> getAllSubscriptions();
-
-    TimeSeriesLinkedModel getModel(String tenant, String metricId);
-
-    List<TimeSeriesLinkedModel> getAllModels();
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface Eager {
 }

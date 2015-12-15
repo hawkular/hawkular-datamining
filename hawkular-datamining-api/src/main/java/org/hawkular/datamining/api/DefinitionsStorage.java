@@ -15,26 +15,16 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.engine;
+package org.hawkular.datamining.api;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import java.util.Set;
+
+import org.hawkular.datamining.api.model.Metric;
 
 /**
  * @author Pavol Loffay
  */
-@Ignore
-public class InventoryStorageAdapterTest {
+public interface DefinitionsStorage {
 
-    @Test
-    public void testGetMetricDefinition() throws Exception {
-
-        String metricId = CacheSubscriptionManager.HEAP_USED_METRICS;
-
-//        InventoryStorageAdapter inventoryStorageAdapter = new InventoryStorageAdapter();
-//        Metric metric = inventoryStorageAdapter.getMetricDefinition(metricId, org.hawkular.datamining.api.model
-//                .Metric.getFeed(metricId), CacheManager.TENANT);
-//
-//        assertThat(metric, is(notNullValue()));
-    }
+    Set<Metric> getAllMetrics();
 }

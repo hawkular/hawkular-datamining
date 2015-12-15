@@ -20,7 +20,6 @@ package org.hawkular.datamining.engine;
 import java.io.IOException;
 import java.util.Collections;
 
-import org.hawkular.datamining.api.model.MetricType;
 import org.hawkular.datamining.api.storage.InventoryStorage;
 import org.hawkular.inventory.api.model.Metric;
 import org.hawkular.inventory.json.InventoryJacksonConfig;
@@ -65,9 +64,9 @@ public class InventoryStorageAdapter implements InventoryStorage {
         Metric inventoryMetric = UrlUtils.execute(request, new TypeReference<Metric>(){}, okHttpClient,
                 objectMapper);
 
-        org.hawkular.datamining.api.model.Metric metric =
-                new org.hawkular.datamining.api.model.Metric(tenant, metricId, inventoryMetric.getCollectionInterval()
-                , new MetricType(inventoryMetric.getType().getCollectionInterval()));
-        return metric;
+//        org.hawkular.datamining.api.model.Metric metric =
+//                new org.hawkular.datamining.api.model.Metric(tenant, metricId, inventoryMetric.getCollectionInterval()
+//                , new MetricType(inventoryMetric.getType().getCollectionInterval()));
+        return null;
     }
 }
