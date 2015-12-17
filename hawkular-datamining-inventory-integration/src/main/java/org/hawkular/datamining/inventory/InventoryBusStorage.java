@@ -78,8 +78,8 @@ public class InventoryBusStorage implements InventoryStorage {
                 .branch().with(qMetricsRelationships).done()
                 .branch().with(qTypesRelationships).done().build();
 
-        InventoryBusQuery<Relationship> busQuery = new InventoryBusQuery<>(queryAllMetrics);
-        Set<Relationship> relationships = busQuery.sendQuery();
+        InventoryBusClient<Relationship> busClient = new InventoryBusClient<>(queryAllMetrics);
+        Set<Relationship> relationships = busClient.sendQuery();
 
         return relationships;
     }
@@ -89,8 +89,8 @@ public class InventoryBusStorage implements InventoryStorage {
         Query query = Query.path().with(With.path(metricType))
                 .with(Related.by(Relationships.WellKnown.defines), With.type(Metric.class)).get();
 
-        InventoryBusQuery<Metric> busQuery = new InventoryBusQuery<>(query);
-        Set<Metric> metrics = busQuery.sendQuery();
+        InventoryBusClient<Metric> busClient = new InventoryBusClient<>(query);
+        Set<Metric> metrics = busClient.sendQuery();
 
         return metrics;
     }
@@ -99,8 +99,8 @@ public class InventoryBusStorage implements InventoryStorage {
     public Metric metric(CanonicalPath metric) {
         Query query = Query.path().with(With.path(metric)).get();
 
-        InventoryBusQuery<Metric> busQuery = new InventoryBusQuery<>(query);
-        Set<Metric> metrics = busQuery.sendQuery();
+        InventoryBusClient<Metric> busClient = new InventoryBusClient<>(query);
+        Set<Metric> metrics = busClient.sendQuery();
 
         return metrics.isEmpty() == true ? null : metrics.iterator().next();
     }

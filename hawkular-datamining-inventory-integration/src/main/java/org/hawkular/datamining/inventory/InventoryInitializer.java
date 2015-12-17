@@ -44,11 +44,11 @@ public class InventoryInitializer {
         Query queryRelationships = Query.path().with(
                 With.type(Tenant.class), SwitchElementType.outgoingRelationships(), RelationWith.name("__inPrediction"),
                 RelationWith.targetsOfTypes(Metric.class, MetricType.class)).get();
-        InventoryBusQuery<Relationship> relationshipsBusQuery = new InventoryBusQuery<>(queryRelationships);
+        InventoryBusClient<Relationship> relationshipsBusQuery = new InventoryBusClient<>(queryRelationships);
 
         Set<Relationship> relationships = relationshipsBusQuery.sendQuery();
 
-        InventoryBusQuery<Metric> metricsBusQuery = new InventoryBusQuery<>(queryAllMetrics(relationships));
+        InventoryBusClient<Metric> metricsBusQuery = new InventoryBusClient<>(queryAllMetrics(relationships));
 
         Set<Metric> inventoryMetrics = metricsBusQuery.sendQuery();
         Set<org.hawkular.datamining.api.model.Metric> dataminingMetrics = InventoryUtil.convertMetrics(inventoryMetrics,

@@ -15,9 +15,8 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.engine;
+package org.hawkular.datamining.inventory;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,13 +43,13 @@ public class MetricStorageAdapter implements MetricStorage {
 
     public MetricStorageAdapter() {
 
-        try {
-            EngineConfiguration engineConfiguration = new EngineConfiguration();
-            BASE_URL = engineConfiguration.getProperty("hawkular.address") +
-                    engineConfiguration.getProperty("hawkular.metrics.address");
-        } catch (IOException e) {
-            // todo
-        }
+//        try {
+//            EngineConfiguration engineConfiguration = new EngineConfiguration();
+//            BASE_URL = engineConfiguration.getProperty("hawkular.address") +
+//                    engineConfiguration.getProperty("hawkular.metrics.address");
+//        } catch (IOException e) {
+//             todo
+//        }
 
         this.okHttpClient = new OkHttpClient();
         this.objectMapper = new ObjectMapper();

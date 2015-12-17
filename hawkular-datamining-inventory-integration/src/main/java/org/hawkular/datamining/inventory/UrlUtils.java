@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.engine;
+package org.hawkular.datamining.inventory;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -24,7 +24,6 @@ import java.util.Map;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.squareup.okhttp.Credentials;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -36,15 +35,15 @@ public class UrlUtils {
 
     private static String credentials;
     static {
-        try {
-            EngineConfiguration configuration = new EngineConfiguration();
-            final String userName = configuration.getProperty("hawkular.auth.name");
-            final String password = configuration.getProperty("hawkular.auth.password");
-
-            credentials = Credentials.basic(userName, password);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            EngineConfiguration configuration = new EngineConfiguration();
+//            final String userName = configuration.getProperty("hawkular.auth.name");
+//            final String password = configuration.getProperty("hawkular.auth.password");
+//
+//            credentials = Credentials.basic(userName, password);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     public static String encodeUrlPath(String url) {
@@ -89,7 +88,7 @@ public class UrlUtils {
             String responseBody = response.body().string();
             obj = objectMapper.readValue(responseBody, clazz);
         } catch (IOException ex) {
-            EngineLogger.LOGGER.errorf("Failed request: %s, headers %s", request.toString(), request.headers());
+            InventoryLogger.LOGGER.errorf("Failed request: %s, headers %s", request.toString(), request.headers());
             throw new IllegalArgumentException("Request failed: " + request.toString(), ex);
         }
 

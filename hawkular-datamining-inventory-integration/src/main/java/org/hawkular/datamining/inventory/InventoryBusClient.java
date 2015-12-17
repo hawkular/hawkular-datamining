@@ -39,7 +39,7 @@ import org.hawkular.inventory.bus.api.InventoryQueryResponseMessage;
 /**
  * @author Pavol Loffay
  */
-public class InventoryBusQuery<T extends AbstractElement<?, ?>> extends
+public class InventoryBusClient<T extends AbstractElement<?, ?>> extends
         BasicMessageListener<InventoryQueryResponseMessage> {
 
     private final String queueName = InventoryConfiguration.QUEUE_INVENTORY_QUERY;
@@ -53,7 +53,7 @@ public class InventoryBusQuery<T extends AbstractElement<?, ?>> extends
 
     private boolean messageReceived;
 
-    public InventoryBusQuery(Query query) {
+    public InventoryBusClient(Query query) {
         this.query = query;
         this.messageReceived = false;
     }

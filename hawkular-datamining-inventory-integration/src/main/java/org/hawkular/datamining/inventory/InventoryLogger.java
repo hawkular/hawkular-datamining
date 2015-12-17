@@ -15,26 +15,23 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.engine;
+package org.hawkular.datamining.inventory;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.jboss.logging.BasicLogger;
+import org.jboss.logging.Logger;
+import org.jboss.logging.annotations.LogMessage;
+import org.jboss.logging.annotations.Message;
+import org.jboss.logging.annotations.MessageLogger;
 
 /**
  * @author Pavol Loffay
  */
-@Ignore
-public class InventoryStorageAdapterTest {
+@MessageLogger(projectCode = "HAWKDMING")
+public interface InventoryLogger extends BasicLogger {
 
-    @Test
-    public void testGetMetricDefinition() throws Exception {
+    InventoryLogger LOGGER = Logger.getMessageLogger(InventoryLogger.class, "org.hawkular.datamining.inventory");
 
-        String metricId = CacheSubscriptionManager.HEAP_USED_METRICS;
-
-//        InventoryStorageAdapter inventoryStorageAdapter = new InventoryStorageAdapter();
-//        Metric metric = inventoryStorageAdapter.getMetricDefinition(metricId, org.hawkular.datamining.api.model
-//                .Metric.getFeed(metricId), CacheManager.TENANT);
-//
-//        assertThat(metric, is(notNullValue()));
-    }
+    @LogMessage(level = Logger.Level.INFO)
+    @Message(value = "Datamining engine successfully started")
+    void engineStartInfo();
 }

@@ -39,19 +39,8 @@ import org.hawkular.datamining.engine.model.CombinedTimeSeriesModel;
 @ApplicationScoped
 public class CacheSubscriptionManager implements SubscriptionManager {
 
-    // todo should not be static
-    private static final Map<String, Map<String, TimeSeriesLinkedModel>> subscriptions = new HashMap<>();
+    private final Map<String, Map<String, TimeSeriesLinkedModel>> subscriptions = new HashMap<>();
 
-    // TODO REMOVE
-    public static final String TENANT = "28026b36-8fe4-4332-84c8-524e173a68bf";
-    public static final String HEAP_USED_METRICS = "MI~R~[Local~~]~MT~WildFly Memory Metrics~Heap Used";
-    static {
-        Map<String, TimeSeriesLinkedModel> metricModels = new HashMap<>();
-//        metricModels.put(HEAP_USED_METRICS, new CombinedTimeSeriesModel(
-//                new Metric(TENANT, HEAP_USED_METRICS, 60L, new MetricType(30L), 60L * 60L)));
-
-        subscriptions.put(TENANT, metricModels);
-    }
 
     @Override
     public Set<Metric> getSubscriptions(String tenant) {

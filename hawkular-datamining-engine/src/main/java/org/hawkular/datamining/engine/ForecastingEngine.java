@@ -23,7 +23,6 @@ import org.hawkular.datamining.api.EngineDataReceiver;
 import org.hawkular.datamining.api.SubscriptionManager;
 import org.hawkular.datamining.api.TimeSeriesLinkedModel;
 import org.hawkular.datamining.api.model.DataPoint;
-import org.hawkular.datamining.api.model.Metric;
 import org.hawkular.datamining.api.model.MetricData;
 import org.hawkular.datamining.api.storage.PredictionStorage;
 import org.hawkular.datamining.bus.BusConfiguration;
@@ -35,9 +34,6 @@ import org.hawkular.datamining.bus.sender.PredictionSender;
 public class ForecastingEngine implements EngineDataReceiver<MetricData>,
         org.hawkular.datamining.api.ForecastingEngine {
 
-    private final MetricStorageAdapter metricStorageAdapter = new MetricStorageAdapter();
-    private final InventoryStorageAdapter inventoryStorageAdapter = new InventoryStorageAdapter();
-
     private final SubscriptionManager subscriptionManager;
 
     private PredictionStorage predictionOutput;
@@ -45,8 +41,7 @@ public class ForecastingEngine implements EngineDataReceiver<MetricData>,
     public ForecastingEngine(SubscriptionManager subscriptionManager) {
         this.subscriptionManager = subscriptionManager;
 
-        //initializeAll();
-
+        // todo should be CDI
         this.predictionOutput = new PredictionSender(BusConfiguration.TOPIC_METRIC_DATA, BusConfiguration.BROKER_URL);
     }
 
@@ -77,28 +72,5 @@ public class ForecastingEngine implements EngineDataReceiver<MetricData>,
         List<DataPoint> points = model.predict(nAhead);
 
         return points;
-    }
-
-    private void initializeAll() {
-        List<TimeSeriesLinkedModel> allModels = subscriptionManager.getAllModels();
-
-        allModels.forEach(x -> initializeModel(x));
-    }
-
-    private void initializeModel(TimeSeriesLinkedModel model) {
-
-        Metric metric = model.getLinkedMetric();
-
-        List<DataPoint> dataPoints = metricStorageAdapter.loadPoints(metric.getId(), metric.getTenant());
-        Metric inventoryMetric = inventoryStorageAdapter.getMetricDefinition(metric.getTenant(), metric.getId(),
-                metric.getFeed());
-
-        Long inventoryInterval = inventoryMetric.getInterval() == null ?
-                inventoryMetric.getMetricType().getInterval() : inventoryMetric.getInterval();
-
-        Long interval = metric.getInterval() == null ? inventoryInterval : metric.getInterval();
-
-        model.setInterval(interval);
-        model.addDataPoints(dataPoints);
     }
 }

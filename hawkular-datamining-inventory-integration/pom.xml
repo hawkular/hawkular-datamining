@@ -42,5 +42,10 @@
       <version>${version.org.hawkular.inventory}</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.squareup.okhttp</groupId>
+      <artifactId>okhttp</artifactId>
+      <version>${version.com.squareup.okhttp}</version>
+    </dependency>
   </dependencies>
 </project>
