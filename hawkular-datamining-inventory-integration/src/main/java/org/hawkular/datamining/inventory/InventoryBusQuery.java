@@ -48,7 +48,7 @@ public class InventoryBusQuery<T extends AbstractElement<?, ?>> extends
     private ConnectionContextFactory connectionContextFactory;
     private ProducerConnectionContext producerConnectionContext;
 
-    private Query query;
+    private final Query query;
     private Set<T> result = new HashSet<>();
 
     private boolean messageReceived;
@@ -90,5 +90,4 @@ public class InventoryBusQuery<T extends AbstractElement<?, ?>> extends
         result = new HashSet<>((Collection<T>) message.getResult().getEntities());
         messageReceived = true;
     }
-
 }

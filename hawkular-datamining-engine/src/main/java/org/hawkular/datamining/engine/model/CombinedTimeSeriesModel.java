@@ -83,13 +83,18 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
     @Override
     public List<DataPoint> predict(int nAhead) {
 
+        if (lastTimestamp == 0) {
+            return Collections.EMPTY_LIST;
+        }
+
+        Long collectionInterval = metric.getInterval() == null ?
+                metric.getMetricType().getInterval() :
+                metric.getInterval();
+        Long predictionInterval = metric.getPredictionInterval() == null ?
+                metric.getMetricType().getPredictionInterval() :
+                metric.getPredictionInterval();
 
         if (nAhead == 0) {
-            Long collectionInterval = metric.getInterval() == null ?
-                    metric.getMetricType().getInterval() :
-                    metric.getInterval();
-            Long predictionInterval = metric.getPredictionInterval();
-
             nAhead = (int) (predictionInterval / collectionInterval);
             EngineLogger.LOGGER.debugf("Automatic prediction, nAhead= %d", nAhead);
         }
@@ -116,7 +121,7 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
             filter = filter - mean;
 
             DataPoint dataPoint = new DataPoint((ewma + filter) + mean,
-                    lastTimestamp + i * metric.getInterval() * 1000);
+                    lastTimestamp + i * collectionInterval * 1000);
             result.add(dataPoint);
 
 //            EngineLogger.LOGGER.debugf("Prediction: %s, %s", metric.getTenant(), metric.getId(), dataPoint);
