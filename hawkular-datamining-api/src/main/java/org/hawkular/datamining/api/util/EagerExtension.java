@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.inventory.util;
+package org.hawkular.datamining.api.util;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -17,42 +17,29 @@
 
 package org.hawkular.datamining.inventory;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.jms.JMSException;
 
-import org.hawkular.bus.common.BasicMessageWithExtraData;
-import org.hawkular.bus.common.ConnectionContextFactory;
-import org.hawkular.bus.common.Endpoint;
-import org.hawkular.bus.common.MessageProcessor;
-import org.hawkular.bus.common.consumer.BasicMessageListener;
-import org.hawkular.bus.common.producer.ProducerConnectionContext;
 import org.hawkular.datamining.api.DefinitionsStorage;
 import org.hawkular.datamining.api.SubscriptionManager;
-import org.hawkular.datamining.inventory.util.Eager;
+import org.hawkular.datamining.api.util.Eager;
 import org.hawkular.inventory.api.PathFragment;
 import org.hawkular.inventory.api.Query;
 import org.hawkular.inventory.api.Relationships;
 import org.hawkular.inventory.api.filters.Related;
 import org.hawkular.inventory.api.filters.RelationWith;
 import org.hawkular.inventory.api.filters.With;
-import org.hawkular.inventory.api.model.AbstractElement;
 import org.hawkular.inventory.api.model.CanonicalPath;
 import org.hawkular.inventory.api.model.Metric;
 import org.hawkular.inventory.api.model.MetricType;
 import org.hawkular.inventory.api.model.Relationship;
 import org.hawkular.inventory.api.model.Tenant;
-import org.hawkular.inventory.api.paging.Order;
-import org.hawkular.inventory.api.paging.Pager;
 import org.hawkular.inventory.base.spi.NoopFilter;
 import org.hawkular.inventory.base.spi.SwitchElementType;
-import org.hawkular.inventory.bus.api.InventoryQueryRequestMessage;
-import org.hawkular.inventory.bus.api.InventoryQueryResponseMessage;
 
 /**
  * @author Pavol Loffay
@@ -84,60 +71,13 @@ public class InventoryDefinitionsStorage implements DefinitionsStorage {
 
         InventoryBusQuery<Metric> metricsBusQuery = new InventoryBusQuery<>(queryAllMetrics(relationships));
 
-        Set<Metric> metrics = metricsBusQuery.sendQuery();
+        Set<Metric> inventoryMetrics = metricsBusQuery.sendQuery();
+        Set<org.hawkular.datamining.api.model.Metric> dataminingMetrics = convertMetrics(inventoryMetrics,
+                relationships);
 
-        return convertMetrics(metrics, relationships);
+        return dataminingMetrics;
     }
 
-    private class InventoryBusQuery<T extends AbstractElement<?, ?>> extends
-            BasicMessageListener<InventoryQueryResponseMessage> {
-
-        private final String queueName = InventoryConfiguration.QUEUE_INVENTORY_QUERY;
-        private final String brokerUrl = InventoryConfiguration.BROKER_URL;
-
-        private ConnectionContextFactory connectionContextFactory;
-        private ProducerConnectionContext producerConnectionContext;
-
-        private Query query;
-        private Set<T> result = new HashSet<>();
-
-        public InventoryBusQuery(Query query) {
-            this.query = query;
-        }
-
-        private Set<T> sendQuery() {
-            try {
-                connectionContextFactory = new ConnectionContextFactory(brokerUrl);
-                producerConnectionContext = connectionContextFactory.createProducerConnectionContext(
-                        new Endpoint(Endpoint.Type.QUEUE, queueName));
-
-                InventoryQueryRequestMessage inventoryMessage =
-                        new InventoryQueryRequestMessage(query, AbstractElement.class,
-                                Pager.unlimited(Order.unspecified()));
-                new MessageProcessor().sendAndListen(producerConnectionContext, inventoryMessage, this);
-
-                int waitIter = 0;
-                while (result != null && waitIter++ < 5) {
-                    Thread.sleep(1000);
-                }
-            } catch (JMSException ex) {
-                //todo
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            return result;
-        }
-
-        @Override
-        public void onBasicMessage(BasicMessageWithExtraData<InventoryQueryResponseMessage> messageWithExtraData) {
-
-            final InventoryQueryResponseMessage<?> message = messageWithExtraData.getBasicMessage();
-
-            result = new HashSet<>((Collection<T>) message.getResult().getEntities());
-        }
-
-    }
 
     private Query queryAllMetrics(Set<Relationship> relationships) {
         Set<CanonicalPath> metricsPaths = new HashSet<>();
@@ -201,13 +141,14 @@ public class InventoryDefinitionsStorage implements DefinitionsStorage {
 
     private Long predictionInterval(Set<Relationship> relationships, CanonicalPath targetEntityPath) {
 
+        Long predictionInterval = null;
         for (Relationship relationship: relationships) {
 
             if (relationship.getTarget().equals(targetEntityPath)) {
-                return Long.parseLong((String)relationship.getProperties().get("predictionInterval"));
+                predictionInterval = Long.parseLong((String)relationship.getProperties().get("predictionInterval"));
             }
         }
 
-        return null;
+        return predictionInterval;
     }
 }
