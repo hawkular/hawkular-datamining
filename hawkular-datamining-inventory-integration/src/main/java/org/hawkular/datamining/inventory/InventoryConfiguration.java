@@ -24,4 +24,7 @@ public final class InventoryConfiguration {
     public static final String BROKER_URL = "tcp://localhost:62626";
     public static final String TOPIC_INVENTORY_CHANGES = "HawkularInventoryChanges";
     public static final String QUEUE_INVENTORY_QUERY = "HawkularInventoryQuery";
+
+    public static final String PREDICTION_RELATIONSHIP = "__inPrediction";
+    public static final String PREDICTION_INTERVAL_PROP = "predictionInterval";
 }

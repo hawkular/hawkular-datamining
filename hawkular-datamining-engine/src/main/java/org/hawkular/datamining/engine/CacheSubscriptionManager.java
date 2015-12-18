@@ -75,6 +75,7 @@ public class CacheSubscriptionManager implements SubscriptionManager {
             throw new SubscriptionAlreadyExistsException();
         }
 
+        //init data
         model = new CombinedTimeSeriesModel(metric);
 
         tenantsModels.put(metric.getId(), model);

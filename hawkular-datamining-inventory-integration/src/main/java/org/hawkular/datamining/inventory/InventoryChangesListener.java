@@ -104,8 +104,8 @@ public class InventoryChangesListener extends InventoryEventMessageListener {
             case CREATED: {
 
                 // get first
-                Long typePredictionInterval = Long.parseLong((String)predictionRelationships.iterator().next()
-                        .getProperties().get("predictionInterval"));
+                Long typePredictionInterval = InventoryUtil.parsePredictionInterval(predictionRelationships.iterator()
+                        .next().getProperties());
 
                 org.hawkular.datamining.api.model.Metric dataminingMetric =
                         InventoryUtil.convertMetric(metric, typePredictionInterval, null);
@@ -141,7 +141,7 @@ public class InventoryChangesListener extends InventoryEventMessageListener {
             return;
         }
 
-        final Long predictionInterval = Long.parseLong((String) relationship.getProperties().get("predictionInterval"));
+        final Long predictionInterval = InventoryUtil.parsePredictionInterval(relationship.getProperties());
 
         switch (action) {
             case CREATED: {

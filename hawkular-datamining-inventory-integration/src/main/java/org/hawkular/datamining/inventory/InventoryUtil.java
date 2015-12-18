@@ -18,6 +18,7 @@
 package org.hawkular.datamining.inventory;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.hawkular.inventory.api.model.CanonicalPath;
@@ -29,6 +30,11 @@ import org.hawkular.inventory.api.model.Relationship;
  */
 public class InventoryUtil {
 
+    public static Long parsePredictionInterval(Map<String, Object> properties) {
+        Long predictionInterval = Long.parseLong(
+                (String) properties.get(InventoryConfiguration.PREDICTION_INTERVAL_PROP));
+        return predictionInterval;
+    }
 
     public static Set<org.hawkular.datamining.api.model.Metric> convertMetrics(Set<Metric> metrics,
                                              Set<Relationship> relationships) {

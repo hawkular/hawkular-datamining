@@ -50,10 +50,6 @@ public class InventoryBusStorage implements InventoryStorage {
 
     @PostConstruct
     public void init() {
-//        predictionRelationships(CanonicalPath.fromString("/t;28026b36-8fe4-4332-84c8-524e173a68bf/f;dhcp130-144/m;" +
-//                "MI~R~%5Bplatform~%2FOPERATING_SYSTEM=dhcp130-144_OperatingSystem%2FPROCESSOR=7%5D~MT~CPU%20Usage"),
-//                CanonicalPath.fromString("/t;28026b36-8fe4-4332-84c8-524e173a68bf/f;dhcp130-144/mt;Usable%20Space"));
-
         InventoryInitializer inventoryInitializer = new InventoryInitializer();
 
         Set<org.hawkular.datamining.api.model.Metric> predictedMetrics =
@@ -67,12 +63,12 @@ public class InventoryBusStorage implements InventoryStorage {
         Query qMetricsRelationships = Query.path().with(
                 With.path(metric),
                 SwitchElementType.incomingRelationships(),
-                RelationWith.name("__inPrediction")).get();
+                RelationWith.name(InventoryConfiguration.PREDICTION_RELATIONSHIP)).get();
 
         Query qTypesRelationships = Query.path().with(
                 With.path(metricType),
                 SwitchElementType.incomingRelationships(),
-                RelationWith.name("__inPrediction")).get();
+                RelationWith.name(InventoryConfiguration.PREDICTION_RELATIONSHIP)).get();
 
         Query queryAllMetrics = new Query.Builder().with(new PathFragment(new NoopFilter()))
                 .branch().with(qMetricsRelationships).done()
