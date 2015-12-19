@@ -17,6 +17,8 @@
 
 package org.hawkular.datamining.inventory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
@@ -77,6 +79,28 @@ public class InventoryBusStorage implements InventoryStorage {
         InventoryBusClient<Relationship> busClient = new InventoryBusClient<>(queryAllMetrics);
         Set<Relationship> relationships = busClient.sendQuery();
 
+        return relationships;
+    }
+
+    @Override
+    public Set<Relationship> predictionRelationships(CanonicalPath... targetEntities) {
+
+        List<Query> qTargetsRelationships = new ArrayList<>();
+        for (CanonicalPath cp: targetEntities) {
+            Query q = Query.path().with(With.path(cp),
+                    SwitchElementType.incomingRelationships(),
+                    RelationWith.name(InventoryConfiguration.PREDICTION_RELATIONSHIP)).get();
+
+            qTargetsRelationships.add(q);
+        }
+
+        Query.Builder finalQueryBuilder = new Query.Builder().with(new PathFragment(new NoopFilter()));
+        for (Query query: qTargetsRelationships) {
+            finalQueryBuilder = finalQueryBuilder.branch().with(query).done();
+        }
+
+        InventoryBusClient<Relationship> busClient = new InventoryBusClient<>(finalQueryBuilder.build());
+        Set<Relationship> relationships = busClient.sendQuery();
         return relationships;
     }
 

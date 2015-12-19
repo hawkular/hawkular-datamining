@@ -39,8 +39,12 @@ import org.hawkular.datamining.engine.model.CombinedTimeSeriesModel;
 @ApplicationScoped
 public class CacheSubscriptionManager implements SubscriptionManager {
 
-    private final Map<String, Map<String, TimeSeriesLinkedModel>> subscriptions = new HashMap<>();
+    private final Map<String, Map<String, TimeSeriesLinkedModel>> subscriptions;
 
+
+    public CacheSubscriptionManager() {
+        subscriptions = new HashMap<>();
+    }
 
     @Override
     public Set<Metric> getSubscriptions(String tenant) {
@@ -68,6 +72,7 @@ public class CacheSubscriptionManager implements SubscriptionManager {
         Map<String, TimeSeriesLinkedModel> tenantsModels = subscriptions.get(metric.getTenant());
         if (tenantsModels == null) {
             tenantsModels = new HashMap<>();
+            subscriptions.put(metric.getTenant(), tenantsModels);
         }
 
         TimeSeriesLinkedModel model = tenantsModels.get(metric.getId());
@@ -75,7 +80,6 @@ public class CacheSubscriptionManager implements SubscriptionManager {
             throw new SubscriptionAlreadyExistsException();
         }
 
-        //init data
         model = new CombinedTimeSeriesModel(metric);
 
         tenantsModels.put(metric.getId(), model);
@@ -91,6 +95,8 @@ public class CacheSubscriptionManager implements SubscriptionManager {
         if (tenantsModels.remove(metricId) == null) {
             throw new SubscriptionNotFoundException(tenant, metricId);
         }
+
+        EngineLogger.LOGGER.debugf("Unsubscribed tenant: %s, metric: %s", metricId, tenant);
     }
 
     @Override

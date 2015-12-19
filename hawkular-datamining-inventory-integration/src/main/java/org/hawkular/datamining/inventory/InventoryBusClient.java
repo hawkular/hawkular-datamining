@@ -17,6 +17,7 @@
 
 package org.hawkular.datamining.inventory;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -73,10 +74,14 @@ public class InventoryBusClient<T extends AbstractElement<?, ?>> extends
             while (!messageReceived && waitIter++ < 5) {
                 Thread.sleep(1000);
             }
+
+            producerConnectionContext.close();
         } catch (JMSException ex) {
             //todo
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (InterruptedException e)  {
+            //todo
+        } catch (IOException e) {
+            //todo
         }
 
         return result;

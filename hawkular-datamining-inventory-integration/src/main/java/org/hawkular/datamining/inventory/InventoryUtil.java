@@ -17,10 +17,12 @@
 
 package org.hawkular.datamining.inventory;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.hawkular.inventory.api.model.AbstractElement;
 import org.hawkular.inventory.api.model.CanonicalPath;
 import org.hawkular.inventory.api.model.Metric;
 import org.hawkular.inventory.api.model.Relationship;
@@ -91,5 +93,15 @@ public class InventoryUtil {
         }
 
         return predictionInterval;
+    }
+
+    public static Set<CanonicalPath> extractCanonicalPaths(Collection<? extends AbstractElement<?, ?>> elements) {
+        Set<CanonicalPath> canonicalPaths = new HashSet<>();
+
+        for (AbstractElement<?, ?> abstractElement: elements) {
+            canonicalPaths.add(abstractElement.getPath());
+        }
+
+        return canonicalPaths;
     }
 }
