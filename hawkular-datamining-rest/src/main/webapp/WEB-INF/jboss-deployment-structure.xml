@@ -22,14 +22,9 @@
 <jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.2">
   <deployment>
 
-    <!--
-         WF loads jackson in higher version that uses spark(jackson 2.4.4)
-         so we need to prevent WF loading in order to use our from lib
-         -->
-    <!--<exclusions>-->
-      <!--<module name="com.fasterxml.jackson.core.jackson-databind"/>-->
-      <!--<module name="org.jboss.resteasy.resteasy-jackson2-provider" />-->
-    <!--</exclusions>-->
-
+    <dependencies>
+      <module name="deployment.hawkular-inventory-dist.war" services="import"></module>
+      <module name="javax.jms.api" />
+    </dependencies>
   </deployment>
 </jboss-deployment-structure>

@@ -25,7 +25,7 @@
   <parent>
     <artifactId>hawkular-datamining-parent</artifactId>
     <groupId>org.hawkular.datamining</groupId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1.Alpha1-SNAPSHOT</version>
   </parent>
 
   <artifactId>hawkular-datamining-api</artifactId>

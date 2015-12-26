@@ -24,7 +24,6 @@ import javax.inject.Singleton;
 import org.hawkular.datamining.api.Official;
 import org.hawkular.datamining.api.SubscriptionManager;
 import org.hawkular.datamining.bus.listener.MetricDataListener;
-import org.hawkular.datamining.bus.sender.InventoryInitializer;
 import org.hawkular.datamining.engine.ForecastingEngine;
 
 
@@ -46,8 +45,6 @@ public class ForecastingEngineProducer {
 
         MetricDataListener metricDataListener = new MetricDataListener(forecastingEngine);
 //        InventoryChangesListener inventoryChangesListener = new InventoryChangesListener();
-
-        InventoryInitializer inventoryInitializer = new InventoryInitializer();
 
         return forecastingEngine;
     }

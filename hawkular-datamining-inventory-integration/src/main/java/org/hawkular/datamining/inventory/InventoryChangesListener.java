@@ -24,7 +24,10 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import org.hawkular.bus.common.ConnectionContextFactory;
 import org.hawkular.bus.common.Endpoint;
@@ -62,13 +65,20 @@ public class InventoryChangesListener extends InventoryEventMessageListener {
     @PostConstruct
     public void init() {
         try {
-            ConnectionContextFactory factory = new ConnectionContextFactory(InventoryConfiguration.BROKER_URL);
+            InitialContext initialContext = new InitialContext();
+            ConnectionFactory connectionFactory = (ConnectionFactory) initialContext.lookup(
+                    "java:/HawkularBusConnectionFactory");
+
+            ConnectionContextFactory factory = new ConnectionContextFactory(connectionFactory);
             Endpoint endpoint = new Endpoint(Endpoint.Type.TOPIC, InventoryConfiguration.TOPIC_INVENTORY_CHANGES);
             ConsumerConnectionContext consumerConnectionContext = factory.createConsumerConnectionContext(endpoint);
 
             MessageProcessor processor = new MessageProcessor();
             processor.listen(consumerConnectionContext, this);
         } catch (JMSException ex) {
+            ex.printStackTrace();
+        } catch (NamingException e) {
+            e.printStackTrace();
         }
     }
 

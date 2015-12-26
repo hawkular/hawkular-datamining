@@ -17,7 +17,10 @@
 
 package org.hawkular.datamining.bus.listener;
 
+import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import org.hawkular.bus.common.ConnectionContextFactory;
 import org.hawkular.bus.common.Endpoint;
@@ -42,7 +45,11 @@ public class MetricDataListener extends BasicMessageListener<MetricDataMessage> 
         this.engineDataReceiver = engineDataReceiver;
 
         try {
-            ConnectionContextFactory factory = new ConnectionContextFactory(BusConfiguration.BROKER_URL);
+            InitialContext initialContext = new InitialContext();
+            ConnectionFactory connectionFactory = (ConnectionFactory) initialContext.lookup(
+                    "java:/HawkularBusConnectionFactory");
+
+            ConnectionContextFactory factory = new ConnectionContextFactory(connectionFactory);
             Endpoint endpoint = new Endpoint(Endpoint.Type.TOPIC, BusConfiguration.TOPIC_METRIC_DATA);
             ConsumerConnectionContext consumerConnectionContext = factory.createConsumerConnectionContext(endpoint);
 
@@ -50,6 +57,8 @@ public class MetricDataListener extends BasicMessageListener<MetricDataMessage> 
             processor.listen(consumerConnectionContext, this);
         } catch (JMSException ex) {
             BusLogger.LOGGER.failerToStart(ex);
+        } catch (NamingException e) {
+            e.printStackTrace();
         }
     }
 

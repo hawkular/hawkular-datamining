@@ -28,9 +28,6 @@ import org.hawkular.inventory.api.model.Relationship;
  */
 public interface InventoryStorage {
 
-    // get prediction relationships of metric and its metric type
-    Set<Relationship> predictionRelationships(CanonicalPath metric, CanonicalPath metricType);
-
     Set<Relationship> predictionRelationships(CanonicalPath... targetEntity);
 
     Metric metric(CanonicalPath metric);
