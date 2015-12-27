@@ -33,9 +33,9 @@ import org.hawkular.inventory.api.model.Relationship;
 public class InventoryUtil {
 
     public static Long parsePredictionInterval(Map<String, Object> properties) {
-        Long predictionInterval = Long.parseLong(
-                (String) properties.get(InventoryConfiguration.PREDICTION_INTERVAL_PROP));
-        return predictionInterval;
+        String predictionIntervalObject = (String) properties.get(InventoryConfiguration.PREDICTION_INTERVAL_PROP);
+
+        return predictionIntervalObject == null ? null : Long.parseLong(predictionIntervalObject);
     }
 
     public static Set<org.hawkular.datamining.api.model.Metric> convertMetrics(Set<Metric> metrics,
@@ -88,7 +88,7 @@ public class InventoryUtil {
         for (Relationship relationship: relationships) {
 
             if (relationship.getTarget().equals(targetEntityPath)) {
-                predictionInterval = Long.parseLong((String)relationship.getProperties().get("predictionInterval"));
+                predictionInterval = parsePredictionInterval(relationship.getProperties());
             }
         }
 
