@@ -24,7 +24,7 @@
   <parent>
     <artifactId>hawkular-datamining-parent</artifactId>
     <groupId>org.hawkular.datamining</groupId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1.Alpha1-SNAPSHOT</version>
   </parent>
 
   <artifactId>hawkular-datamining-dist</artifactId>
@@ -55,6 +55,11 @@
       <artifactId>hawkular-datamining-rest</artifactId>
       <version>${project.version}</version>
       <type>war</type>
+    </dependency>
+    <dependency>
+      <groupId>org.hawkular.datamining</groupId>
+      <artifactId>hawkular-datamining-inventory-integration</artifactId>
+      <version>${project.version}</version>
     </dependency>
 
 

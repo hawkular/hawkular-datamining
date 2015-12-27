@@ -34,7 +34,7 @@
 
   <xsl:template name="loggers">
     <logger category="org.hawkular.datamining">
-      <level name="DEBUG" />
+      <level name="TRACE" />
     </logger>
   </xsl:template>
 
@@ -48,7 +48,7 @@
 
   <!-- set the console log level -->
   <xsl:template match="logging:console-handler[@name='CONSOLE']/logging:level">
-    <level name="DEBUG"/>
+    <level name="TRACE"/>
   </xsl:template>
 
   <!-- port offset -->

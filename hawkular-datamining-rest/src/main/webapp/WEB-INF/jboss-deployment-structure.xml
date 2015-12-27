@@ -20,16 +20,16 @@
 
 <!-- This file is used to  control class loading in a fine grained manner -->
 <jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.2">
+
   <deployment>
+    <dependencies>
+      <module name="deployment.hawkular-inventory-dist.war" services="import"></module>
+      <module name="javax.jms.api" />
+      <!-- required by com.github.fge:json-schema-validator -->
+      <module name="javax.mail.api"/>
 
-    <!--
-         WF loads jackson in higher version that uses spark(jackson 2.4.4)
-         so we need to prevent WF loading in order to use our from lib
-         -->
-    <!--<exclusions>-->
-      <!--<module name="com.fasterxml.jackson.core.jackson-databind"/>-->
-      <!--<module name="org.jboss.resteasy.resteasy-jackson2-provider" />-->
-    <!--</exclusions>-->
-
+      <!--<module name="org.hawkular.commons.cassandra-driver" />-->
+      <!--<module name="javaee.api" />-->
+    </dependencies>
   </deployment>
 </jboss-deployment-structure>

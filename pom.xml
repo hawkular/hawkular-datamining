@@ -30,7 +30,7 @@
   <groupId>org.hawkular.datamining</groupId>
   <artifactId>hawkular-datamining-parent</artifactId>
   <packaging>pom</packaging>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.1.Alpha1-SNAPSHOT</version>
 
   <inceptionYear>2015</inceptionYear>
 
@@ -40,16 +40,20 @@
     <module>hawkular-datamining-rest</module>
     <module>hawkular-datamining-dist</module>
     <module>hawkular-datamining-api</module>
+    <module>hawkular-datamining-inventory-integration</module>
   </modules>
 
   <properties>
     <version.org.hawkular.bus>0.7.2.Final</version.org.hawkular.bus>
+    <version.org.hawkular.inventory>0.11.0.Final</version.org.hawkular.inventory>
+    <version.org.hawkular.commons>0.3.1.Final</version.org.hawkular.commons>
 
     <version.com.squareup.okhttp>2.5.0</version.com.squareup.okhttp>
     <version.org.jboss.logging>3.2.1.Final</version.org.jboss.logging>
     <version.org.jboss.logging.jboss-logging-tools>2.0.0.Final</version.org.jboss.logging.jboss-logging-tools>
     <verison.javax.enterprise.cdi-api>1.2</verison.javax.enterprise.cdi-api>
     <version.org.jboss.spec.javax.ejb.jboss-ejb-api_3.2_spec>1.0.0.Final</version.org.jboss.spec.javax.ejb.jboss-ejb-api_3.2_spec>
+    <version.org.hamcrest-hamcrest-all>1.3</version.org.hamcrest-hamcrest-all>
   </properties>
 
   <scm>
@@ -123,6 +127,7 @@
             <exclude>**/*.txt</exclude>
             <exclude>*.sh</exclude>
             <exclude>R/**</exclude>
+            <exclude>**/*.csv</exclude>
           </excludes>
         </configuration>
       </plugin>

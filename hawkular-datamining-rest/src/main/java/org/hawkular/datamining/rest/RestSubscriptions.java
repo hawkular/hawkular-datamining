@@ -19,11 +19,13 @@ package org.hawkular.datamining.rest;
 
 import java.util.Set;
 
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -31,7 +33,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.hawkular.datamining.api.Constants;
-import org.hawkular.datamining.api.MetricFilter;
+import org.hawkular.datamining.api.SubscriptionManager;
+import org.hawkular.datamining.api.model.Metric;
 
 /**
  * @author Pavol Loffay
@@ -39,37 +42,56 @@ import org.hawkular.datamining.api.MetricFilter;
 @Path("/")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class RestMetrics {
+public class RestSubscriptions {
+
+    @Inject
+    private SubscriptionManager subscriptionManager;
 
     @HeaderParam(Constants.TENANT_HEADER_NAME)
     private String tenant;
 
+
     @GET
-    @Path("/metrics")
+    @Path("/subscriptions")
     public Response getAll() {
-        Set<String> tenantsSubscriptions = MetricFilter.getTenantSubscription(tenant);
+        Set<Metric> tenantsSubscriptions = subscriptionManager.getSubscriptions(tenant);
+
         return Response.status(Response.Status.OK).entity(tenantsSubscriptions).build();
     }
 
+    @GET
+    @Path("/subscriptions/{id}")
+    public Response getOne(@PathParam("id") String metricId) {
+        Metric metric = subscriptionManager.subscription(tenant, metricId);
+
+        return Response.status(Response.Status.OK).entity(metric).build();
+    }
+
     @POST
-    @Path("/metrics/{id}")
-    public Response subscribe(@PathParam("id") String metricsId) {
+    @Path("/subscriptions")
+    public Response subscribe(Metric.RestBlueprint blueprint) {
 
-        if (null != metricsId) {
-            MetricFilter.subscribe(tenant, metricsId);
-        }
+        Metric metric = new Metric(blueprint, tenant);
+        subscriptionManager.subscribe(metric);
 
-        return Response.status(Response.Status.OK).build();
+        return Response.status(Response.Status.CREATED).build();
+    }
+
+    //todo
+    @PUT
+    @Path("/subscriptions/{id}")
+    public Response update(@PathParam("id") String id) {
+
+        //todo status
+        return Response.status(Response.Status.NO_CONTENT).build();
     }
 
     @DELETE
-    @Path("/metrics/{id}")
-    public Response unSubscribe(@PathParam("id") String metricsId) {
+    @Path("/subscriptions/{id}")
+    public Response unSubscribe(@PathParam("id") String metricId) {
 
-        if (null != metricsId && !metricsId.isEmpty()) {
-            MetricFilter.unSubscribe(tenant, metricsId);
-        }
+        subscriptionManager.unSubscribe(tenant, metricId);
 
-        return Response.status(Response.Status.OK).build();
+        return Response.status(Response.Status.NO_CONTENT).build();
     }
 }

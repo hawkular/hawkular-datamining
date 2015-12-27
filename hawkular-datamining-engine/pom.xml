@@ -24,7 +24,7 @@
   <parent>
     <artifactId>hawkular-datamining-parent</artifactId>
     <groupId>org.hawkular.datamining</groupId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1.Alpha1-SNAPSHOT</version>
   </parent>
 
   <artifactId>hawkular-datamining-engine</artifactId>
@@ -42,10 +42,11 @@
     </dependency>
 
     <dependency>
-      <groupId>com.squareup.okhttp</groupId>
-      <artifactId>okhttp</artifactId>
-      <version>${version.com.squareup.okhttp}</version>
+      <groupId>org.hawkular.inventory</groupId>
+      <artifactId>hawkular-inventory-json-helper</artifactId>
+      <version>${version.org.hawkular.inventory}</version>
     </dependency>
+
 
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
@@ -53,10 +54,29 @@
       <scope>provided</scope>
     </dependency>
 
+    <!--Test-->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>${version.junit}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-all</artifactId>
+      <version>${version.org.hamcrest-hamcrest-all}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-csv</artifactId>
+      <version>1.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>3.2.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

@@ -22,13 +22,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.hawkular.datamining.api.TimeSeriesLinkedModel;
 import org.hawkular.datamining.api.model.DataPoint;
+import org.hawkular.datamining.api.model.Metric;
 import org.hawkular.datamining.engine.EngineLogger;
 
 /**
  * @author Pavol Loffay
  */
-public class ForecastingModel implements PredictionModel {
+public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
     // ewma
     public static final double EWMA_ALPHA = 0.005;
     public static final double EWMA_BETA = 0.005;
@@ -37,22 +39,30 @@ public class ForecastingModel implements PredictionModel {
     // TODO this has to be calculated from data, or use normalized version
     public static final double LMS_ALPHA = 0.000000000000000000000000001;
 
-    private String tenant;
-    private String metricId;
+    private final Metric metric;
 
+    // in ms
     private long lastTimestamp;
-    private long distance; //todo
 
     private LeastMeanSquaresFilter leastMeanSquaresFilter;
     private ExponentiallyWeightedMovingAverages ewma;
 
 
-    public ForecastingModel(String tenant, String metricId) {
-        this.tenant = tenant;
-        this.metricId = metricId;
+    public CombinedTimeSeriesModel(Metric metric) {
+        this.metric = metric;
 
         this.ewma = new ExponentiallyWeightedMovingAverages(EWMA_ALPHA, EWMA_BETA);
         this.leastMeanSquaresFilter = new LeastMeanSquaresFilter(LMS_ALPHA, LMS_WEIGHTS);
+    }
+
+    @Override
+    public void setInterval(Long interval) {
+        this.metric.setInterval(interval);
+    }
+
+    @Override
+    public Metric getLinkedMetric() {
+        return metric;
     }
 
     @Override
@@ -66,38 +76,58 @@ public class ForecastingModel implements PredictionModel {
     }
 
     @Override
+    public DataPoint predict() {
+        return predict(1).get(0);
+    }
+
+    @Override
     public List<DataPoint> predict(int nAhead) {
+
+        if (lastTimestamp == 0) {
+            return Collections.EMPTY_LIST;
+        }
+
+        Long collectionInterval = metric.getInterval() == null ?
+                metric.getMetricType().getInterval() :
+                metric.getInterval();
+        Long predictionInterval = metric.getPredictionInterval() == null ?
+                metric.getMetricType().getPredictionInterval() :
+                metric.getPredictionInterval();
+
+        if (nAhead == 0) {
+            nAhead = (int) (predictionInterval / collectionInterval);
+            EngineLogger.LOGGER.debugf("Automatic prediction, nAhead= %d", nAhead);
+        }
+
+        /**
+         * Calculate
+         * from prediction interval calculate how far - how many aHead we need to predict
+         */
 
         List<DataPoint> result = new ArrayList<>();
         List<DataPoint> predictionEWMA = ewma.predict(nAhead);
         List<DataPoint> predictionFilter = leastMeanSquaresFilter.predict(nAhead);
 
-        for (int i = 0; i < predictionEWMA.size() && i  < predictionFilter.size(); i++) {
+        for (int i = 0; i < predictionEWMA.size() && i < predictionFilter.size(); i++) {
 
             double ewma = predictionEWMA.get(i).getValue();
             double filter = predictionFilter.get(i).getValue();
 
-            EngineLogger.LOGGER.debugf("Filter predicted %f", filter);
-            EngineLogger.LOGGER.debugf("EWMA predicted %f", ewma);
+//            EngineLogger.LOGGER.debugf("Filter predicted %f", filter);
+//            EngineLogger.LOGGER.debugf("EWMA predicted %f", ewma);
 
             double mean = (ewma + filter) / 2;
             ewma = ewma - mean;
             filter = filter - mean;
 
-            DataPoint dataPoint = new DataPoint((ewma + filter) + mean, null);
+            DataPoint dataPoint = new DataPoint((ewma + filter) + mean,
+                    lastTimestamp + i * collectionInterval * 1000);
             result.add(dataPoint);
-            EngineLogger.LOGGER.debugf("Prediction: %s, %s", tenant, metricId, dataPoint);
+
+//            EngineLogger.LOGGER.debugf("Prediction: %s, %s", metric.getTenant(), metric.getId(), dataPoint);
         }
 
         return result;
-    }
-
-    public String getTenant() {
-        return tenant;
-    }
-
-    public String getMetricId() {
-        return metricId;
     }
 
     private void addData(List<DataPoint> dataPoints) {

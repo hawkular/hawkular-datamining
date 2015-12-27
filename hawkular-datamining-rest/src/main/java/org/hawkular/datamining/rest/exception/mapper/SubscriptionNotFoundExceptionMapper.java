@@ -15,19 +15,22 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.engine.model;
+package org.hawkular.datamining.rest.exception.mapper;
 
-import java.util.List;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
 
-import org.hawkular.datamining.api.model.DataPoint;
+import org.hawkular.datamining.api.exception.SubscriptionNotFoundException;
 
 /**
  * @author Pavol Loffay
  */
-public interface PredictionModel {
+@Provider
+public class SubscriptionNotFoundExceptionMapper implements ExceptionMapper<SubscriptionNotFoundException> {
 
-    void addDataPoint(DataPoint dataPoint);
-    void addDataPoints(List<DataPoint> dataPoints);
-
-    List<DataPoint> predict(int nAhead);
+    @Override
+    public Response toResponse(SubscriptionNotFoundException exception) {
+        return Response.status(Response.Status.NO_CONTENT).entity(exception.getMessage()).build();
+    }
 }

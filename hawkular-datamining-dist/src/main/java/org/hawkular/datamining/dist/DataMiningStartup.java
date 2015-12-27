@@ -20,10 +20,12 @@ package org.hawkular.datamining.dist;
 import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 
 import org.hawkular.datamining.api.Official;
-import org.hawkular.datamining.engine.model.ForecastingEngine;
+import org.hawkular.datamining.engine.ForecastingEngine;
 import org.jboss.logging.Logger;
 
 /**
@@ -31,6 +33,7 @@ import org.jboss.logging.Logger;
  */
 @Startup
 @Singleton
+@TransactionAttribute(value = TransactionAttributeType.NOT_SUPPORTED) //todo never?
 public class DataMiningStartup {
 
     private static final Logger LOG = Logger.getLogger(DataMiningStartup.class);
