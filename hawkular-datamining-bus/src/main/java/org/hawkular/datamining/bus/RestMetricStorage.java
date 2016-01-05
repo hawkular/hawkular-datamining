@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.inventory;
+package org.hawkular.datamining.bus;
 
 import java.util.Collections;
 import java.util.List;
@@ -34,23 +34,15 @@ import com.squareup.okhttp.Request;
 /**
  * @author Pavol Loffay
  */
-public class MetricStorageAdapter implements MetricStorage {
+public class RestMetricStorage implements MetricStorage {
 
-    private  String BASE_URL;
+    // todo
+    private  String BASE_URL = "http://localhost:8080/hawkular/metrics";
 
     private final OkHttpClient okHttpClient;
     private final ObjectMapper objectMapper;
 
-    public MetricStorageAdapter() {
-
-//        try {
-//            EngineConfiguration engineConfiguration = new EngineConfiguration();
-//            BASE_URL = engineConfiguration.getProperty("hawkular.address") +
-//                    engineConfiguration.getProperty("hawkular.metrics.address");
-//        } catch (IOException e) {
-//             todo
-//        }
-
+    public RestMetricStorage() {
         this.okHttpClient = new OkHttpClient();
         this.objectMapper = new ObjectMapper();
         this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

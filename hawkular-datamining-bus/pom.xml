@@ -44,6 +44,13 @@
       <version>${version.org.hawkular.commons}</version>
       <scope>provided</scope>
     </dependency>
+
+    <dependency>
+      <groupId>com.squareup.okhttp</groupId>
+      <artifactId>okhttp</artifactId>
+      <version>${version.com.squareup.okhttp}</version>
+    </dependency>
+
     <dependency>
       <groupId>org.jboss.spec.javax.jms</groupId>
       <artifactId>jboss-jms-api_2.0_spec</artifactId>

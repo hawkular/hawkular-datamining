@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,7 +30,10 @@ import org.hawkular.datamining.api.SubscriptionManager;
 import org.hawkular.datamining.api.TimeSeriesLinkedModel;
 import org.hawkular.datamining.api.exception.SubscriptionAlreadyExistsException;
 import org.hawkular.datamining.api.exception.SubscriptionNotFoundException;
+import org.hawkular.datamining.api.model.DataPoint;
 import org.hawkular.datamining.api.model.Metric;
+import org.hawkular.datamining.api.storage.MetricStorage;
+import org.hawkular.datamining.bus.RestMetricStorage;
 import org.hawkular.datamining.engine.model.CombinedTimeSeriesModel;
 
 /**
@@ -41,6 +44,7 @@ public class CacheSubscriptionManager implements SubscriptionManager {
 
     private final Map<String, Map<String, TimeSeriesLinkedModel>> subscriptions;
 
+    private MetricStorage restMetricStorage = new RestMetricStorage();
 
     public CacheSubscriptionManager() {
         subscriptions = new HashMap<>();
@@ -82,6 +86,13 @@ public class CacheSubscriptionManager implements SubscriptionManager {
 
         model = new CombinedTimeSeriesModel(metric);
 
+        /**
+         * Initialize model with old data
+         */
+        List<DataPoint> points = restMetricStorage.loadPoints(metric.getId(), metric.getTenant());
+        model.addDataPoints(points);
+
+        EngineLogger.LOGGER.subscribing(metric.getId(), metric.getTenant());
         tenantsModels.put(metric.getId(), model);
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -105,14 +105,18 @@ public class InventoryChangesListener extends InventoryEventMessageListener {
         CanonicalPath target = relationship.getTarget();
         CanonicalPath source = relationship.getSource();
 
-        if (!source.getSegment().getElementType().equals(Tenant.class) ||
-                (!target.getSegment().getElementType().equals(Metric.class) &&
-                 !target.getSegment().getElementType().equals(MetricType.class)) ||
-                !relationship.getName().equals(InventoryConfiguration.PREDICTION_RELATIONSHIP)) {
+        if (relationship.getName().equals(InventoryConfiguration.PREDICTION_RELATIONSHIP)) {
+            InventoryLogger.LOGGER.info("\n\n\n\nPredictionRelationship!\n\n\n");
+        }
+
+        if (! (source.getSegment().getElementType().equals(Tenant.class) &&
+                (target.getSegment().getElementType().equals(Metric.class) ||
+                 target.getSegment().getElementType().equals(MetricType.class)) &&
+                relationship.getName().equals(InventoryConfiguration.PREDICTION_RELATIONSHIP))) {
             return;
         }
 
-        final Long predictionInterval = InventoryUtil.parsePredictionInterval(relationship.getProperties());
+           final Long predictionInterval = InventoryUtil.parsePredictionInterval(relationship.getProperties());
 
         switch (action) {
             case CREATED: {

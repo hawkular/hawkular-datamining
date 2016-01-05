@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.inventory;
+package org.hawkular.datamining.bus;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -33,19 +33,6 @@ import com.squareup.okhttp.Response;
  */
 public class UrlUtils {
 
-    private static String credentials;
-    static {
-//        try {
-//            EngineConfiguration configuration = new EngineConfiguration();
-//            final String userName = configuration.getProperty("hawkular.auth.name");
-//            final String password = configuration.getProperty("hawkular.auth.password");
-//
-//            credentials = Credentials.basic(userName, password);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-    }
-
     public static String encodeUrlPath(String url) {
         String result = null;
 
@@ -62,8 +49,7 @@ public class UrlUtils {
 
         Request.Builder reqBuilder = new Request.Builder()
                 .url(url)
-                .addHeader("Accept", "application/json")
-                .addHeader("Authorization", credentials);
+                .addHeader("Accept", "application/json");
 
         if (headers != null) {
             for (Map.Entry<String, String> header : headers.entrySet()) {
@@ -88,7 +74,6 @@ public class UrlUtils {
             String responseBody = response.body().string();
             obj = objectMapper.readValue(responseBody, clazz);
         } catch (IOException ex) {
-            InventoryLogger.LOGGER.errorf("Failed request: %s, headers %s", request.toString(), request.headers());
             throw new IllegalArgumentException("Request failed: " + request.toString(), ex);
         }
 
