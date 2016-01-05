@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -51,13 +51,11 @@ public class ForecastingEngine implements EngineDataReceiver<MetricData>,
             return;
         }
 
-//        EngineLogger.LOGGER.debugf("Process %s, %s", metricData.getTenant(), metricData.getMetricId());
-
         TimeSeriesLinkedModel model = subscriptionManager.getModel(metricData.getTenant(), metricData.getMetricId());
         model.addDataPoint(metricData.getDataPoint());
 
-        List<DataPoint> predicted = predict(metricData.getTenant(), metricData.getMetricId(), 0);
-//        predictionOutput.send(predicted, metricData.getTenant(), metricData.getMetricId());
+        List<DataPoint> predicted = predict(metricData.getTenant(), metricData.getMetricId(), 1);
+        predictionOutput.send(predicted, metricData.getTenant(), metricData.getMetricId());
     }
 
     @Override

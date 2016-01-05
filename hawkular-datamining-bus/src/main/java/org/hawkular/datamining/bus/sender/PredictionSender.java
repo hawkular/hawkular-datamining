@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,10 @@ package org.hawkular.datamining.bus.sender;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import org.hawkular.bus.common.ConnectionContextFactory;
 import org.hawkular.bus.common.Endpoint;
@@ -40,12 +43,21 @@ public class PredictionSender implements PredictionStorage {
     private final String brokerUrl;
     private final MessageProcessor messageProcessor;
 
+    private ConnectionFactory connectionFactory;
 
     public PredictionSender(String topicName, String brokerUrl) {
         this.topicName = topicName;
         this.brokerUrl = brokerUrl;
 
         this.messageProcessor = new MessageProcessor();
+
+        try {
+            InitialContext initialContext = new InitialContext();
+            connectionFactory = (ConnectionFactory) initialContext.lookup(
+                    "java:/HawkularBusConnectionFactory");
+        } catch (NamingException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -53,7 +65,7 @@ public class PredictionSender implements PredictionStorage {
 
         MetricDataMessage message = convertToMessage(predictedPoints, tenant, "prediction_" + metricId);
 
-        try (ConnectionContextFactory ccf = new ConnectionContextFactory(brokerUrl)) {
+        try (ConnectionContextFactory ccf = new ConnectionContextFactory(connectionFactory)) {
 
             ProducerConnectionContext producerConnectionContext = ccf.createProducerConnectionContext(
                     new Endpoint(Endpoint.Type.TOPIC, topicName));
