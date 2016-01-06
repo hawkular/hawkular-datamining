@@ -35,6 +35,7 @@ import org.hawkular.bus.common.MessageProcessor;
 import org.hawkular.bus.common.consumer.ConsumerConnectionContext;
 import org.hawkular.datamining.api.SubscriptionManager;
 import org.hawkular.datamining.api.TimeSeriesLinkedModel;
+import org.hawkular.datamining.api.exception.DataMiningException;
 import org.hawkular.datamining.api.exception.SubscriptionAlreadyExistsException;
 import org.hawkular.datamining.api.util.Eager;
 import org.hawkular.inventory.api.Action;
@@ -92,12 +93,15 @@ public class InventoryChangesListener extends InventoryEventMessageListener {
             return;
         }
 
-        if (inventoryEvent instanceof RelationshipEvent) {
-            relationshipEvent(((RelationshipEvent) inventoryEvent).getObject(), action);
-        } else if (inventoryEvent instanceof MetricEvent) {
-            metricEvent(((MetricEvent) inventoryEvent).getObject(), action);
-        } else if (inventoryEvent instanceof MetricTypeEvent) {
-            metricTypeEvent(((MetricTypeEvent) inventoryEvent).getObject(), action);
+        try {
+            if (inventoryEvent instanceof RelationshipEvent) {
+                relationshipEvent(((RelationshipEvent) inventoryEvent).getObject(), action);
+            } else if (inventoryEvent instanceof MetricEvent) {
+                metricEvent(((MetricEvent) inventoryEvent).getObject(), action);
+            } else if (inventoryEvent instanceof MetricTypeEvent) {
+                metricTypeEvent(((MetricTypeEvent) inventoryEvent).getObject(), action);
+            }
+        } catch (DataMiningException ex) {
         }
     }
 

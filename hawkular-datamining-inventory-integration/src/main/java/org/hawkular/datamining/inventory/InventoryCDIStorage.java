@@ -17,10 +17,9 @@
 
 package org.hawkular.datamining.inventory;
 
-import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -28,11 +27,19 @@ import javax.inject.Inject;
 
 import org.hawkular.datamining.api.SubscriptionManager;
 import org.hawkular.inventory.api.Inventory;
+import org.hawkular.inventory.api.Query;
+import org.hawkular.inventory.api.Relationships;
+import org.hawkular.inventory.api.filters.Related;
+import org.hawkular.inventory.api.filters.RelationWith;
 import org.hawkular.inventory.api.filters.With;
 import org.hawkular.inventory.api.model.CanonicalPath;
 import org.hawkular.inventory.api.model.Metric;
 import org.hawkular.inventory.api.model.MetricType;
 import org.hawkular.inventory.api.model.Relationship;
+import org.hawkular.inventory.api.paging.Order;
+import org.hawkular.inventory.api.paging.Page;
+import org.hawkular.inventory.api.paging.Pager;
+import org.hawkular.inventory.base.spi.SwitchElementType;
 
 /**
  * @author Pavol Loffay
@@ -54,32 +61,37 @@ public class InventoryCDIStorage implements InventoryStorage {
         InventoryLogger.LOGGER.inventoryInitialized(predictedMetrics.size());
     }
 
-    // TODO optimize
     @Override
     public Set<Relationship> predictionRelationships(CanonicalPath... targetEntity) {
-        Set<Relationship> relationships =
-                inventory.relationships().named(InventoryConfiguration.PREDICTION_RELATIONSHIP).entities();
 
-        Set<CanonicalPath> targetPaths = new HashSet<>(Arrays.asList(targetEntity));
-        Set<Relationship> result =
-                relationships.stream().filter(relationship -> targetPaths.contains(relationship.getTarget())).collect(
-                        Collectors.toSet());
+        Query query = Query.path().with(With.paths(targetEntity)).with(SwitchElementType.incomingRelationships(),
+                        RelationWith.name(InventoryConfiguration.PREDICTION_RELATIONSHIP)).get();
 
-        return result;
+        Page<Relationship> page = inventory.execute(query, Relationship.class, Pager.unlimited(Order.unspecified()));
+
+        return new HashSet<>(page.toList());
     }
 
     @Override
     public Metric metric(CanonicalPath metric) {
-        Set<Metric> metrics =
-                inventory.tenants().getAll().feeds().getAll().metrics().getAll(With.path(metric)).entities();
+        Query query = Query.path().with(With.path(metric), With.type(Metric.class)).get();
 
-        return metrics.size() > 0 ? metrics.iterator().next() : null;
+        Page<Metric> page = inventory.execute(query, Metric.class, Pager.unlimited(Order.unspecified()));
+
+        List<Metric> metrics = page.toList();
+        return metrics.size() > 0 ? metrics.get(0) : null;
     }
 
     @Override
     public Set<Metric> metricsOfType(CanonicalPath metricType) {
-        return inventory.tenants().getAll().feeds().getAll().metricTypes().getAll(With.path(metricType))
-                .metrics().getAll().entities();
+        Query query = Query.path().with(With.path(metricType))
+                .with(Related.by(Relationships.WellKnown.defines))
+                .with(With.type(Metric.class)).get();
+
+        Page<Metric> page = inventory.execute(query, Metric.class, Pager.unlimited(Order.unspecified()));
+
+        List<Metric> metrics = page.toList();
+        return new HashSet<>(metrics);
     }
 
     private Set<org.hawkular.datamining.api.model.Metric> getAllPredictedMetrics() {
