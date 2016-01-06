@@ -105,10 +105,6 @@ public class InventoryChangesListener extends InventoryEventMessageListener {
         CanonicalPath target = relationship.getTarget();
         CanonicalPath source = relationship.getSource();
 
-        if (relationship.getName().equals(InventoryConfiguration.PREDICTION_RELATIONSHIP)) {
-            InventoryLogger.LOGGER.info("\n\n\n\nPredictionRelationship!\n\n\n");
-        }
-
         if (! (source.getSegment().getElementType().equals(Tenant.class) &&
                 (target.getSegment().getElementType().equals(Metric.class) ||
                  target.getSegment().getElementType().equals(MetricType.class)) &&
@@ -116,7 +112,7 @@ public class InventoryChangesListener extends InventoryEventMessageListener {
             return;
         }
 
-           final Long predictionInterval = InventoryUtil.parsePredictionInterval(relationship.getProperties());
+       final Long predictionInterval = InventoryUtil.parsePredictionInterval(relationship.getProperties());
 
         switch (action) {
             case CREATED: {

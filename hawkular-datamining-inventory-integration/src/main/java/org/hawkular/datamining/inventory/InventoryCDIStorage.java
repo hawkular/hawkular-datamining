@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,6 +50,8 @@ public class InventoryCDIStorage implements InventoryStorage {
     public void init() {
         Set<org.hawkular.datamining.api.model.Metric> predictedMetrics = getAllPredictedMetrics();
         predictedMetrics.forEach(metric -> subscriptionManager.subscribe(metric));
+
+        InventoryLogger.LOGGER.inventoryInitialized(predictedMetrics.size());
     }
 
     // TODO optimize
