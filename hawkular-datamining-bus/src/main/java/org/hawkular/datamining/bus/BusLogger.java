@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.hawkular.datamining.bus;
 
 import org.jboss.logging.BasicLogger;
@@ -33,8 +32,8 @@ public interface BusLogger extends BasicLogger {
     BusLogger LOGGER = Logger.getMessageLogger(BusLogger.class, "org.hawkular.datamining.bus");
 
     @LogMessage(level = Logger.Level.INFO)
-    @Message(value = "Datamining bus successfully connected")
-    void initializedInfo();
+    @Message(value = "Connected to MetricData Topic successfully connected")
+    void connectedToMetricDataTopic();
 
     @LogMessage(level = Logger.Level.ERROR)
     @Message(value = "Dataminig bus failed to connect to bus")
@@ -44,4 +43,8 @@ public interface BusLogger extends BasicLogger {
     @LogMessage(level = Logger.Level.ERROR)
     @Message(value = "Failed to send message to the bus = %s")
     void failedToSendMessage(String message);
+
+    @LogMessage(level = Logger.Level.ERROR)
+    @Message(value = "Failed to load metric data from Metrics, url: %s, message: %s")
+    void failedToLoadMetricData(String url, String message);
 }

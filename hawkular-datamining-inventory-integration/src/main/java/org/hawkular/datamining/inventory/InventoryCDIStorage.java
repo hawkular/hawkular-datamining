@@ -28,6 +28,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.hawkular.datamining.api.SubscriptionManager;
+import org.hawkular.datamining.api.util.Eager;
 import org.hawkular.inventory.api.Inventory;
 import org.hawkular.inventory.api.Query;
 import org.hawkular.inventory.api.Relationships;
@@ -47,6 +48,7 @@ import org.hawkular.inventory.base.spi.SwitchElementType;
 /**
  * @author Pavol Loffay
  */
+@Eager
 @ApplicationScoped
 public class InventoryCDIStorage implements InventoryStorage {
 
@@ -58,6 +60,7 @@ public class InventoryCDIStorage implements InventoryStorage {
 
     @PostConstruct
     public void init() {
+        InventoryLogger.LOGGER.error("POST CONSTRUCT START");
         Map<org.hawkular.datamining.api.model.Metric, Set<SubscriptionManager.SubscriptionOwner>> allPredictedMetrics =
                 getAllPredictedMetrics();
 

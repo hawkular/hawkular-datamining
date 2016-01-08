@@ -133,7 +133,9 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
         // todo data from metrics arrives at <new>, <older>. Maybe its better to reverse itterate
         Collections.sort(dataPoints);
 
-        long newLastTimestamp = dataPoints.get(dataPoints.size() - 1).getTimestamp();
+        Long newLastTimestamp = dataPoints.size() > 0 ?
+                dataPoints.get(dataPoints.size() - 1).getTimestamp() : lastTimestamp;
+
         if (newLastTimestamp < lastTimestamp) {
             throw new IllegalArgumentException("Data point has older timestamp than current state.");
         }

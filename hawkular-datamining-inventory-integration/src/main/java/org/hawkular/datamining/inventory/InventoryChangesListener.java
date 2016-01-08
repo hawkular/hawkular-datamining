@@ -102,6 +102,7 @@ public class InventoryChangesListener extends InventoryEventMessageListener {
                 metricTypeEvent(((MetricTypeEvent) inventoryEvent).getObject(), action);
             }
         } catch (DataMiningException ex) {
+            // ignore
         }
     }
 
