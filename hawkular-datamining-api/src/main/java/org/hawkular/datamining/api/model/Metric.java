@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,14 +17,10 @@
 
 package org.hawkular.datamining.api.model;
 
-import java.util.regex.Pattern;
-
 /**
  * @author Pavol Loffay
  */
 public class Metric {
-
-    private static final Pattern resourcePattern = Pattern.compile("\\~\\[([a-zA-Z0-9~-]+)\\]\\~");
 
     private final String id;
     private final String tenant;
@@ -86,10 +82,6 @@ public class Metric {
 
     public MetricType getMetricType() {
         return metricType;
-    }
-
-    public void setMetricType(MetricType metricType) {
-        this.metricType = metricType;
     }
 
     public Long getPredictionInterval() {

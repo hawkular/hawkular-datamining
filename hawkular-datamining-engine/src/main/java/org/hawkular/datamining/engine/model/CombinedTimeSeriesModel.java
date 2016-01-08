@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,8 +20,12 @@ package org.hawkular.datamining.engine.model;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import org.hawkular.datamining.api.SubscriptionManager;
+import org.hawkular.datamining.api.TenantSubscriptions;
 import org.hawkular.datamining.api.TimeSeriesLinkedModel;
 import org.hawkular.datamining.api.model.DataPoint;
 import org.hawkular.datamining.api.model.Metric;
@@ -40,6 +44,8 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
     public static final double LMS_ALPHA = 0.000000000000000000000000001;
 
     private final Metric metric;
+    private final TenantSubscriptions tenantSubscriptions;
+    private Set<SubscriptionManager.SubscriptionOwner> subscriptionOwners = new HashSet<>();
 
     // in ms
     private long lastTimestamp;
@@ -47,17 +53,14 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
     private LeastMeanSquaresFilter leastMeanSquaresFilter;
     private ExponentiallyWeightedMovingAverages ewma;
 
-
-    public CombinedTimeSeriesModel(Metric metric) {
+    public CombinedTimeSeriesModel(Metric metric, TenantSubscriptions tenantSubscriptions,
+                                   Set<SubscriptionManager.SubscriptionOwner> subscriptionOwner) {
         this.metric = metric;
+        this.tenantSubscriptions = tenantSubscriptions;
+        this.subscriptionOwners.addAll(subscriptionOwner);
 
         this.ewma = new ExponentiallyWeightedMovingAverages(EWMA_ALPHA, EWMA_BETA);
         this.leastMeanSquaresFilter = new LeastMeanSquaresFilter(LMS_ALPHA, LMS_WEIGHTS);
-    }
-
-    @Override
-    public void setInterval(Long interval) {
-        this.metric.setInterval(interval);
     }
 
     @Override
@@ -87,12 +90,8 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
             return Collections.EMPTY_LIST;
         }
 
-        Long collectionInterval = metric.getInterval() == null ?
-                metric.getMetricType().getInterval() :
-                metric.getInterval();
-        Long predictionInterval = metric.getPredictionInterval() == null ?
-                metric.getMetricType().getPredictionInterval() :
-                metric.getPredictionInterval();
+        Long collectionInterval = getCollectionInterval();
+        Long predictionInterval = getPredictionInterval();
 
         if (nAhead == 0) {
             nAhead = (int) (predictionInterval / collectionInterval);
@@ -143,5 +142,50 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
 
         ewma.addDataPoints(dataPoints);
         leastMeanSquaresFilter.addDataPoints(dataPoints);
+    }
+
+    private Long getPredictionInterval() {
+        Long predictionInterval = null;
+
+        if (subscriptionOwners.contains(SubscriptionManager.SubscriptionOwner.Metric)) {
+            predictionInterval = metric.getPredictionInterval();
+        } else if (subscriptionOwners.contains(SubscriptionManager.SubscriptionOwner.MetricType)) {
+            predictionInterval = metric.getMetricType().getPredictionInterval();
+        } else {
+            predictionInterval = tenantSubscriptions.getPredictionInterval();
+        }
+
+        return predictionInterval;
+    }
+
+    private Long getCollectionInterval() {
+        Long collectionInterval = null;
+
+        if (metric.getInterval() != null) {
+            collectionInterval =  metric.getInterval();
+        } else if (metric.getMetricType() != null) {
+            collectionInterval = metric.getMetricType().getInterval();
+        }
+
+        return collectionInterval;
+    }
+
+    public Set<SubscriptionManager.SubscriptionOwner> getSubscriptionOwners() {
+        return new HashSet<>(subscriptionOwners);
+    }
+
+    @Override
+    public void addSubscriptionOwner(SubscriptionManager.SubscriptionOwner subscriptionOwner) {
+        this.subscriptionOwners.add(subscriptionOwner);
+    }
+
+    @Override
+    public void addAllSubscriptionOwners(Set<SubscriptionManager.SubscriptionOwner> owners) {
+        this.subscriptionOwners.addAll(owners);
+    }
+
+    @Override
+    public void removeSubscriptionOwner(SubscriptionManager.SubscriptionOwner subscriptionOwner) {
+        this.subscriptionOwners.remove(subscriptionOwner);
     }
 }
