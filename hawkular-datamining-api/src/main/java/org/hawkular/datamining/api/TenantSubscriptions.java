@@ -14,43 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.datamining.api.model;
+
+package org.hawkular.datamining.api;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Pavol Loffay
  */
-public class MetricType {
+public class TenantSubscriptions {
 
-    private String path;
+    private Map<String, TimeSeriesLinkedModel> subscriptions = new HashMap<>();
 
-    private Long interval;
     private Long predictionInterval;
 
-
-    public MetricType() {
-    }
-
-    public MetricType(String id, Long interval) {
-        this(id, interval, null);
-    }
-
-    public MetricType(String path, Long interval, Long predictionInterval) {
-        this.path = path;
-        this.interval = interval;
-        this.predictionInterval = predictionInterval;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public Long getInterval() {
-        return interval;
-    }
-
-    public void setInterval(Long interval) {
-        this.interval = interval;
-    }
 
     public Long getPredictionInterval() {
         return predictionInterval;
@@ -58,5 +36,14 @@ public class MetricType {
 
     public void setPredictionInterval(Long predictionInterval) {
         this.predictionInterval = predictionInterval;
+    }
+
+    public Map<String, TimeSeriesLinkedModel> getSubscriptions() {
+        return subscriptions;
+    }
+
+    public void setSubscriptions(
+            Map<String, TimeSeriesLinkedModel> subscriptions) {
+        this.subscriptions = subscriptions;
     }
 }

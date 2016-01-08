@@ -51,7 +51,7 @@ public class ForecastingEngine implements EngineDataReceiver<MetricData>,
             return;
         }
 
-        TimeSeriesLinkedModel model = subscriptionManager.getModel(metricData.getTenant(), metricData.getMetricId());
+        TimeSeriesLinkedModel model = subscriptionManager.model(metricData.getTenant(), metricData.getMetricId());
         model.addDataPoint(metricData.getDataPoint());
 
         List<DataPoint> predicted = predict(metricData.getTenant(), metricData.getMetricId(), 1);
@@ -66,7 +66,7 @@ public class ForecastingEngine implements EngineDataReceiver<MetricData>,
     @Override
     public List<DataPoint> predict(String tenant, String metricsId, int nAhead) {
 
-        TimeSeriesLinkedModel model = subscriptionManager.getModel(tenant, metricsId);
+        TimeSeriesLinkedModel model = subscriptionManager.model(tenant, metricsId);
         List<DataPoint> points = model.predict(nAhead);
 
         return points;

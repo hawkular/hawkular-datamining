@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +17,8 @@
 
 package org.hawkular.datamining.api;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,19 +30,38 @@ import org.hawkular.datamining.api.model.Metric;
  */
 public interface SubscriptionManager {
 
-    void subscribe(Metric metric);
-
-    void unSubscribe(String tenant, String metricId);
+    void subscribe(Metric metric, Set<SubscriptionOwner> subscriptionOwner);
 
     boolean subscribes(String tenant, String metricId);
 
+    void unSubscribe(String tenant, String metricId);
+
+    void unSubscribe(String tenant, String metricId, SubscriptionOwner subscriptionOwner);
+
+    void unSubscribe(String tenant, String metricId, Set<SubscriptionOwner> subscriptionOwners);
+
     Metric subscription(String tenant, String metricId);
 
-    Set<Metric> getSubscriptions(String tenant);
+    TimeSeriesLinkedModel model(String tenant, String metricId);
 
-    Map<String, Map<String, TimeSeriesLinkedModel>> getAllSubscriptions();
+    TenantSubscriptions subscriptionsOfTenant(String tenant);
 
-    TimeSeriesLinkedModel getModel(String tenant, String metricId);
+    Set<Metric> metricsOfTenant(String tenant);
 
     List<TimeSeriesLinkedModel> getAllModels();
+
+    Map<String, TenantSubscriptions> getAllSubscriptions();
+
+    /**
+     * Represents relationship from Tenant to:
+     */
+    enum SubscriptionOwner {
+        Tenant,
+        MetricType,
+        Metric;
+
+        public static Set<SubscriptionOwner> getAllDefined() {
+            return new HashSet<>(Arrays.asList(Tenant, MetricType, Metric));
+        }
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,18 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.hawkular.datamining.rest;
 
 import java.util.Set;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -54,7 +50,7 @@ public class RestSubscriptions {
     @GET
     @Path("/subscriptions")
     public Response getAll() {
-        Set<Metric> tenantsSubscriptions = subscriptionManager.getSubscriptions(tenant);
+        Set<Metric> tenantsSubscriptions = subscriptionManager.metricsOfTenant(tenant);
 
         return Response.status(Response.Status.OK).entity(tenantsSubscriptions).build();
     }
@@ -67,31 +63,29 @@ public class RestSubscriptions {
         return Response.status(Response.Status.OK).entity(metric).build();
     }
 
-    @POST
-    @Path("/subscriptions")
-    public Response subscribe(Metric.RestBlueprint blueprint) {
-
-        Metric metric = new Metric(blueprint, tenant);
-        subscriptionManager.subscribe(metric);
-
-        return Response.status(Response.Status.CREATED).build();
-    }
-
-    //todo
-    @PUT
-    @Path("/subscriptions/{id}")
-    public Response update(@PathParam("id") String id) {
-
-        //todo status
-        return Response.status(Response.Status.NO_CONTENT).build();
-    }
-
-    @DELETE
-    @Path("/subscriptions/{id}")
-    public Response unSubscribe(@PathParam("id") String metricId) {
-
-        subscriptionManager.unSubscribe(tenant, metricId);
-
-        return Response.status(Response.Status.NO_CONTENT).build();
-    }
+//    @POST
+//    @Path("/subscriptions")
+//    public Response subscribe(Metric.RestBlueprint blueprint) {
+//
+//        Metric metric = new Metric(blueprint, tenant);
+//        subscriptionManager.subscribe(metric);
+//
+//        return Response.status(Response.Status.CREATED).build();
+//    }
+//
+//    @PUT
+//    @Path("/subscriptions/{id}")
+//    public Response update(@PathParam("id") String id) {
+//
+//        return Response.status(Response.Status.NO_CONTENT).build();
+//    }
+//
+//    @DELETE
+//    @Path("/subscriptions/{id}")
+//    public Response unSubscribe(@PathParam("id") String metricId) {
+//
+//        subscriptionManager.unSubscribe(tenant, metricId);
+//
+//        return Response.status(Response.Status.NO_CONTENT).build();
+//    }
 }

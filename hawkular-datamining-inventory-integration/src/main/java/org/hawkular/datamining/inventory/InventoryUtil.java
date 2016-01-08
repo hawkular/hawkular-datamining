@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,18 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.hawkular.datamining.inventory;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.hawkular.datamining.api.SubscriptionManager;
 import org.hawkular.inventory.api.model.AbstractElement;
 import org.hawkular.inventory.api.model.CanonicalPath;
 import org.hawkular.inventory.api.model.Metric;
+import org.hawkular.inventory.api.model.MetricType;
 import org.hawkular.inventory.api.model.Relationship;
+import org.hawkular.inventory.api.model.Tenant;
 
 /**
  * @author Pavol Loffay
@@ -36,6 +39,11 @@ public class InventoryUtil {
         String predictionIntervalObject = (String) properties.get(InventoryConfiguration.PREDICTION_INTERVAL_PROP);
 
         return predictionIntervalObject == null ? null : Long.parseLong(predictionIntervalObject);
+    }
+
+    public static Set<org.hawkular.datamining.api.model.Metric> convertMetrics(Set<Metric> metrics,
+                                                                               Relationship relationship) {
+        return convertMetrics(metrics, new HashSet<>(Arrays.asList(relationship)));
     }
 
     public static Set<org.hawkular.datamining.api.model.Metric> convertMetrics(Set<Metric> metrics,
@@ -52,12 +60,17 @@ public class InventoryUtil {
     }
 
     public static org.hawkular.datamining.api.model.Metric convertMetric(Metric invMetric,
+                                                                         Relationship relationship) {
+        return convertMetric(invMetric, new HashSet<>(Arrays.asList(relationship)));
+    }
+
+    public static org.hawkular.datamining.api.model.Metric convertMetric(Metric invMetric,
                                                                          Set<Relationship> relationships) {
         Long metricPredictionInterval = predictionInterval(relationships, invMetric.getPath());
         Long typePredictionInterval = predictionInterval(relationships, invMetric.getType().getPath());
 
-        org.hawkular.datamining.api.model.MetricType type = new org.hawkular.datamining.api.model.MetricType(
-                invMetric.getType().getCollectionInterval(), typePredictionInterval);
+        org.hawkular.datamining.api.model.MetricType type = convertMetricType(invMetric.getType(),
+                typePredictionInterval);
 
         String tenant = invMetric.getPath().ids().getTenantId();
         String feed = invMetric.getPath().ids().getFeedId();
@@ -71,8 +84,8 @@ public class InventoryUtil {
                                                                          Long typePredictionInterval,
                                                                          Long metricPredictionInterval) {
 
-        org.hawkular.datamining.api.model.MetricType type = new org.hawkular.datamining.api.model.MetricType(
-                invMetric.getType().getCollectionInterval(), typePredictionInterval);
+        org.hawkular.datamining.api.model.MetricType type = convertMetricType(invMetric.getType(),
+                typePredictionInterval);
 
         String tenant = invMetric.getPath().ids().getTenantId();
         String feed = invMetric.getPath().ids().getFeedId();
@@ -80,6 +93,12 @@ public class InventoryUtil {
                 feed, invMetric.getId(), invMetric.getCollectionInterval(), type, metricPredictionInterval);
 
         return metric;
+    }
+
+    private static org.hawkular.datamining.api.model.MetricType convertMetricType(MetricType metricType,
+                                                                                  Long predictionInterval) {
+        return new org.hawkular.datamining.api.model.MetricType(metricType.getPath().toString(),
+                metricType.getCollectionInterval(), predictionInterval);
     }
 
     public static Long predictionInterval(Set<Relationship> relationships, CanonicalPath targetEntityPath) {
@@ -103,5 +122,30 @@ public class InventoryUtil {
         }
 
         return canonicalPaths;
+    }
+
+    public static Set<SubscriptionManager.SubscriptionOwner> predictionRelationshipsToOwners(Set<Relationship>
+                                                                                               relationships) {
+        Set<SubscriptionManager.SubscriptionOwner> subscriptionOwners = new HashSet<>();
+
+        for (Relationship relationship: relationships) {
+            Class<?> targetEntity = relationship.getTarget().getSegment().getElementType();
+
+            if (targetEntity.equals(Metric.class)) {
+                subscriptionOwners.add(SubscriptionManager.SubscriptionOwner.Metric);
+            } else if (targetEntity.equals(MetricType.class)) {
+                subscriptionOwners.add(SubscriptionManager.SubscriptionOwner.MetricType);
+            } else if (targetEntity.equals(Tenant.class)) {
+                subscriptionOwners.add(SubscriptionManager.SubscriptionOwner.Tenant);
+            }
+        }
+
+        return subscriptionOwners;
+    }
+
+    public static Set<SubscriptionManager.SubscriptionOwner> predictionRelationshipsToOwners(
+            Relationship relationship) {
+
+        return predictionRelationshipsToOwners(new HashSet<>(Arrays.asList(relationship)));
     }
 }
