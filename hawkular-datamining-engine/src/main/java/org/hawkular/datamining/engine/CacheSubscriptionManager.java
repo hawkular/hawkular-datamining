@@ -56,7 +56,8 @@ public class CacheSubscriptionManager implements SubscriptionManager {
     public TenantSubscriptions subscriptionsOfTenant(String tenant) {
         TenantSubscriptions tenantsSubscriptions = subscriptions.get(tenant);
         if (tenantsSubscriptions == null) {
-            throw new SubscriptionNotFoundException(tenant);
+            tenantsSubscriptions = new TenantSubscriptions();
+            subscriptions.put(tenant, tenantsSubscriptions);
         }
 
         return tenantsSubscriptions;

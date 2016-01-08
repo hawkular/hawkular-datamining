@@ -32,6 +32,6 @@ public interface InventoryLogger extends BasicLogger {
     InventoryLogger LOGGER = Logger.getMessageLogger(InventoryLogger.class, "org.hawkular.datamining.inventory");
 
     @LogMessage(level = Logger.Level.INFO)
-    @Message(value = "Successfully connected to inventory, loaded %d metrics")
+    @Message(value = "Initialized %d metrics from Inventory")
     void inventoryInitialized(int metrics);
 }

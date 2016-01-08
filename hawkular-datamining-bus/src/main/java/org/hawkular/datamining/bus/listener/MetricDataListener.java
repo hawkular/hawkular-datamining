@@ -55,6 +55,8 @@ public class MetricDataListener extends BasicMessageListener<MetricDataMessage> 
 
             MessageProcessor processor = new MessageProcessor();
             processor.listen(consumerConnectionContext, this);
+
+            BusLogger.LOGGER.connectedToMetricDataTopic();
         } catch (JMSException ex) {
             BusLogger.LOGGER.failerToStart(ex);
         } catch (NamingException e) {
