@@ -23,20 +23,20 @@ public class MetricType {
 
     private String path;
 
-    private Long interval;
+    private Long collectionInterval;
     private Long predictionInterval;
 
 
     public MetricType() {
     }
 
-    public MetricType(String id, Long interval) {
-        this(id, interval, null);
+    public MetricType(String id, Long collectionInterval) {
+        this(id, collectionInterval, null);
     }
 
-    public MetricType(String path, Long interval, Long predictionInterval) {
+    public MetricType(String path, Long collectionInterval, Long predictionInterval) {
         this.path = path;
-        this.interval = interval;
+        this.collectionInterval = collectionInterval;
         this.predictionInterval = predictionInterval;
     }
 
@@ -44,12 +44,12 @@ public class MetricType {
         return path;
     }
 
-    public Long getInterval() {
-        return interval;
+    public Long getCollectionInterval() {
+        return collectionInterval;
     }
 
-    public void setInterval(Long interval) {
-        this.interval = interval;
+    public void setCollectionInterval(Long collectionInterval) {
+        this.collectionInterval = collectionInterval;
     }
 
     public Long getPredictionInterval() {
