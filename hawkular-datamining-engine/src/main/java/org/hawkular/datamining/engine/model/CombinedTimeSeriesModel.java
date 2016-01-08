@@ -161,10 +161,10 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
     private Long getCollectionInterval() {
         Long collectionInterval = null;
 
-        if (metric.getInterval() != null) {
-            collectionInterval =  metric.getInterval();
+        if (metric.getCollectionInterval() != null) {
+            collectionInterval =  metric.getCollectionInterval();
         } else if (metric.getMetricType() != null) {
-            collectionInterval = metric.getMetricType().getInterval();
+            collectionInterval = metric.getMetricType().getCollectionInterval();
         }
 
         return collectionInterval;

@@ -245,7 +245,7 @@ public class InventoryChangesListener extends InventoryEventMessageListener {
                         metric.getId());
 
                 org.hawkular.datamining.api.model.Metric dataminingMetric = model.getLinkedMetric();
-                dataminingMetric.setInterval(metric.getCollectionInterval());
+                dataminingMetric.setCollectionInterval(metric.getCollectionInterval());
             }
             break;
 
@@ -283,7 +283,7 @@ public class InventoryChangesListener extends InventoryEventMessageListener {
 
                 dataminingMetrics.forEach(x -> {
                     TimeSeriesLinkedModel model = subscriptionManager.model(x.getTenant(), x.getId());
-                    model.getLinkedMetric().getMetricType().setInterval(metricType.getCollectionInterval());
+                    model.getLinkedMetric().getMetricType().setCollectionInterval(metricType.getCollectionInterval());
                 });
             }
                 break;
