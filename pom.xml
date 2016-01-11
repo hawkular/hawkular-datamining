@@ -47,6 +47,7 @@
     <version.org.hawkular.bus>0.7.2.Final</version.org.hawkular.bus>
     <version.org.hawkular.inventory>0.13.0.Final-SNAPSHOT</version.org.hawkular.inventory>
     <version.org.hawkular.commons>0.3.1.Final</version.org.hawkular.commons>
+    <version.org.hawkular.alerts>0.8.0.Final-SRC-revision-27fb92b1ec4c6223f400e2a702432dfc7e008be7</version.org.hawkular.alerts>
 
     <version.com.squareup.okhttp>2.5.0</version.com.squareup.okhttp>
     <version.org.jboss.logging>3.2.1.Final</version.org.jboss.logging>

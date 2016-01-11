@@ -22,6 +22,7 @@ import javax.jms.JMSException;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import org.hawkular.alerts.bus.api.MetricDataMessage;
 import org.hawkular.bus.common.ConnectionContextFactory;
 import org.hawkular.bus.common.Endpoint;
 import org.hawkular.bus.common.MessageProcessor;
@@ -31,7 +32,6 @@ import org.hawkular.datamining.api.EngineDataReceiver;
 import org.hawkular.datamining.api.model.MetricData;
 import org.hawkular.datamining.bus.BusConfiguration;
 import org.hawkular.datamining.bus.BusLogger;
-import org.hawkular.datamining.bus.message.MetricDataMessage;
 
 /**
  * @author Pavol Loffay
@@ -72,6 +72,10 @@ public class MetricDataListener extends BasicMessageListener<MetricDataMessage> 
 
         for (MetricDataMessage.SingleMetric singleMetric: metricData.getData()) {
 
+            if (singleMetric.getSource().startsWith("prediction_")) {
+                continue;
+            }
+
             MetricData engineData = new MetricData(tenantId, singleMetric.getSource(),
                     singleMetric.getTimestamp(), singleMetric.getValue());
 
@@ -86,7 +90,7 @@ public class MetricDataListener extends BasicMessageListener<MetricDataMessage> 
     protected String convertReceivedMessageClassNameToDesiredMessageClassName(String className) {
 
         if (className.equals("org.hawkular.metrics.component.publish.MetricDataMessage")) {
-            return "org.hawkular.datamining.bus.message.MetricDataMessage";
+            return MetricDataMessage.class.getCanonicalName();
         }
 
         return null;
