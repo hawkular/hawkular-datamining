@@ -1,4 +1,4 @@
-= Data mining
+= Hawkular Data mining
 
 Project is being developed for Red Hat and supervised by link:https://github.com/Jiri-Kremser[Jiri Kremser].
 In the future it will be probably integrated into link:http://www.hawkular.org/[Hawkular].
@@ -11,17 +11,22 @@ endif::[]
 
 == Build & Run
 
-To build Hawkular Data mining, clone this repository and build from the top level.
+To build Hawkular Data mining, clone this repository and build from the top level. Then build link:https://github.com/hawkular/hawkular/tree/datamining[Hawkular] branch datamining and run server
 
 [source,shell]
 ----
+# build Hawkular Datamining
 $ git clone https://github.com/hawkular/hawkular-datamining.git
 $ cd hawkular-datamining
-$ mvn clean install -Pdev
-$ # start application server
-$ hawkular-datamining-dist/target/wildfly-*/bin/standalone.sh --debug 9797
+$ mvn install 
+# build Hawkular with deployed datamining
+$ git clone -b datamining git@github.com:hawkular/hawkular.git
+$ cd hawkular
+$ mvn install -Pdev
+# run Hawkular
+$ dist/target/hawkular-*/bin/standalone.sh
+
 ----
-By default port offset is set to 1000, It can be changed with -Djboss.socket.binding.port-offset=OFFSET
 
 
 == Description in English
