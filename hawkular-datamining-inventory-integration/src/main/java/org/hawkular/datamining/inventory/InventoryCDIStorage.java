@@ -60,7 +60,6 @@ public class InventoryCDIStorage implements InventoryStorage {
 
     @PostConstruct
     public void init() {
-        InventoryLogger.LOGGER.error("POST CONSTRUCT START");
         Map<org.hawkular.datamining.api.model.Metric, Set<SubscriptionManager.SubscriptionOwner>> allPredictedMetrics =
                 getAllPredictedMetrics();
 

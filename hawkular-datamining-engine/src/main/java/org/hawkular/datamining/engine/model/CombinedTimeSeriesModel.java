@@ -105,22 +105,20 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
 
         List<DataPoint> result = new ArrayList<>();
         List<DataPoint> predictionEWMA = ewma.predict(nAhead);
-        List<DataPoint> predictionFilter = leastMeanSquaresFilter.predict(nAhead);
+//        List<DataPoint> predictionFilter = leastMeanSquaresFilter.predict(nAhead);
 
-        for (int i = 0; i < predictionEWMA.size() && i < predictionFilter.size(); i++) {
+        for (int i = 0; i < predictionEWMA.size(); i++) {
 
             double ewma = predictionEWMA.get(i).getValue();
-            double filter = predictionFilter.get(i).getValue();
 
 //            EngineLogger.LOGGER.debugf("Filter predicted %f", filter);
 //            EngineLogger.LOGGER.debugf("EWMA predicted %f", ewma);
 
-            double mean = (ewma + filter) / 2;
-            ewma = ewma - mean;
-            filter = filter - mean;
+//            double mean = (ewma + filter) / 2;
+//            ewma = ewma - mean;
+//            filter = filter - mean;
 
-            DataPoint dataPoint = new DataPoint((ewma + filter) + mean,
-                    lastTimestamp + i * collectionInterval * 1000);
+            DataPoint dataPoint = new DataPoint(ewma, lastTimestamp + i * collectionInterval * 1000);
             result.add(dataPoint);
 
 //            EngineLogger.LOGGER.debugf("Prediction: %s, %s", metric.getTenant(), metric.getId(), dataPoint);
