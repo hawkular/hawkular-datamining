@@ -18,7 +18,7 @@ To build Hawkular Data mining, clone this repository and build from the top leve
 # build Hawkular Datamining
 $ git clone https://github.com/hawkular/hawkular-datamining.git
 $ cd hawkular-datamining
-$ mvn install 
+$ mvn install
 # build Hawkular with deployed datamining
 $ git clone -b datamining git@github.com:hawkular/hawkular.git
 $ cd hawkular
@@ -28,6 +28,24 @@ $ dist/target/hawkular-*/bin/standalone.sh
 
 ----
 
+== Enable prediction
+----
+$ curl -ivX POST -H "Content-Type: application/json" 'http://jdoe:password@localhost:8080/hawkular/inventory/tenants/relationships' -d '{
+    "name": "__inPrediction",
+    "source": "/t;28026b36-8fe4-4332-84c8-524e173a68bf",
+    "target": "/t;28026b36-8fe4-4332-84c8-524e173a68bf",
+    "properties": {"predictionInterval": 150}
+}'
+----
+Source and target are canonical paths.
+
+.Source
+* Tenant
+
+.Target
+* Tenant - predict all tenant's metrics, lover levels overrides prediction interval
+* MetricType - predict metric of given type
+* Metric
 
 == Description in English
 ==== Alert prediction in metric data based on machine learning methods
