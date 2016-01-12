@@ -18,6 +18,7 @@
 package org.hawkular.datamining.engine;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -27,8 +28,8 @@ import java.util.Set;
 import javax.enterprise.context.ApplicationScoped;
 
 import org.hawkular.datamining.api.SubscriptionManager;
+import org.hawkular.datamining.api.TenantSubscriptions;
 import org.hawkular.datamining.api.TimeSeriesLinkedModel;
-import org.hawkular.datamining.api.exception.SubscriptionAlreadyExistsException;
 import org.hawkular.datamining.api.exception.SubscriptionNotFoundException;
 import org.hawkular.datamining.api.model.DataPoint;
 import org.hawkular.datamining.api.model.Metric;
@@ -42,7 +43,8 @@ import org.hawkular.datamining.engine.model.CombinedTimeSeriesModel;
 @ApplicationScoped
 public class CacheSubscriptionManager implements SubscriptionManager {
 
-    private final Map<String, Map<String, TimeSeriesLinkedModel>> subscriptions;
+    // tenant, metricId, model
+    private final Map<String, TenantSubscriptions> subscriptions;
 
     private MetricStorage restMetricStorage = new RestMetricStorage();
 
@@ -51,14 +53,22 @@ public class CacheSubscriptionManager implements SubscriptionManager {
     }
 
     @Override
-    public Set<Metric> getSubscriptions(String tenant) {
-        Map<String, TimeSeriesLinkedModel> tenantsSubscriptions = subscriptions.get(tenant);
+    public TenantSubscriptions subscriptionsOfTenant(String tenant) {
+        TenantSubscriptions tenantsSubscriptions = subscriptions.get(tenant);
         if (tenantsSubscriptions == null) {
-            throw new SubscriptionNotFoundException(tenant);
+            tenantsSubscriptions = new TenantSubscriptions();
+            subscriptions.put(tenant, tenantsSubscriptions);
         }
 
+        return tenantsSubscriptions;
+    }
+
+    @Override
+    public Set<Metric> metricsOfTenant(String tenant) {
+        TenantSubscriptions tenantSubscriptions = subscriptionsOfTenant(tenant);
+
         Set<Metric> subscriptions = new HashSet<>();
-        for (Map.Entry<String, TimeSeriesLinkedModel> entry: tenantsSubscriptions.entrySet()) {
+        for (Map.Entry<String, TimeSeriesLinkedModel> entry: tenantSubscriptions.getSubscriptions().entrySet()) {
             Metric metric = entry.getValue().getLinkedMetric();
             subscriptions.add(metric);
         }
@@ -67,24 +77,25 @@ public class CacheSubscriptionManager implements SubscriptionManager {
     }
 
     @Override
-    public Map<String, Map<String, TimeSeriesLinkedModel>> getAllSubscriptions() {
+    public Map<String, TenantSubscriptions> getAllSubscriptions() {
         return subscriptions;
     }
 
     @Override
-    public void subscribe(Metric metric) {
-        Map<String, TimeSeriesLinkedModel> tenantsModels = subscriptions.get(metric.getTenant());
-        if (tenantsModels == null) {
-            tenantsModels = new HashMap<>();
-            subscriptions.put(metric.getTenant(), tenantsModels);
+    public void subscribe(Metric metric, Set<SubscriptionOwner> subscriptionOwner) {
+        TenantSubscriptions tenantSubscriptions = subscriptions.get(metric.getTenant());
+        if (tenantSubscriptions == null) {
+            tenantSubscriptions = new TenantSubscriptions();
+            subscriptions.put(metric.getTenant(), tenantSubscriptions);
         }
 
-        TimeSeriesLinkedModel model = tenantsModels.get(metric.getId());
+        TimeSeriesLinkedModel model = tenantSubscriptions.getSubscriptions().get(metric.getId());
         if (model != null) {
-            throw new SubscriptionAlreadyExistsException();
+            model.addAllSubscriptionOwners(subscriptionOwner);
+            return;
         }
 
-        model = new CombinedTimeSeriesModel(metric);
+        model = new CombinedTimeSeriesModel(metric, tenantSubscriptions, subscriptionOwner);
 
         /**
          * Initialize model with old data
@@ -93,18 +104,37 @@ public class CacheSubscriptionManager implements SubscriptionManager {
         model.addDataPoints(points);
 
         EngineLogger.LOGGER.subscribing(metric.getId(), metric.getTenant());
-        tenantsModels.put(metric.getId(), model);
+        tenantSubscriptions.getSubscriptions().put(metric.getId(), model);
     }
 
     @Override
     public void unSubscribe(String tenant, String metricId) {
-        Map<String, TimeSeriesLinkedModel> tenantsModels = subscriptions.get(tenant);
-        if (tenantsModels == null) {
+        unSubscribe(tenant, metricId, SubscriptionManager.SubscriptionOwner.getAllDefined());
+    }
+
+    @Override
+    public void unSubscribe(String tenant, String metricId, SubscriptionOwner subscriptionOwner) {
+        unSubscribe(tenant, metricId, new HashSet<>(Arrays.asList(subscriptionOwner)));
+    }
+
+    @Override
+    public void unSubscribe(String tenant, String metricId, Set<SubscriptionOwner> subscriptionOwners) {
+        TenantSubscriptions tenantSubscriptions = subscriptions.get(tenant);
+        if (tenantSubscriptions == null) {
             throw new SubscriptionNotFoundException(tenant, metricId);
         }
 
-        if (tenantsModels.remove(metricId) == null) {
+        TimeSeriesLinkedModel model = tenantSubscriptions.getSubscriptions().get(metricId);
+        if (model == null) {
             throw new SubscriptionNotFoundException(tenant, metricId);
+        }
+
+        for (SubscriptionOwner owner: subscriptionOwners) {
+            model.removeSubscriptionOwner(owner);
+        }
+
+        if (model.getSubscriptionOwners().isEmpty()) {
+            tenantSubscriptions.getSubscriptions().remove(metricId);
         }
 
         EngineLogger.LOGGER.debugf("Unsubscribed tenant: %s, metric: %s", metricId, tenant);
@@ -112,22 +142,22 @@ public class CacheSubscriptionManager implements SubscriptionManager {
 
     @Override
     public boolean subscribes(String tenant, String metricId) {
-        Map<String, TimeSeriesLinkedModel> tenantsModels = subscriptions.get(tenant);
+        TenantSubscriptions tenantsModels = subscriptions.get(tenant);
         if (tenantsModels == null) {
             return false;
         }
 
-        return tenantsModels.containsKey(metricId);
+        return tenantsModels.getSubscriptions().containsKey(metricId);
     }
 
     @Override
     public Metric subscription(String tenant, String metricId) {
-        Map<String, TimeSeriesLinkedModel> tenantsModels = subscriptions.get(tenant);
+        TenantSubscriptions tenantsModels = subscriptions.get(tenant);
         if (tenantsModels == null) {
             throw new SubscriptionNotFoundException(tenant, metricId);
         }
 
-        TimeSeriesLinkedModel model = tenantsModels.get(metricId);
+        TimeSeriesLinkedModel model = tenantsModels.getSubscriptions().get(metricId);
         if (model == null) {
             throw new SubscriptionNotFoundException(tenant, metricId);
         }
@@ -137,26 +167,31 @@ public class CacheSubscriptionManager implements SubscriptionManager {
     }
 
     @Override
-    public TimeSeriesLinkedModel getModel(String tenant, String metricId) {
-        Map<String, TimeSeriesLinkedModel> tenantsModels = subscriptions.get(tenant);
+    public TimeSeriesLinkedModel model(String tenant, String metricId) {
+        TenantSubscriptions tenantsModels = subscriptions.get(tenant);
         if (tenantsModels == null) {
             throw new SubscriptionNotFoundException(tenant, metricId);
         }
 
-        return tenantsModels.get(metricId);
+        TimeSeriesLinkedModel timeSeriesLinkedModel = tenantsModels.getSubscriptions().get(metricId);
+
+        if (timeSeriesLinkedModel == null) {
+            throw new SubscriptionNotFoundException(tenant, metricId);
+        }
+
+        return timeSeriesLinkedModel;
     }
 
     @Override
     public List<TimeSeriesLinkedModel> getAllModels() {
         List<TimeSeriesLinkedModel> result = new ArrayList<>();
 
-        for (Map.Entry<String, Map<String, TimeSeriesLinkedModel>> tenantEntry: subscriptions.entrySet()) {
-            String tenant = tenantEntry.getKey();
+        for (Map.Entry<String, TenantSubscriptions> tenantEntry: subscriptions.entrySet()) {
 
-            for (Map.Entry<String, TimeSeriesLinkedModel> modelEntry: tenantEntry.getValue().entrySet()) {
-                String metric = modelEntry.getKey();
+            for (Map.Entry<String, TimeSeriesLinkedModel> modelEntry: tenantEntry.getValue()
+                    .getSubscriptions().entrySet()) {
+
                 TimeSeriesLinkedModel model = modelEntry.getValue();
-
                 result.add(model);
             }
         }

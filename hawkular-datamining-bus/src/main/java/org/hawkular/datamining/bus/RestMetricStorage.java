@@ -17,8 +17,12 @@
 
 package org.hawkular.datamining.bus;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.hawkular.datamining.api.Constants;
 import org.hawkular.datamining.api.model.BucketPoint;
@@ -30,6 +34,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 
 /**
  * @author Pavol Loffay
@@ -50,31 +55,73 @@ public class RestMetricStorage implements MetricStorage {
 
     public List<DataPoint> loadPoints(String metricId, String tenant) {
 
-        String url = BASE_URL + "/gauges/" + UrlUtils.encodeUrlPath(metricId) + "/data?start=1";
+        String url = null;
+        try {
+            url = BASE_URL + "/gauges/" + encodeUrlPath(metricId) + "/data?start=1";
+        } catch (UnsupportedEncodingException e) {
+            BusLogger.LOGGER.errorf("Cannot encode URL for metric: %s", metricId);
+            return Collections.emptyList();
+        }
 
-        Request request = UrlUtils.buildJsonRequest(url,
+        Request request = buildJsonRequest(url,
                 Collections.singletonMap(Constants.TENANT_HEADER_NAME, tenant));
 
-        List<DataPoint> result = UrlUtils.execute(request,
-                new TypeReference<List<DataPoint>>() {},
-                okHttpClient,
-                objectMapper);
-
+        List<DataPoint> result = execute(request, new TypeReference<List<DataPoint>>() {});
         return result;
     }
 
     public List<BucketPoint> loadBuckets(long buckets, String metricId, String tenant) {
 
-        String url = BASE_URL + "/gauges/"  + UrlUtils.encodeUrlPath(metricId) + "/data?start=1&buckets=" + buckets;
+        String url = null;
+        try {
+            url = BASE_URL + "/gauges/"  + encodeUrlPath(metricId) + "/data?start=1&buckets=" + buckets;
+        } catch (UnsupportedEncodingException e) {
+            BusLogger.LOGGER.errorf("Cannot encode URL for metric: %s", metricId);
+            return Collections.emptyList();
+        }
 
-        Request request = UrlUtils.buildJsonRequest(url,
+        Request request = buildJsonRequest(url,
                 Collections.singletonMap(Constants.TENANT_HEADER_NAME, tenant));
 
-        List<BucketPoint> result = UrlUtils.execute(request,
-                new TypeReference<List<BucketPoint>>() {},
-                okHttpClient,
-                objectMapper);
+        List<BucketPoint> result = execute(request, new TypeReference<List<BucketPoint>>() {});
+        return result;
+    }
+
+    private <T> T execute(Request request, TypeReference<T> type) {
+
+        T result = (T) Collections.emptyList();
+        try {
+            Response response = okHttpClient.newCall(request).execute();
+
+            if (!response.isSuccessful() || response.code() == 204) {
+                return result;
+            }
+
+            String responseBody = response.body().string();
+            result =  objectMapper.readValue(responseBody, type);
+        } catch (IOException e) {
+            BusLogger.LOGGER.failedToLoadMetricData(request.url().toString(), e.getMessage());
+        }
 
         return result;
+    }
+
+    private static String encodeUrlPath(String url) throws UnsupportedEncodingException {
+        return URLEncoder.encode(url, "UTF-8").replace("+", "%20");
+    }
+
+    private static Request buildJsonRequest(String url, Map<String, String> headers) {
+
+        Request.Builder reqBuilder = new Request.Builder()
+                .url(url)
+                .addHeader("Accept", "application/json");
+
+        if (headers != null) {
+            for (Map.Entry<String, String> header : headers.entrySet()) {
+                reqBuilder.addHeader(header.getKey(), header.getValue());
+            }
+        }
+
+        return reqBuilder.get().build();
     }
 }

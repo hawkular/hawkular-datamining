@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,35 +17,33 @@
 
 package org.hawkular.datamining.api.model;
 
-import java.util.regex.Pattern;
-
 /**
  * @author Pavol Loffay
  */
 public class Metric {
 
-    private static final Pattern resourcePattern = Pattern.compile("\\~\\[([a-zA-Z0-9~-]+)\\]\\~");
-
     private final String id;
-    private final String tenant;
     private final String feed;
+    private final String tenant;
+
     // collectionInterval in seconds
-    private Long interval;
+    private Long collectionInterval;
     // predictionInterval in seconds
     private Long predictionInterval;
+
     private MetricType metricType;
 
 
-    public Metric(String tenant, String feed, String id, Long interval, MetricType metricType) {
-        this(tenant, feed, id, interval, metricType, null);
+    public Metric(String tenant, String feed, String id, Long collectionInterval, MetricType metricType) {
+        this(tenant, feed, id, collectionInterval, metricType, null);
     }
 
-    public Metric(String tenant, String feed, String id, Long interval, MetricType metricType,
+    public Metric(String tenant, String feed, String id, Long collectionInterval, MetricType metricType,
                   Long predictionInterval) {
         this.tenant = tenant;
         this.feed = feed;
         this.id = id;
-        this.interval = interval;
+        this.collectionInterval = collectionInterval;
         this.metricType = metricType;
         this.predictionInterval = predictionInterval;
     }
@@ -54,18 +52,18 @@ public class Metric {
         this.tenant = that.getTenant();
         this.id = that.getId();
         this.feed = that.getFeed();
-        this.interval = that.getInterval();
+        this.collectionInterval = that.getCollectionInterval();
     }
 
     public Metric(RestBlueprint restBlueprint, String tenant) {
-        this.interval = restBlueprint.getInterval();
+        this.collectionInterval = restBlueprint.getInterval();
         this.id = restBlueprint.getMetricId();
         this.tenant = tenant;
         this.feed = null;
     }
 
-    public void setInterval(Long interval) {
-        this.interval = interval;
+    public void setCollectionInterval(Long collectionInterval) {
+        this.collectionInterval = collectionInterval;
     }
 
     public String getTenant() {
@@ -80,16 +78,12 @@ public class Metric {
         return id;
     }
 
-    public Long getInterval() {
-        return interval;
+    public Long getCollectionInterval() {
+        return collectionInterval;
     }
 
     public MetricType getMetricType() {
         return metricType;
-    }
-
-    public void setMetricType(MetricType metricType) {
-        this.metricType = metricType;
     }
 
     public Long getPredictionInterval() {

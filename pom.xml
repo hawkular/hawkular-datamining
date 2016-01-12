@@ -45,8 +45,9 @@
 
   <properties>
     <version.org.hawkular.bus>0.7.2.Final</version.org.hawkular.bus>
-    <version.org.hawkular.inventory>0.11.0.Final</version.org.hawkular.inventory>
+    <version.org.hawkular.inventory>0.13.0.Final-SRC-revision-7091974183c6a8e7c3c2f07aa6421f1a6834c0e8</version.org.hawkular.inventory>
     <version.org.hawkular.commons>0.3.1.Final</version.org.hawkular.commons>
+    <version.org.hawkular.alerts>0.8.1.Final</version.org.hawkular.alerts>
 
     <version.com.squareup.okhttp>2.5.0</version.com.squareup.okhttp>
     <version.org.jboss.logging>3.2.1.Final</version.org.jboss.logging>
@@ -131,6 +132,25 @@
           </excludes>
         </configuration>
       </plugin>
+
+      <!-- TODO REMOVE when inventory Query gets to master -->
+      <plugin>
+        <groupId>org.l2x6.maven.srcdeps</groupId>
+        <artifactId>srcdeps-maven-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <repositories>
+            <repository>
+              <id>org.hawkular.inventory</id>
+              <selectors>
+                <selector>org.hawkular.inventory</selector>
+              </selectors>
+              <url>scm:git:https://github.com/pavolloffay/hawkular-inventory.git</url>
+            </repository>
+          </repositories>
+        </configuration>
+      </plugin>
+
     </plugins>
   </build>
 </project>

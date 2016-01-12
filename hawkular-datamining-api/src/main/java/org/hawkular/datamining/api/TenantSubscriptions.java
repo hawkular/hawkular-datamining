@@ -14,24 +14,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.hawkular.datamining.api;
 
-import java.util.Set;
-
-import org.hawkular.datamining.api.model.Metric;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Pavol Loffay
  */
-public interface TimeSeriesLinkedModel extends TimeSeriesModel {
+public class TenantSubscriptions {
 
-    Metric getLinkedMetric();
+    private Map<String, TimeSeriesLinkedModel> subscriptions = new HashMap<>();
 
-    void addSubscriptionOwner(SubscriptionManager.SubscriptionOwner owner);
+    private Long predictionInterval;
 
-    void removeSubscriptionOwner(SubscriptionManager.SubscriptionOwner owner);
 
-    void addAllSubscriptionOwners(Set<SubscriptionManager.SubscriptionOwner> owners);
+    public Long getPredictionInterval() {
+        return predictionInterval;
+    }
 
-    Set<SubscriptionManager.SubscriptionOwner> getSubscriptionOwners();
+    public void setPredictionInterval(Long predictionInterval) {
+        this.predictionInterval = predictionInterval;
+    }
+
+    public Map<String, TimeSeriesLinkedModel> getSubscriptions() {
+        return subscriptions;
+    }
+
+    public void setSubscriptions(
+            Map<String, TimeSeriesLinkedModel> subscriptions) {
+        this.subscriptions = subscriptions;
+    }
 }

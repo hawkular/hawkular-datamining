@@ -25,6 +25,7 @@ import javax.jms.JMSException;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import org.hawkular.alerts.bus.api.MetricDataMessage;
 import org.hawkular.bus.common.ConnectionContextFactory;
 import org.hawkular.bus.common.Endpoint;
 import org.hawkular.bus.common.MessageProcessor;
@@ -32,7 +33,6 @@ import org.hawkular.bus.common.producer.ProducerConnectionContext;
 import org.hawkular.datamining.api.model.DataPoint;
 import org.hawkular.datamining.api.storage.PredictionStorage;
 import org.hawkular.datamining.bus.BusLogger;
-import org.hawkular.datamining.bus.message.MetricDataMessage;
 
 /**
  * @author Pavol Loffay
@@ -63,7 +63,8 @@ public class PredictionSender implements PredictionStorage {
     @Override
     public void send(List<DataPoint> predictedPoints, String tenant, String metricId) {
 
-        MetricDataMessage message = convertToMessage(predictedPoints, tenant, "prediction_" + metricId);
+        org.hawkular.alerts.bus.api.MetricDataMessage message = convertToMessage(predictedPoints, tenant,
+                "prediction_" + metricId);
 
         try (ConnectionContextFactory ccf = new ConnectionContextFactory(connectionFactory)) {
 
@@ -78,11 +79,17 @@ public class PredictionSender implements PredictionStorage {
         }
     }
 
-    private MetricDataMessage convertToMessage(List<DataPoint> points, String tenant, String metricId) {
+    private org.hawkular.alerts.bus.api.MetricDataMessage convertToMessage(List<DataPoint> points, String tenant,
+                                                                           String metricId) {
 
         List<MetricDataMessage.SingleMetric> singleMetrics = dataPointToSingleMetric(points, metricId);
 
-        return new MetricDataMessage(new MetricDataMessage.MetricData(singleMetrics, tenant));
+        MetricDataMessage.MetricData metricData = new MetricDataMessage.MetricData();
+        metricData.setTenantId(tenant);
+        metricData.setData(singleMetrics);
+
+        MetricDataMessage metricDataMessage = new MetricDataMessage(metricData);
+        return metricDataMessage;
     }
 
     public List<MetricDataMessage.SingleMetric> dataPointToSingleMetric(List<DataPoint> dataPoints,

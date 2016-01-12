@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.hawkular.datamining.api.model;
 
 /**
@@ -22,27 +21,35 @@ package org.hawkular.datamining.api.model;
  */
 public class MetricType {
 
-    private Long interval;
+    private String path;
+
+    private Long collectionInterval;
     private Long predictionInterval;
+
 
     public MetricType() {
     }
 
-    public MetricType(Long interval) {
-        this(interval, null);
+    public MetricType(String id, Long collectionInterval) {
+        this(id, collectionInterval, null);
     }
 
-    public MetricType(Long interval, Long predictionInterval) {
-        this.interval = interval;
+    public MetricType(String path, Long collectionInterval, Long predictionInterval) {
+        this.path = path;
+        this.collectionInterval = collectionInterval;
         this.predictionInterval = predictionInterval;
     }
 
-    public Long getInterval() {
-        return interval;
+    public String getPath() {
+        return path;
     }
 
-    public void setInterval(Long interval) {
-        this.interval = interval;
+    public Long getCollectionInterval() {
+        return collectionInterval;
+    }
+
+    public void setCollectionInterval(Long collectionInterval) {
+        this.collectionInterval = collectionInterval;
     }
 
     public Long getPredictionInterval() {
