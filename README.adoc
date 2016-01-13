@@ -28,12 +28,16 @@ $ dist/target/hawkular-*/bin/standalone.sh
 
 ----
 
-== Enable prediction
+== Enable prediction in Hawkular
+To enable forecasting of metrics create Relationship from Tenant to Metric, MetricType or Tenant.
+
+Following example enables forecasting for all metrics under given tenant.
 ----
+$ tenant=$(curl -s GET 'http://jdoe:password@localhost:8080/hawkular/inventory/tenant'| grep --color=never -oP 'path" : "\K/t;[0-9a-z\-]+')
 $ curl -ivX POST -H "Content-Type: application/json" 'http://jdoe:password@localhost:8080/hawkular/inventory/tenants/relationships' -d '{
     "name": "__inPrediction",
-    "source": "/t;28026b36-8fe4-4332-84c8-524e173a68bf",
-    "target": "/t;28026b36-8fe4-4332-84c8-524e173a68bf",
+    "source": "'$tenant'",
+    "target": "'$tenant'",
     "properties": {"predictionInterval": 150}
 }'
 ----
