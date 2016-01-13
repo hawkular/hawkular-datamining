@@ -34,4 +34,7 @@ public interface InventoryStorage {
     Set<Metric> metricsOfType(CanonicalPath metricType);
 
     Set<Metric> metricsUnderTenant(CanonicalPath tenant);
+
+    void addPredictionRelationship(Relationship relationship);
+    void removePredictionRelationship(Relationship relationship);
 }

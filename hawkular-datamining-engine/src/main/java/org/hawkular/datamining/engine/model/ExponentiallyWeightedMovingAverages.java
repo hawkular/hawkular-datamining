@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.hawkular.datamining.engine.model;
 
 import java.util.ArrayList;
@@ -62,7 +61,7 @@ public class ExponentiallyWeightedMovingAverages implements TimeSeriesModel {
 
         List<DataPoint> result = new ArrayList<>(nAhead);
         for (int i = 0; i < nAhead; i++) {
-            double prediction = calculatePrediction(nAhead);
+            double prediction = calculatePrediction(i);
             DataPoint predictedPoint = new DataPoint(prediction,(long) i);
 
             result.add(predictedPoint);
@@ -75,6 +74,7 @@ public class ExponentiallyWeightedMovingAverages implements TimeSeriesModel {
 
         for (DataPoint point: dataPoints) {
             double level_old = level;
+
             level = levelSmoothing * point.getValue() + (1 - levelSmoothing) * (level + slope);
             slope = trendSmoothing * (level - level_old) + (1 - trendSmoothing) * (slope);
         }

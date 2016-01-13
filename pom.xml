@@ -45,7 +45,7 @@
 
   <properties>
     <version.org.hawkular.bus>0.7.2.Final</version.org.hawkular.bus>
-    <version.org.hawkular.inventory>0.13.0.Final-SRC-revision-7091974183c6a8e7c3c2f07aa6421f1a6834c0e8</version.org.hawkular.inventory>
+    <version.org.hawkular.inventory>0.13.0.Final-SRC-branch-HWKINVENT-163</version.org.hawkular.inventory>
     <version.org.hawkular.commons>0.3.1.Final</version.org.hawkular.commons>
     <version.org.hawkular.alerts>0.8.1.Final</version.org.hawkular.alerts>
 

@@ -54,7 +54,9 @@ public class ForecastingEngine implements EngineDataReceiver<MetricData>,
         TimeSeriesLinkedModel model = subscriptionManager.model(metricData.getTenant(), metricData.getMetricId());
         model.addDataPoint(metricData.getDataPoint());
 
-        List<DataPoint> predicted = predict(metricData.getTenant(), metricData.getMetricId(), 1);
+        int nAhead = (int) (model.getPredictionInterval() / model.getCollectionInterval()) + 1;
+
+        List<DataPoint> predicted = predict(metricData.getTenant(), metricData.getMetricId(), nAhead);
         predictionOutput.send(predicted, metricData.getTenant(), metricData.getMetricId());
     }
 

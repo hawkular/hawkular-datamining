@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.hawkular.datamining.api.exception;
 
 /**
@@ -36,8 +35,7 @@ public class SubscriptionNotFoundException extends DataMiningException {
 
     @Override
     public String getMessage() {
-        String msg = "There is no subscription for " + tenant;
-        msg = metricId != null ? msg + ", on" + metricId : msg;
+        String msg = "There is no subscription for " + tenant + ", on " + metricId;
 
         return msg;
     }

@@ -122,6 +122,8 @@ public class InventoryChangesListener extends InventoryEventMessageListener {
 
         switch (action) {
             case CREATED: {
+                inventoryStorage.addPredictionRelationship(relationship);
+
                 if (target.getSegment().getElementType().equals(Metric.class)) {
 
                     Metric metric = inventoryStorage.metric(target);
@@ -169,6 +171,8 @@ public class InventoryChangesListener extends InventoryEventMessageListener {
             }
                 break;
             case UPDATED: {
+                inventoryStorage.addPredictionRelationship(relationship);
+
                 if (target.getSegment().getElementType().equals(Metric.class)) {
 
                     TimeSeriesLinkedModel model = subscriptionManager
@@ -193,6 +197,8 @@ public class InventoryChangesListener extends InventoryEventMessageListener {
             }
                 break;
             case DELETED: {
+                inventoryStorage.removePredictionRelationship(relationship);
+
                 if (target.getSegment().getElementType().equals(Metric.class)) {
                     subscriptionManager.unSubscribe(target.ids().getTenantId(), target.getSegment().getElementId(),
                             SubscriptionManager.SubscriptionOwner.Metric);

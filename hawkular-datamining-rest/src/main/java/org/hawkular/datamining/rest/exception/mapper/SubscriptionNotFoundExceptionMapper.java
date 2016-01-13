@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.hawkular.datamining.rest.exception.mapper;
 
 import javax.ws.rs.core.Response;
@@ -22,6 +21,7 @@ import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
 import org.hawkular.datamining.api.exception.SubscriptionNotFoundException;
+import org.hawkular.datamining.rest.ApiError;
 
 /**
  * @author Pavol Loffay
@@ -31,6 +31,8 @@ public class SubscriptionNotFoundExceptionMapper implements ExceptionMapper<Subs
 
     @Override
     public Response toResponse(SubscriptionNotFoundException exception) {
-        return Response.status(Response.Status.NO_CONTENT).entity(exception.getMessage()).build();
+
+        return ExceptionMapperUtils.buildResponse(new ApiError(exception.getMessage()), exception,
+                Response.Status.NOT_FOUND);
     }
 }
