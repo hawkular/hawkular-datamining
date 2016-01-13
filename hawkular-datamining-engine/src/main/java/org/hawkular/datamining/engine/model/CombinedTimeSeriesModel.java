@@ -36,8 +36,8 @@ import org.hawkular.datamining.engine.EngineLogger;
  */
 public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
     // ewma
-    public static final double EWMA_ALPHA = 0.005;
-    public static final double EWMA_BETA = 0.005;
+    public static final double EWMA_ALPHA = 0.4;
+    public static final double EWMA_BETA = 0.1;
     // lms
     public static final double[] LMS_WEIGHTS = new double[] {3, -1};
     // TODO this has to be calculated from data, or use normalized version
@@ -49,9 +49,9 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
 
     // in ms
     private long lastTimestamp;
-
     private LeastMeanSquaresFilter leastMeanSquaresFilter;
     private ExponentiallyWeightedMovingAverages ewma;
+
 
     public CombinedTimeSeriesModel(Metric metric, TenantSubscriptions tenantSubscriptions,
                                    Set<SubscriptionManager.SubscriptionOwner> subscriptionOwner) {
@@ -80,7 +80,9 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
 
     @Override
     public DataPoint predict() {
-        return predict(1).get(0);
+        List<DataPoint> result = predict(1);
+
+        return result.size() > 0 ? result.get(0) : new DataPoint(0d ,lastTimestamp);
     }
 
     @Override
@@ -90,38 +92,16 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
             return Collections.EMPTY_LIST;
         }
 
-        Long collectionInterval = getCollectionInterval();
-        Long predictionInterval = getPredictionInterval();
-
-        if (nAhead == 0) {
-            nAhead = (int) (predictionInterval / collectionInterval);
-            EngineLogger.LOGGER.debugf("Automatic prediction, nAhead= %d", nAhead);
-        }
-
-        /**
-         * Calculate
-         * from prediction interval calculate how far - how many aHead we need to predict
-         */
-
         List<DataPoint> result = new ArrayList<>();
         List<DataPoint> predictionEWMA = ewma.predict(nAhead);
-//        List<DataPoint> predictionFilter = leastMeanSquaresFilter.predict(nAhead);
 
-        for (int i = 0; i < predictionEWMA.size(); i++) {
+        for (int i = 0; i < nAhead; i++) {
 
             double ewma = predictionEWMA.get(i).getValue();
 
-//            EngineLogger.LOGGER.debugf("Filter predicted %f", filter);
-//            EngineLogger.LOGGER.debugf("EWMA predicted %f", ewma);
-
-//            double mean = (ewma + filter) / 2;
-//            ewma = ewma - mean;
-//            filter = filter - mean;
-
-            DataPoint dataPoint = new DataPoint(ewma, lastTimestamp + i * collectionInterval * 1000);
+            DataPoint dataPoint = new DataPoint(ewma, lastTimestamp + (i * getCollectionInterval() * 1000));
             result.add(dataPoint);
-
-//            EngineLogger.LOGGER.debugf("Prediction: %s, %s", metric.getTenant(), metric.getId(), dataPoint);
+            EngineLogger.LOGGER.tracef("Prediction: %s, %s", metric.getTenant(), metric.getId(), dataPoint);
         }
 
         return result;
@@ -144,7 +124,8 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
         leastMeanSquaresFilter.addDataPoints(dataPoints);
     }
 
-    private Long getPredictionInterval() {
+    @Override
+    public Long getPredictionInterval() {
         Long predictionInterval = null;
 
         if (subscriptionOwners.contains(SubscriptionManager.SubscriptionOwner.Metric)) {
@@ -158,7 +139,8 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
         return predictionInterval;
     }
 
-    private Long getCollectionInterval() {
+    @Override
+    public Long getCollectionInterval() {
         Long collectionInterval = null;
 
         if (metric.getCollectionInterval() != null) {

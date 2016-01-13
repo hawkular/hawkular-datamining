@@ -14,28 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.datamining.api;
+package org.hawkular.datamining.rest;
 
-import java.util.Set;
-
-import org.hawkular.datamining.api.model.Metric;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author Pavol Loffay
  */
-public interface TimeSeriesLinkedModel extends TimeSeriesModel {
+public class ApiError {
 
-    Metric getLinkedMetric();
+    private String errorMsg;
 
-    void addSubscriptionOwner(SubscriptionManager.SubscriptionOwner owner);
+    @JsonCreator
+    public ApiError(@JsonProperty("errorMsg")String errorMsg) {
+        this.errorMsg = errorMsg;
+    }
 
-    void removeSubscriptionOwner(SubscriptionManager.SubscriptionOwner owner);
-
-    void addAllSubscriptionOwners(Set<SubscriptionManager.SubscriptionOwner> owners);
-
-    Long getPredictionInterval();
-
-    Long getCollectionInterval();
-
-    Set<SubscriptionManager.SubscriptionOwner> getSubscriptionOwners();
+    public String getErrorMsg() {
+        return errorMsg;
+    }
 }

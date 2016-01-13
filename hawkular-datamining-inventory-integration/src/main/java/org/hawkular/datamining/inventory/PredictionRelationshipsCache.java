@@ -14,28 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.datamining.api;
+package org.hawkular.datamining.inventory;
 
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.hawkular.datamining.api.model.Metric;
+import org.hawkular.inventory.api.model.CanonicalPath;
+import org.hawkular.inventory.api.model.Relationship;
 
 /**
  * @author Pavol Loffay
  */
-public interface TimeSeriesLinkedModel extends TimeSeriesModel {
+public class PredictionRelationshipsCache {
 
-    Metric getLinkedMetric();
+    private Map<CanonicalPath, Relationship> targetEntityRelationships = new HashMap<>();
 
-    void addSubscriptionOwner(SubscriptionManager.SubscriptionOwner owner);
-
-    void removeSubscriptionOwner(SubscriptionManager.SubscriptionOwner owner);
-
-    void addAllSubscriptionOwners(Set<SubscriptionManager.SubscriptionOwner> owners);
-
-    Long getPredictionInterval();
-
-    Long getCollectionInterval();
-
-    Set<SubscriptionManager.SubscriptionOwner> getSubscriptionOwners();
+    public Map<CanonicalPath, Relationship> relationships() {
+        return targetEntityRelationships;
+    }
 }

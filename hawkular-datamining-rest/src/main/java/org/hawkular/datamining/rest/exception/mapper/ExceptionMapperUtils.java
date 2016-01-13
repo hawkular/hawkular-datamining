@@ -14,28 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.datamining.api;
+package org.hawkular.datamining.rest.exception.mapper;
 
-import java.util.Set;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
-import org.hawkular.datamining.api.model.Metric;
+import org.hawkular.datamining.rest.ApiError;
+import org.hawkular.datamining.rest.RestLogger;
 
 /**
  * @author Pavol Loffay
  */
-public interface TimeSeriesLinkedModel extends TimeSeriesModel {
+public class ExceptionMapperUtils {
 
-    Metric getLinkedMetric();
+    public static Response buildResponse(ApiError apiError, Throwable throwable, Response.Status status) {
+        RestLogger.LOGGER.warnf("Rest exception %s", throwable);
 
-    void addSubscriptionOwner(SubscriptionManager.SubscriptionOwner owner);
-
-    void removeSubscriptionOwner(SubscriptionManager.SubscriptionOwner owner);
-
-    void addAllSubscriptionOwners(Set<SubscriptionManager.SubscriptionOwner> owners);
-
-    Long getPredictionInterval();
-
-    Long getCollectionInterval();
-
-    Set<SubscriptionManager.SubscriptionOwner> getSubscriptionOwners();
+        return Response.status(status)
+                .entity(apiError)
+                .type(MediaType.APPLICATION_JSON_TYPE).build();
+    }
 }

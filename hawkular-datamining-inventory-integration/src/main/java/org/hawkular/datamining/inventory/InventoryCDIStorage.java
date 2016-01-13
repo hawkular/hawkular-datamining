@@ -33,7 +33,6 @@ import org.hawkular.inventory.api.Inventory;
 import org.hawkular.inventory.api.Query;
 import org.hawkular.inventory.api.Relationships;
 import org.hawkular.inventory.api.filters.Related;
-import org.hawkular.inventory.api.filters.RelationWith;
 import org.hawkular.inventory.api.filters.With;
 import org.hawkular.inventory.api.model.CanonicalPath;
 import org.hawkular.inventory.api.model.Metric;
@@ -43,7 +42,6 @@ import org.hawkular.inventory.api.model.Tenant;
 import org.hawkular.inventory.api.paging.Order;
 import org.hawkular.inventory.api.paging.Page;
 import org.hawkular.inventory.api.paging.Pager;
-import org.hawkular.inventory.base.spi.SwitchElementType;
 
 /**
  * @author Pavol Loffay
@@ -58,8 +56,12 @@ public class InventoryCDIStorage implements InventoryStorage {
     @Inject
     private SubscriptionManager subscriptionManager;
 
+    private PredictionRelationshipsCache predictionRelationshipsCache;
+
     @PostConstruct
     public void init() {
+        predictionRelationshipsCache = new PredictionRelationshipsCache();
+
         Map<org.hawkular.datamining.api.model.Metric, Set<SubscriptionManager.SubscriptionOwner>> allPredictedMetrics =
                 getAllPredictedMetrics();
 
@@ -69,18 +71,27 @@ public class InventoryCDIStorage implements InventoryStorage {
             subscriptionManager.subscribe(entry.getKey(), entry.getValue());
         }
 
-        InventoryLogger.LOGGER.inventoryInitialized(allPredictedMetrics.size());
+      InventoryLogger.LOGGER.inventoryInitialized(allPredictedMetrics.size());
     }
 
     @Override
     public Set<Relationship> predictionRelationships(CanonicalPath... targetEntity) {
 
-        Query query = Query.path().with(With.paths(targetEntity)).with(SwitchElementType.incomingRelationships(),
-                        RelationWith.name(InventoryConfiguration.PREDICTION_RELATIONSHIP)).get();
+//        Query query = Query.path().with(With.paths(targetEntity)).with(SwitchElementType.incomingRelationships(),
+//                        RelationWith.name(InventoryConfiguration.PREDICTION_RELATIONSHIP)).get();
 
-        Page<Relationship> page = inventory.execute(query, Relationship.class, Pager.unlimited(Order.unspecified()));
+//        Page<Relationship> page = inventory.execute(query, Relationship.class, Pager.unlimited(Order.unspecified()));
 
-        return new HashSet<>(page.toList());
+        Set<Relationship> result = new HashSet<>();
+        for (CanonicalPath target: targetEntity) {
+            Relationship relationship  = predictionRelationshipsCache.relationships().get(target);
+
+            if (relationship != null) {
+                result.add(relationship);
+            }
+        }
+
+        return result;
     }
 
     @Override
@@ -113,6 +124,16 @@ public class InventoryCDIStorage implements InventoryStorage {
         return entities;
     }
 
+    @Override
+    public void addPredictionRelationship(Relationship relationship) {
+        predictionRelationshipsCache.relationships().put(relationship.getTarget(), relationship);
+    }
+
+    @Override
+    public void removePredictionRelationship(Relationship relationship) {
+        predictionRelationshipsCache.relationships().remove(relationship);
+    }
+
     private Map<org.hawkular.datamining.api.model.Metric, Set<SubscriptionManager.SubscriptionOwner>>
     getAllPredictedMetrics() {
 
@@ -124,6 +145,9 @@ public class InventoryCDIStorage implements InventoryStorage {
         Set<CanonicalPath> tenantsCp = new HashSet<>();
 
         for (Relationship relationship: relationships) {
+
+            predictionRelationshipsCache.relationships().put(relationship.getTarget(), relationship);
+
             if (relationship.getTarget().getSegment().getElementType().equals(Metric.class)) {
                 metricsCp.add(relationship.getTarget());
             } else if (relationship.getTarget().getSegment().getElementType().equals(MetricType.class)) {
