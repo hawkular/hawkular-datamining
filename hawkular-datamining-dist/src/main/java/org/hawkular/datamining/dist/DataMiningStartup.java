@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.hawkular.datamining.dist;
 
 import javax.annotation.PostConstruct;
@@ -24,8 +23,10 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 
+import org.hawkular.datamining.api.ForecastingEngine;
 import org.hawkular.datamining.api.Official;
-import org.hawkular.datamining.engine.ForecastingEngine;
+import org.hawkular.datamining.api.model.MetricData;
+import org.hawkular.datamining.bus.listener.MetricDataListener;
 import org.jboss.logging.Logger;
 
 /**
@@ -40,11 +41,15 @@ public class DataMiningStartup {
 
     @Official
     @Inject
-    private ForecastingEngine forecastingEngine;
+    private ForecastingEngine<MetricData> forecastingEngine;
 
+    private MetricDataListener metricDataListener;
 
     @PostConstruct
     public void postConstruct() {
+
+        metricDataListener = new MetricDataListener(forecastingEngine);
+
         LOG.debug("Ejb starting");
     }
 }

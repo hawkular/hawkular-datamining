@@ -16,12 +16,19 @@
  */
 package org.hawkular.datamining.rest;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -29,8 +36,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.hawkular.datamining.api.Constants;
+import org.hawkular.datamining.api.ForecastingEngine;
+import org.hawkular.datamining.api.Official;
 import org.hawkular.datamining.api.SubscriptionManager;
+import org.hawkular.datamining.api.model.DataPoint;
 import org.hawkular.datamining.api.model.Metric;
+import org.hawkular.datamining.api.model.MetricData;
 
 /**
  * @author Pavol Loffay
@@ -42,6 +53,10 @@ public class RestSubscriptions {
 
     @Inject
     private SubscriptionManager subscriptionManager;
+
+    @Official
+    @Inject
+    private ForecastingEngine<MetricData> forecastingEngine = null;
 
     @HeaderParam(Constants.TENANT_HEADER_NAME)
     private String tenant;
@@ -56,36 +71,44 @@ public class RestSubscriptions {
     }
 
     @GET
-    @Path("/subscriptions/{id}")
-    public Response getOne(@PathParam("id") String metricId) {
+    @Path("/subscriptions/{metricId}")
+    public Response getOne(@PathParam("metricId") String metricId) {
         Metric metric = subscriptionManager.subscription(tenant, metricId);
 
         return Response.status(Response.Status.OK).entity(metric).build();
     }
 
-//    @POST
-//    @Path("/subscriptions")
-//    public Response subscribe(Metric.RestBlueprint blueprint) {
-//
-//        Metric metric = new Metric(blueprint, tenant);
-//        subscriptionManager.subscribe(metric);
-//
-//        return Response.status(Response.Status.CREATED).build();
-//    }
-//
-//    @PUT
-//    @Path("/subscriptions/{id}")
-//    public Response update(@PathParam("id") String id) {
-//
-//        return Response.status(Response.Status.NO_CONTENT).build();
-//    }
-//
-//    @DELETE
-//    @Path("/subscriptions/{id}")
-//    public Response unSubscribe(@PathParam("id") String metricId) {
-//
-//        subscriptionManager.unSubscribe(tenant, metricId);
-//
-//        return Response.status(Response.Status.NO_CONTENT).build();
-//    }
+    @POST
+    @Path("/subscriptions")
+    public Response subscribe(Metric.RestBlueprint blueprint) {
+
+        Metric metric = new Metric(blueprint, tenant, null);
+        subscriptionManager.subscribe(metric,
+                new HashSet<>(Arrays.asList(SubscriptionManager.SubscriptionOwner.Metric)));
+
+        return Response.status(Response.Status.CREATED).build();
+    }
+
+    @POST
+    @Path("/subscriptions/{metricId}/process")
+    public Response process(@PathParam("metricId") String id,
+                            List<DataPoint> data) {
+
+        List<MetricData> metricData = new ArrayList<>(data.size());
+        metricData.addAll(data.stream().map(point -> new MetricData(tenant, id, point.getTimestamp(), point.getValue()))
+                .collect(Collectors.toList()));
+
+        forecastingEngine.process(metricData);
+
+        return Response.status(Response.Status.NO_CONTENT).build();
+    }
+
+    @DELETE
+    @Path("/subscriptions/{id}")
+    public Response unSubscribe(@PathParam("id") String metricId) {
+
+        subscriptionManager.unSubscribe(tenant, metricId);
+
+        return Response.status(Response.Status.NO_CONTENT).build();
+    }
 }

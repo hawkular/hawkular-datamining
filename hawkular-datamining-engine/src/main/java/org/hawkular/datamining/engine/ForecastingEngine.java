@@ -19,7 +19,6 @@ package org.hawkular.datamining.engine;
 
 import java.util.List;
 
-import org.hawkular.datamining.api.EngineDataReceiver;
 import org.hawkular.datamining.api.SubscriptionManager;
 import org.hawkular.datamining.api.TimeSeriesLinkedModel;
 import org.hawkular.datamining.api.model.DataPoint;
@@ -31,8 +30,7 @@ import org.hawkular.datamining.bus.sender.PredictionSender;
 /**
  * @author Pavol Loffay
  */
-public class ForecastingEngine implements EngineDataReceiver<MetricData>,
-        org.hawkular.datamining.api.ForecastingEngine {
+public class ForecastingEngine implements org.hawkular.datamining.api.ForecastingEngine<MetricData> {
 
     private final SubscriptionManager subscriptionManager;
 
@@ -54,6 +52,9 @@ public class ForecastingEngine implements EngineDataReceiver<MetricData>,
         TimeSeriesLinkedModel model = subscriptionManager.model(metricData.getTenant(), metricData.getMetricId());
         model.addDataPoint(metricData.getDataPoint());
 
+        if (model.getPredictionInterval() == null || model.getPredictionInterval() == 0) {
+            return;
+        }
         int nAhead = (int) (model.getPredictionInterval() / model.getCollectionInterval()) + 1;
 
         List<DataPoint> predicted = predict(metricData.getTenant(), metricData.getMetricId(), nAhead);

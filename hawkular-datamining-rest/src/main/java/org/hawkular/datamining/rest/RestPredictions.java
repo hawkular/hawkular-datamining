@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,9 +32,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.hawkular.datamining.api.Constants;
+import org.hawkular.datamining.api.ForecastingEngine;
 import org.hawkular.datamining.api.Official;
 import org.hawkular.datamining.api.model.DataPoint;
-import org.hawkular.datamining.engine.ForecastingEngine;
+import org.hawkular.datamining.api.model.MetricData;
 
 /**
  * @author Pavol Loffay
@@ -49,7 +50,7 @@ public class RestPredictions {
 
     @Inject
     @Official
-    private ForecastingEngine forecastingEngine;
+    private ForecastingEngine<MetricData> forecastingEngine;
 
 
     @GET
