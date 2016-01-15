@@ -25,10 +25,18 @@ import java.util.Map;
  */
 public class TenantSubscriptions {
 
+    // <tenant,models>
     private Map<String, TimeSeriesLinkedModel> subscriptions = new HashMap<>();
 
     private Long predictionInterval;
 
+
+    public TenantSubscriptions() {
+    }
+
+    public TenantSubscriptions(Long predictionInterval) {
+        this.predictionInterval = predictionInterval;
+    }
 
     public Long getPredictionInterval() {
         return predictionInterval;

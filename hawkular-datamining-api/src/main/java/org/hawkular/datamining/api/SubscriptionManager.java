@@ -32,6 +32,8 @@ public interface SubscriptionManager {
 
     void subscribe(Metric metric, Set<SubscriptionOwner> subscriptionOwner);
 
+    void subscribe(String tenant, TenantSubscriptions tenantSubscriptions);
+
     boolean subscribes(String tenant, String metricId);
 
     void unSubscribe(String tenant, String metricId);

@@ -28,6 +28,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.hawkular.datamining.api.SubscriptionManager;
+import org.hawkular.datamining.api.TenantSubscriptions;
 import org.hawkular.datamining.api.util.Eager;
 import org.hawkular.inventory.api.Inventory;
 import org.hawkular.inventory.api.Query;
@@ -153,6 +154,11 @@ public class InventoryCDIStorage implements InventoryStorage {
             } else if (relationship.getTarget().getSegment().getElementType().equals(MetricType.class)) {
                 metricTypesCp.add(relationship.getTarget());
             } else if (relationship.getTarget().getSegment().getElementType().equals(Tenant.class)) {
+
+                TenantSubscriptions tenantSubscriptions = new TenantSubscriptions(InventoryUtil
+                        .parsePredictionInterval(relationship.getProperties()));
+                subscriptionManager.subscribe(relationship.getTarget().ids().getTenantId(), tenantSubscriptions);
+
                 tenantsCp.add(relationship.getTarget());
             }
         }
