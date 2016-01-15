@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,17 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.hawkular.datamining.dist;
 
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.hawkular.datamining.api.ForecastingEngine;
 import org.hawkular.datamining.api.Official;
 import org.hawkular.datamining.api.SubscriptionManager;
-import org.hawkular.datamining.bus.listener.MetricDataListener;
-import org.hawkular.datamining.engine.ForecastingEngine;
+import org.hawkular.datamining.api.model.MetricData;
 
 
 /**
@@ -39,12 +38,10 @@ public class ForecastingEngineProducer {
     @Official
     @Produces
     @Singleton
-    public ForecastingEngine getAnalyticEngine() {
+    public ForecastingEngine<MetricData> getAnalyticEngine() {
 
-        ForecastingEngine forecastingEngine = new ForecastingEngine(subscriptionManager);
-
-        MetricDataListener metricDataListener = new MetricDataListener(forecastingEngine);
-//        InventoryChangesListener inventoryChangesListener = new InventoryChangesListener();
+        ForecastingEngine<MetricData> forecastingEngine =
+                new org.hawkular.datamining.engine.ForecastingEngine(subscriptionManager);
 
         return forecastingEngine;
     }

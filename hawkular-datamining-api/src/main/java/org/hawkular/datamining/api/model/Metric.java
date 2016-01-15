@@ -55,11 +55,11 @@ public class Metric {
         this.collectionInterval = that.getCollectionInterval();
     }
 
-    public Metric(RestBlueprint restBlueprint, String tenant) {
-        this.collectionInterval = restBlueprint.getInterval();
+    public Metric(RestBlueprint restBlueprint, String tenant, String feed) {
+        this.collectionInterval = restBlueprint.getCollectionInterval();
         this.id = restBlueprint.getMetricId();
         this.tenant = tenant;
-        this.feed = null;
+        this.feed = feed;
     }
 
     public void setCollectionInterval(Long collectionInterval) {
@@ -115,19 +115,22 @@ public class Metric {
 
     public static class RestBlueprint {
         private String metricId;
-        private Long interval;
+        private Long collectionInterval;
 
-        public RestBlueprint(String metricId, Long interval) {
+        public RestBlueprint() {
+        }
+
+        public RestBlueprint(String metricId, Long collectionInterval) {
             this.metricId = metricId;
-            this.interval = interval;
+            this.collectionInterval = collectionInterval;
         }
 
         public String getMetricId() {
             return metricId;
         }
 
-        public Long getInterval() {
-            return interval;
+        public Long getCollectionInterval() {
+            return collectionInterval;
         }
     }
 }

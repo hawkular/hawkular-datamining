@@ -28,7 +28,7 @@ import org.hawkular.bus.common.Endpoint;
 import org.hawkular.bus.common.MessageProcessor;
 import org.hawkular.bus.common.consumer.BasicMessageListener;
 import org.hawkular.bus.common.consumer.ConsumerConnectionContext;
-import org.hawkular.datamining.api.EngineDataReceiver;
+import org.hawkular.datamining.api.ForecastingEngine;
 import org.hawkular.datamining.api.model.MetricData;
 import org.hawkular.datamining.bus.BusConfiguration;
 import org.hawkular.datamining.bus.BusLogger;
@@ -38,11 +38,11 @@ import org.hawkular.datamining.bus.BusLogger;
  */
 public class MetricDataListener extends BasicMessageListener<MetricDataMessage> {
 
-    private final EngineDataReceiver engineDataReceiver;
+    private final ForecastingEngine<MetricData> forecastingEngine;
 
 
-    public MetricDataListener(EngineDataReceiver engineDataReceiver) {
-        this.engineDataReceiver = engineDataReceiver;
+    public MetricDataListener(ForecastingEngine<MetricData> forecastingEngine) {
+        this.forecastingEngine = forecastingEngine;
 
         try {
             InitialContext initialContext = new InitialContext();
@@ -79,7 +79,7 @@ public class MetricDataListener extends BasicMessageListener<MetricDataMessage> 
             MetricData engineData = new MetricData(tenantId, singleMetric.getSource(),
                     singleMetric.getTimestamp(), singleMetric.getValue());
 
-            engineDataReceiver.process(engineData);
+            forecastingEngine.process(engineData);
         }
     }
 
