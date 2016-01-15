@@ -108,6 +108,11 @@ public class CacheSubscriptionManager implements SubscriptionManager {
     }
 
     @Override
+    public void subscribe(String tenant, TenantSubscriptions tenantSubscriptions) {
+        subscriptions.put(tenant, tenantSubscriptions);
+    }
+
+    @Override
     public void unSubscribe(String tenant, String metricId) {
         unSubscribe(tenant, metricId, SubscriptionManager.SubscriptionOwner.getAllDefined());
     }
