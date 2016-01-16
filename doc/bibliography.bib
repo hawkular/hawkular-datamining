@@ -1,184 +1,145 @@
-@BOOK{cipra,
-      author =       "Cipra Tomáš",
-      title =        "Finanční ekonometrie",
-      publisher =    "Ekopress",
-      year =         "2008",
-      isbn =         "978-80-86929-43-9",
+%%%%%%%%%%%%%%% Books
+@book{cipra,
+    author = "Cipra Tomáš",
+    title = "Finanční ekonometrie",
+    publisher = "Ekopress",
+    year = "2008",
+    isbn = "978-80-86929-43-9",
 }
-@BOOK{brockwell_ts,
-      author =       "Brockwell, P. and Davis, R.",
-      title =        "Time Series: Theory and Methods",
-      publisher =    "Springer-Verlag New York",
-      year =         "2009",
-      isbn =         "978-0-387-97429-3",
-      address = "Praha",
+@book{brockwell,
+    author = "Brockwell, Peter. and Davis, Richard",
+    title = "Time Series: Theory and Methods",
+    publisher = "Springer-Verlag New York",
+    year = "2009",
+    isbn = "978-0-387-97429-3",
+    address = "Praha",
 }
-@BOOK{statistika,
-      author =       "Cyhelský, Lubomír and Souček, Eduard",
-      title =        "Základy statistiky",
-      publisher =    "Vysoká škola finanční a správní",
-      year =         "2009",
-      isbn =         "978-80-7408-013-5",
-      address = "Praha",
+@book{hyndman-forecasting,
+    title = {Forecasting with exponential smoothing: the state space approach},
+    author = {Hyndman, Rob and Koehler, Anne B and Ord, J Keith and Snyder, Ralph D},
+    year = {2008},
+    publisher ={ Springer Science \& Business Media}
 }
-
-
-%%%%%%%%%%%%% Old - Bachelor thesis %%%%%%%%%%%%%%%%%%%%
-@misc{rfc_owamp,
-    author = "Shalunov, S. and Teitelbaum, B. and Karp, A. and Boote, J. and 
-        Zekauskas, M.",
-    title = "A One\,--\,way Active Measurement Protocol (OWAMP)",
-    note = "RFC 4656. Září 2006",
+@book{statistika,
+    author = "Cyhelský, Lubomír and Souček, Eduard",
+    title = "Základy statistiky",
+    publisher = "Vysoká škola finanční a správní",
+    year =  "2009",
+    isbn =  "978-80-7408-013-5",
+    address = "Praha",
 }
-
-@misc{rfc_owamp_req,
-    author = "Shalunov, S. and Teitelbaum, B.",
-    title = "A One\,--\,way Active Measurement Protocol (OWAMP) Requirements",
-    note = "RFC 3763. Duben 2004",
+@book{kleiber2008applied,
+  title = {Applied econometrics with R},
+  author = {Kleiber, Christian and Zeileis, Achim},
+  year = {2008},
+  publisher = {Springer Science \& Business Media}
 }
 
-%toto je prve rfc
-@misc{rfc_delay_metric,
-    author = "Almes, G. and Kalidindi, S. and Zekauskas, M.",
-    title = "A One\,--\,way Delay Metric for IPPM",
-    note = "RFC 2679. Září 1999",
+%%%%%%%%%%%%%%% Articles
+@article{hyndman-state-space,
+    title = {A state space framework for automatic forecasting using exponential smoothing methods},
+    author = {Hyndman, Rob J and Koehler, Anne B and Snyder, Ralph D and Grose, Simone},
+    journal = {International Journal of Forecasting},
+    volume = {18},
+    number = {3},
+    pages = {439--454},
+    year = {2002},
+    publisher = {Elsevier}
 }
 
-@misc{rfc_delay_variation_metric,
-    author = "Demichelis, C. and Chimento, P.",
-    title = "IP Packet Delay Variation Metric for IP Performance Metrics (IPPM)",
-    note = "RFC 3393. Listopad 2002",
+@article{ann-forecasting-state-art,
+    title = {Forecasting with artificial neural networks:: The state of the art},
+    author = {Zhang, G. and Eddy Patuwo, B. and Y Hu, M.},
+    journal = {International journal of forecasting},
+    volume = {14},
+    number = {1},
+    pages = {35-62},
+    year = {1998},
+    publisher = {Elsevier},
+}
+@article{ann-forecasting,
+    Title = {An Artificial Neural Network for Data Forecasting Purposes.},
+    Author = {COCIANU, Cătălina-Lucia and GRIGORYAN, Hakob},
+    ISSN = {14531305},
+    Journal = {Informatica Economica},
+    Keywords = {NEURAL networks (Computer science), STOCK exchanges, TIME series analysis, INSTRUCTIONAL systems, COMPARATIVE studies, ARIMA Model, Exogenous Inputs, Neural Network, Nonlinear Autoregressive Network, Time Series},
+    Number = {2},
+    Pages = {34-45},
+    Volume = {19},
+    Year = {2015},
+}
+%%author = {Aras, Serkan and Kocako{\c{c}}, {\.I}pek Deveci},
+@article{ann-model-selecting,
+    title = {A new model selection strategy in time series forecasting with artificial neural networks: IHTS},
+    author = {Serkan Aras and İpek Deveci},
+    journal = {Neurocomputing},
+    volume = {174},
+    pages = {974--987},
+    year = {2016},
+    publisher = {Elsevier}
+}
+@article{period-meteo,
+    title = {Period identification in hydrologic time series using empirical mode decomposition and maximum entropy spectral analysis},
+    author = {Sang, Yan-Fang and Wang, Zhonggen and Liu, Changming},
+    journal = {Journal of Hydrology},
+    volume = {424},
+    pages = {154--164},
+    year = {2012},
+    publisher = {Elsevier}
 }
 
-@misc{rfc_delay_variation_metric_2,
-    author = "Claise, B. and Morton, A.",
-    title = "Packet Delay Variaton Applicability Statement",
-    note = "RFC 5481. Březen 2009",
-}
-
-@misc{rfc_rtp,
-    author = "Schulzrinne, H. and  Casner, S. and Frederick, R. and Jacobson, V.",
-    title = "RTP: A Transport Protocol for Real-Time Applications",
-    note = "RFC 3550. Červenec 2003",
-}
-
-@misc{rfc_bench_term,
-    author = "Bradner, S.",
-    title = "Benchmarking Terminology for Network Interconnection Devices",
-    note = "RFC 1242. Červenec 1991",
-}
-
-@misc{rfc_tcp_throughput,
-    author = "Constantine, B. and Forget, G. and Geib, R. and Schrage, R.",
-    title = "Framework for TCP Throughput Testing",
-    note = "RFC 6349. Srpen 2011",
-}
-
-@misc{rfc_ipv4_pmtud,
-    author = "Mogul, J. and Deering, S.",
-    title = "Path MTU Discovery",
-    note = "RFC 1191. Listopad 1990",
-}
-
-@misc{rfc_2544,
-    author = "Bradner, S. and McQuaid",
-    title = "Benchmarking Mthodology for Network Interconnect Devices",
-    note = "RFC 2544. Březen 1999",
-}
-
-@misc{rfc_ipv6_pmtud,
-    author = "McCann, J. and Deering, S. and Mogul, J.",
-    title = "Path MTU Discovery for IP version 6",
-    note = "RFC 1981. Srpen 1996",
-}
-
-%toto je prve rfc
-@misc{rfc_one_way_loss,
-    author = "Almesak, G. and Kalidindi, S. and Zekauskas, M.",
-    title = "A One\,--\,way Packet Loss Metric for IPPM",
-    note = "RFC 2680. Září 1991",
-}
-
-@misc{rfc_reorder,
-    author = "Morton, A. and Ciavattone, L. and Ramachandran, G. and Shalunov,
-    S. and Perser, J.",
-    title = "Packet Reordering Metrics",
-    note = "RFC 4737. Listopad 2006",
-}
-
-@misc{rfc_perf_metrics,
-    author = "Paxson, V. and Almes, G. and Mahdavi, J. and Mathis, M.",
-    title = "Framework for IP Performance Metrics",
-    note = "RFC 2330. Květen 1998",
-}
-
-%%%%%%%%%%%%% Tools %%%%%%%%%%%%%%%%%%%%
-@Misc{bwping_home,
-    title = "BWPing",
+%%%%%%%%%%%%%%% Online
+@misc{otexts,
+    author = "Hyndman, Rob and Athanasopoulos, George",
+    title = "Forecasting: principles and practice",
+    subtitle = "Time series components",
+    url = "https://www.otexts.org/book/fpp",
     howpublished = "online",
-    url = "http://bwping.sourceforge.net/",
-    cited = "2012-3-24",
+    cited = "2015-1-16",
 }
-
-@Misc{nuttcp_home,
-    title = "Manpage of NUTTCP",
+@misc{period-hydman,
+    title = "Measuring time series characteristics",
+    subtitle = "Finding the period of the data",
+    url = "http://robjhyndman.com/hyndsight/tscharacteristics",
     howpublished = "online",
-    url = "http://www.lcp.nrl.navy.mil/nuttcp/nuttcp.html",
-    cited = "2012-3-22",
+    cited = "2016-4-12",
 }
-
-@Misc{thurlay-ng_home,
-    title = "thurlay-ng",
+%%https://help.ruxit.com/display/RUXITDOC/Root+cause+analysis+of+infrastructure+issues
+@misc{ruxit,
+    title = "Root cause analysis of infrastructure issues",
+    year = "2016",
+    url = "https://help.ruxit.com",
     howpublished = "online",
-    url = "http://thrulay-ng.sourceforge.net/",
-    cited = "2013-3-19",
+    note = "2016-4-11"
 }
-
-@Misc{iperf_dast,
-    author = "Gates, M. and Warshavsky, A. and Tirumala, A. and Dugan, J. and
-        Gibbs, K.",
-    title = "DAST library",
+@misc{new-relic,
+    title = "New Relic",
+    year = "2016",
+    url = "https://en.wikipedia.org/wiki/New\_Relic",
     howpublished = "online",
-    url = "http://pirlwww.lpl.arizona.edu/resources/guide/software/iperf/lib.html",
-    cited = "2012-12-3",
-    revised = "2003-1-3"
+    cited = "2016-4-20"
 }
-
-@Misc{netperf_manual,
-    author = "Jones, Rick",
-    title = "Care and Feeding of Netperf 2.6.X",
-    subtitle = "Netperf Manual",
+@misc{tivoli-predictive-insights,
+    title = "IBM Operations Analytics\,--\,Predictive Insights",
+    url = {\url{https://www-03.ibm.com/software/products/en/ibm-operations-analytics---predictive-insights}},
     howpublished = "online",
-    url = "http://www.netperf.org/svn/netperf2/tags/netperf-2.6.0/doc/netperf.html",
-    cited = "2012-12-5",
-    revised = "2012",
+    cited = "2016-04-20"
 }
-
-@Misc{bwctld_manual,
-    title = "Bandwith Test Controller (BWCTL)",
-    subtitle = "bwctld",
+%%https://spark.apache.org/docs/latest/streaming-programming-guide.html
+@misc{apache-spark,
+    title = "Spark Streaming Programming Guide",
+    subtitle = "Overview",
+    url = "https://spark.apache.org/docs/latest",
     howpublished = "online",
-    url = "http://www.internet2.edu/performance/bwctl/bwctld.man.html",
-    cited = "2012-12-5",
-    revised = "2009-2-23"
+    cited = "2016-4-29",
 }
 
-@misc{owamp_home,
-    author = "Boote, Jeff and Karp, Anatoly",
-    title = "One\,--\,Way Ping (OWAMP)",
-    subtitle = "OWAMP Version 3.3",
+%%%%%%%%%%%%%%% Wiki
+@misc{wiki-ma-model,
+    author = "Wikipedia",
+    title = "Moving-average model",
+    year = "2016",
+    url = "https://en.wikipedia.org/wiki/Moving-average\_model",
     howpublished = "online",
-    url = "http://www.internet2.edu/performance/owamp/index.html",
-    cited = "2012-12-10",
-    revised = "2012-4-18"
+    cited = "2016-4-11",
 }
-
-@BOOK{statistika,
-      author =       "Cyhelský, Lubomír and Souček, Eduard",
-      title =        "Základy statistiky",
-      publisher =    "Vysoká škola finanční a správní",
-      year =         "2009",
-      isbn =         "978-80-7408-013-5",
-      address = "Praha",
-}
-

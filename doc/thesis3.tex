@@ -1,0 +1,140 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% I, the copyright holder of this work, release this work into the
+%% public domain. This applies worldwide. In some countries this may
+%% not be legally possible; if so: I grant anyone the right to use
+%% this work for any purpose, without any conditions, unless such
+%% conditions are required by law.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[
+  digital, %% This option enables the default options for the
+           %% digital version of a document. Replace with `printed`
+           %% to enable the default options for the printed version
+           %% of a document.
+  table,   %% Causes the coloring of tables. Replace with `notable`
+           %% to restore plain tables.
+  lof,     %% Prints the List of Figures. Replace with `nolof` to
+           %% hide the List of Figures.
+  lot,     %% Prints the List of Tables. Replace with `nolot` to
+           %% hide the List of Tables.
+  %% More options are listed in the user guide at
+  %% <http://mirrors.ctan.org/macros/latex/contrib/fithesis/guide/mu/fi.pdf>.
+]{fithesis3}
+%% The following section sets up the locales used in the thesis.
+\usepackage[resetfonts]{cmap} %% We need to load the T2A font encoding
+\usepackage[T1,T2A]{fontenc}  %% to use the Cyrillic fonts with Russian texts.
+\usepackage[
+  main=english, %% By using `czech` or `slovak` as the main locale
+                %% instead of `english`, you can typeset the thesis
+                %% in either Czech or Slovak, respectively.
+  %%german, russian, czech, slovak %% The additional keys allow
+]{babel}        %% foreign texts to be typeset as follows:
+%%
+%%   \begin{otherlanguage}{german}  ... \end{otherlanguage}
+%%   \begin{otherlanguage}{russian} ... \end{otherlanguage}
+%%   \begin{otherlanguage}{czech}   ... \end{otherlanguage}
+%%   \begin{otherlanguage}{slovak}  ... \end{otherlanguage}
+%%
+%% For non-Latin scripts, it may be necessary to load additional
+%% fonts:
+\usepackage{paratype}
+\def\textrussian#1{{\usefont{T2A}{PTSerif-TLF}{m}{rm}#1}}
+%%
+%% The following section sets up the metadata of the thesis.
+\thesissetup{
+    date          = \the\year/\the\month/\the\day,
+    university    = mu,
+    faculty       = fi,
+    type          = mgr,
+    author        = Bc. Pavol Loffay,
+    gender        = m,
+    advisor       = RNDr. Adam Rambousek\, Ph.D.,
+    title         = {Alert Prediction in Metric Data Based on Time Series Analysis},
+    TeXtitle      = {Alert Prediction in Metric Data Based on Time Series Analysis},
+    keywords      = {Time Series, Hawkular, Alert Prediction, Exponential Smoothing},
+    TeXkeywords   = {Time Series, Hawkular, Alert Prediction, Exponential Smoothing},
+}
+\thesislong{abstract}{
+  The aim of the master's thesis is to develop a module for an open source monitoring
+  and management platform Hawkular. This module is responsible for predicting
+  alerts based on time series and providing data for predictive charts in Hawkular user interface.
+}
+\thesislong{thanks}{
+  I would like to thank my supervisor RNDr. Adam Rambousek, Ph.D., Mgr. Jiri Kremser,
+  family and the people from Hawkular team. Next, my thanks goes to Ing. Daniel Němec, Ph.D.
+  for consulting theory behind time series analysis.
+
+  Last but not least, I would like to thank to company Red Hat that provided me
+  the great opportunity to work on this project.
+}
+%% The following section sets up the bibliography.
+\usepackage{csquotes}
+%\usepackage[              %% When typesetting the bibliography, the
+%  backend=biber,          %% `numeric` style will be used for the
+%  style=numeric,          %% entries and the `numeric-comp` style
+%  citestyle=numeric-comp, %% for the references to the entries. The
+%  sorting=none,           %% entries will be sorted in cite order.
+%  sortlocale=auto         %% For more unformation about the available
+%]{biblatex}               %% `style`s and `citestyles`, see:
+%% <http://mirrors.ctan.org/macros/latex/contrib/biblatex/doc/biblatex.pdf>.
+%\addbibresource{bibliography.bib} %% The bibliograpic database within
+                          %% the file `example.bib` will be used.
+\usepackage{makeidx}      %% The `makeidx` package contains
+\makeindex                %% helper commands for index typesetting.
+%% These additional packages are used within the document:
+\usepackage{paralist}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{url}
+\usepackage{menukeys}
+\usepackage{multicol}
+
+%My papckages
+%\DeclareUrlCommand\url{\def\UrlLeft{<}\def\UrlRight{>} \urlstyle{tt}}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{commath} % abs
+\usepackage{listings}
+\usepackage{algorithm} %algorithmix
+\usepackage[noend]{algpseudocode}
+\lstset{language=java}
+\usepackage{pgf-pie}
+\usepackage{multirow}
+\usepackage{tabularx}
+
+\usepackage{xparse}
+\NewDocumentCommand{\INTERVALINNARDS}{ m m }{
+    #1 {,} #2
+}
+\NewDocumentCommand{\interval}{ s m >{\SplitArgument{1}{,}}m m o }{
+    \IfBooleanTF{#1}{
+        \left#2 \INTERVALINNARDS #3 \right#4
+    }{
+        \IfValueTF{#5}{
+            #5{#2} \INTERVALINNARDS #3 #5{#4}
+        }{
+            #2 \INTERVALINNARDS #3 #4
+        }
+    }
+}
+
+\hyphenation{data-bases}
+\hyphenation{gar-bage}
+\hyphenation{re-using}
+
+\begin{document}
+\input{content}
+\input{content2}
+
+\makeatletter\thesis@blocks@clear\makeatother
+\phantomsection %% Print the index and insert it into the
+\addcontentsline{toc}{chapter}{\indexname} %% table of contents.
+
+%\bibliographystyle{czechiso} % sets plain bibliography style
+\bibliographystyle{czplain}
+\bibliography{bibliography}     % BibTeX database file
+
+\appendix %% Start the appendices.
+\input{appendix}
+\end{document}

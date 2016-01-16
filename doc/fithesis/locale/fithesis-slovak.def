@@ -1,0 +1,109 @@
+%%
+%% This is file `fithesis-slovak.def',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% slovak.dtx  (with options: `base')
+%% 
+%% Copyright 1998--2015  Daniel Marek (DM), Jan Pavlovič (JP),
+%%                       Vít Novotný (VN), Petr Sojka (PS)
+%% http://www.fi.muni.cz/tech/unix/tex/fithesis.xhtml
+%% Faculty of Informatics, Masaryk University (Brno, Czech Republic)
+%% 
+%% This work may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either version
+%% 1.3 of this license or (at your option) any later version.
+%% The latest version of this license is available at
+%% 
+%%   http://www.latex-project.org/lppl.txt
+%% 
+%% and version 1.3 or later is part of all distributions of LaTeX
+%% version 2005/12/01 or later.
+%% 
+%% This work has the LPPL maintenance status `maintained'.
+%% 
+%% The Current Maintainer of this work is Vít Novotný (VN).
+%% Send bug reports, requests for additions and questions
+%% either to the fithesis discussion forum at
+%% 
+%%   http://is.muni.cz/auth/df/fithesis-sazba/
+%% 
+%% or to the e-mail address <witiko@mail.muni.cz>.
+%% 
+%% 
+%% MODIFICATION ADVICE:
+%% 
+%% If you want to customize this file, it is best to make a copy of
+%% the source file(s) from which it was produced.  Use a different
+%% name for your copy(ies) and modify the copy(ies); this will ensure
+%% that your modifications do not get overwritten when you install a
+%% new release of the standard system.  You should also ensure that
+%% your modified source file does not generate any modified file with
+%% the same name as a standard file.
+%% 
+%% You will also need to produce your own, suitably named, .ins file to
+%% control the generation of files from your source file; this file
+%% should contain your own preambles for the files it generates, not
+%% those in the standard .ins files.
+%% 
+%% The names of the source files used are shown above.
+%% 
+\ProvidesFile{fithesis/locale/fithesis-slovak.def}[2016/03/22]
+
+\gdef\thesis@slovak@gender@koncovka{%
+  \ifthesis@woman a\fi}
+
+\gdef\thesis@slovak@csquotesStyle{german}
+
+\gdef\thesis@slovak@universityName{Názov univerzity}
+\gdef\thesis@slovak@facultyName{Názov fakulty}
+\gdef\thesis@slovak@assignment{Namiesto tejto stránky vložte kópiu
+  oficiálneho podpísaného zadania práce.}
+\gdef\thesis@slovak@declaration{Text prehlásenie ...}
+
+\gdef\thesis@slovak@spring{jar}
+\gdef\thesis@slovak@fall{jeseň}
+\gdef\thesis@slovak@semester{%
+  \thesis@{slovak@\thesis@season} \thesis@seasonYear}
+
+\gdef\thesis@slovak@fieldTitle{Odbor}
+\gdef\thesis@slovak@advisorTitle{Vedúci práce}
+\gdef\thesis@slovak@authorTitle{Autor}
+\gdef\thesis@slovak@abstractTitle{Zhrnutie}
+\gdef\thesis@slovak@keywordsTitle{Kľúčové slová}
+\gdef\thesis@slovak@thanksTitle{Poďakovanie}
+\gdef\thesis@slovak@declarationTitle{Prehlásenie}
+\gdef\thesis@slovak@idTitle{ID}
+\gdef\thesis@slovak@typeName{%
+  \ifx\thesis@type\thesis@sempaper
+    Seminárna práca%
+  \else\ifx\thesis@type\thesis@bachelors
+    Bakalárska práca%
+  \else\ifx\thesis@type\thesis@masters
+    Diplomová práca%
+  \else\ifx\thesis@type\thesis@doctoral
+    Dizertačná práca%
+  \else\ifx\thesis@type\thesis@rigorous
+    Rigorózna práca%
+  \else
+    <<Neznámy typ práce (\thesis@type)>>%
+  \fi\fi\fi\fi\fi}
+\gdef\thesis@slovak@typeName@akuzativ{%
+  \ifx\thesis@type\thesis@sempaper
+    Seminárnu prácu%
+  \else\ifx\thesis@type\thesis@bachelors
+    Bakalársku prácu%
+  \else\ifx\thesis@type\thesis@masters
+    Diplomovú prácu%
+  \else\ifx\thesis@type\thesis@doctoral
+    Dizertačnú prácu%
+  \else\ifx\thesis@type\thesis@rigorous
+    Rigoróznu prácu%
+  \else
+    <<Neznámy typ práce (\thesis@type)>>%
+  \fi\fi\fi\fi\fi}
+
+\endinput
+%%
+%% End of file `fithesis-slovak.def'.
