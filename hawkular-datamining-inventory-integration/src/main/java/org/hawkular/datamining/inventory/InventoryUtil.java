@@ -22,7 +22,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.hawkular.datamining.api.SubscriptionManager;
+import org.hawkular.datamining.api.ModelManager;
 import org.hawkular.inventory.api.model.AbstractElement;
 import org.hawkular.inventory.api.model.CanonicalPath;
 import org.hawkular.inventory.api.model.Metric;
@@ -124,26 +124,26 @@ public class InventoryUtil {
         return canonicalPaths;
     }
 
-    public static Set<SubscriptionManager.SubscriptionOwner> predictionRelationshipsToOwners(Set<Relationship>
+    public static Set<ModelManager.ModelOwner> predictionRelationshipsToOwners(Set<Relationship>
                                                                                                relationships) {
-        Set<SubscriptionManager.SubscriptionOwner> subscriptionOwners = new HashSet<>();
+        Set<ModelManager.ModelOwner> modelOwners = new HashSet<>();
 
         for (Relationship relationship: relationships) {
             Class<?> targetEntity = relationship.getTarget().getSegment().getElementType();
 
             if (targetEntity.equals(Metric.class)) {
-                subscriptionOwners.add(SubscriptionManager.SubscriptionOwner.Metric);
+                modelOwners.add(ModelManager.ModelOwner.Metric);
             } else if (targetEntity.equals(MetricType.class)) {
-                subscriptionOwners.add(SubscriptionManager.SubscriptionOwner.MetricType);
+                modelOwners.add(ModelManager.ModelOwner.MetricType);
             } else if (targetEntity.equals(Tenant.class)) {
-                subscriptionOwners.add(SubscriptionManager.SubscriptionOwner.Tenant);
+                modelOwners.add(ModelManager.ModelOwner.Tenant);
             }
         }
 
-        return subscriptionOwners;
+        return modelOwners;
     }
 
-    public static Set<SubscriptionManager.SubscriptionOwner> predictionRelationshipsToOwners(
+    public static Set<ModelManager.ModelOwner> predictionRelationshipsToOwners(
             Relationship relationship) {
 
         return predictionRelationshipsToOwners(new HashSet<>(Arrays.asList(relationship)));

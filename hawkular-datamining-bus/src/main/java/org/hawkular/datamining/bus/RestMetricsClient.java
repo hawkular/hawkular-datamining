@@ -27,7 +27,7 @@ import java.util.Map;
 import org.hawkular.datamining.api.Constants;
 import org.hawkular.datamining.api.model.BucketPoint;
 import org.hawkular.datamining.api.model.DataPoint;
-import org.hawkular.datamining.api.storage.MetricStorage;
+import org.hawkular.datamining.api.storage.MetricsClient;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -39,7 +39,7 @@ import com.squareup.okhttp.Response;
 /**
  * @author Pavol Loffay
  */
-public class RestMetricStorage implements MetricStorage {
+public class RestMetricsClient implements MetricsClient {
 
     // todo
     private  String BASE_URL = "http://localhost:8080/hawkular/metrics";
@@ -47,7 +47,7 @@ public class RestMetricStorage implements MetricStorage {
     private final OkHttpClient okHttpClient;
     private final ObjectMapper objectMapper;
 
-    public RestMetricStorage() {
+    public RestMetricsClient() {
         this.okHttpClient = new OkHttpClient();
         this.objectMapper = new ObjectMapper();
         this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -93,7 +93,11 @@ public class RestMetricStorage implements MetricStorage {
         try {
             Response response = okHttpClient.newCall(request).execute();
 
-            if (!response.isSuccessful() || response.code() == 204) {
+            if (!response.isSuccessful()) {
+                BusLogger.LOGGER.errorf("Unsuccessful REST request to metrics, url = %s", request.url());
+            }
+
+            if (response.code() == 204) {
                 return result;
             }
 

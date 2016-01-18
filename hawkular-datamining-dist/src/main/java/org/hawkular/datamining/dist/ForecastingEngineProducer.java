@@ -21,8 +21,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.hawkular.datamining.api.ForecastingEngine;
+import org.hawkular.datamining.api.ModelManager;
 import org.hawkular.datamining.api.Official;
-import org.hawkular.datamining.api.SubscriptionManager;
 import org.hawkular.datamining.api.model.MetricData;
 
 
@@ -33,7 +33,7 @@ import org.hawkular.datamining.api.model.MetricData;
 public class ForecastingEngineProducer {
 
     @Inject
-    private SubscriptionManager subscriptionManager;
+    private ModelManager modelManager;
 
     @Official
     @Produces
@@ -41,7 +41,7 @@ public class ForecastingEngineProducer {
     public ForecastingEngine<MetricData> getAnalyticEngine() {
 
         ForecastingEngine<MetricData> forecastingEngine =
-                new org.hawkular.datamining.engine.ForecastingEngine(subscriptionManager);
+                new org.hawkular.datamining.engine.ForecastingEngine(modelManager);
 
         return forecastingEngine;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,19 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.hawkular.datamining.api.storage;
 
-package org.hawkular.datamining.engine;
+import java.util.List;
 
-import org.junit.Test;
+import org.hawkular.datamining.api.model.BucketPoint;
+import org.hawkular.datamining.api.model.DataPoint;
 
 /**
  * @author Pavol Loffay
  */
-public class MetricIdParserTest {
+public interface MetricsClient {
 
-    @Test
-    public void testParseMetricId() {
-//        String feedId = Metric.getFeed(CacheManager.HEAP_USED_METRICS);
-//        assertThat(feedId, notNullValue());
-    }
+    List<BucketPoint> loadBuckets(long buckets, String metricId, String tenant);
+
+    List<DataPoint> loadPoints(String metricId, String tenant);
 }

@@ -19,7 +19,7 @@ package org.hawkular.datamining.engine;
 
 import java.util.List;
 
-import org.hawkular.datamining.api.SubscriptionManager;
+import org.hawkular.datamining.api.ModelManager;
 import org.hawkular.datamining.api.TimeSeriesLinkedModel;
 import org.hawkular.datamining.api.model.DataPoint;
 import org.hawkular.datamining.api.model.MetricData;
@@ -32,12 +32,12 @@ import org.hawkular.datamining.bus.sender.PredictionSender;
  */
 public class ForecastingEngine implements org.hawkular.datamining.api.ForecastingEngine<MetricData> {
 
-    private final SubscriptionManager subscriptionManager;
+    private final ModelManager modelManager;
 
     private PredictionStorage predictionOutput;
 
-    public ForecastingEngine(SubscriptionManager subscriptionManager) {
-        this.subscriptionManager = subscriptionManager;
+    public ForecastingEngine(ModelManager modelManager) {
+        this.modelManager = modelManager;
 
         // todo should be CDI
         this.predictionOutput = new PredictionSender(BusConfiguration.TOPIC_METRIC_DATA, BusConfiguration.BROKER_URL);
@@ -45,12 +45,12 @@ public class ForecastingEngine implements org.hawkular.datamining.api.Forecastin
 
     @Override
     public void process(MetricData metricData) {
-        if (!subscriptionManager.subscribes(metricData.getTenant(), metricData.getMetricId())) {
+        if (!modelManager.subscribes(metricData.getTenant(), metricData.getMetricId())) {
             return;
         }
 
-        TimeSeriesLinkedModel model = subscriptionManager.model(metricData.getTenant(), metricData.getMetricId());
-        model.addDataPoint(metricData.getDataPoint());
+        TimeSeriesLinkedModel model = modelManager.model(metricData.getTenant(), metricData.getMetricId());
+        model.learn(metricData.getDataPoint());
 
         if (model.getPredictionInterval() == null || model.getPredictionInterval() == 0) {
             return;
@@ -69,7 +69,7 @@ public class ForecastingEngine implements org.hawkular.datamining.api.Forecastin
     @Override
     public List<DataPoint> predict(String tenant, String metricsId, int nAhead) {
 
-        TimeSeriesLinkedModel model = subscriptionManager.model(tenant, metricsId);
+        TimeSeriesLinkedModel model = modelManager.model(tenant, metricsId);
         List<DataPoint> points = model.predict(nAhead);
 
         return points;
