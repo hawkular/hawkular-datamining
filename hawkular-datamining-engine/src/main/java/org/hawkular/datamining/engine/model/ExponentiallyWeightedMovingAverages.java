@@ -41,12 +41,12 @@ public class ExponentiallyWeightedMovingAverages implements TimeSeriesModel {
     }
 
     @Override
-    public void addDataPoint(DataPoint dataPoint) {
+    public void learn(DataPoint dataPoint) {
         process(Arrays.asList(dataPoint));
     }
 
     @Override
-    public void addDataPoints(List<DataPoint> dataPoints) {
+    public void learn(List<DataPoint> dataPoints) {
         process(dataPoints);
     }
 

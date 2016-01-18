@@ -17,13 +17,16 @@
 
 package org.hawkular.datamining.rest;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -54,12 +57,26 @@ public class RestPredictions {
 
 
     @GET
-    @Path("/predict/{metricId}")
+    @Path("/models/{metricId}/predict")
     public Response predict(@PathParam("metricId") String metricId,
                             @DefaultValue("1") @QueryParam("ahead") int ahead) {
 
         List<DataPoint> dataPoints = forecastingEngine.predict(tenant, metricId, ahead);
 
         return Response.ok().entity(dataPoints).build();
+    }
+
+    @POST
+    @Path("/models/{metricId}/learn")
+    public Response process(@PathParam("metricId") String id,
+                            List<DataPoint> data) {
+
+        List<MetricData> metricData = new ArrayList<>(data.size());
+        metricData.addAll(data.stream().map(point -> new MetricData(tenant, id, point.getTimestamp(), point.getValue()))
+                .collect(Collectors.toList()));
+
+        forecastingEngine.process(metricData);
+
+        return Response.status(Response.Status.NO_CONTENT).build();
     }
 }

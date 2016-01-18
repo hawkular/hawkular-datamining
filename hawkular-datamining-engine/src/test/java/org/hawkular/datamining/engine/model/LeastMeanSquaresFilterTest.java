@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.hawkular.datamining.engine.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -80,7 +79,7 @@ public class LeastMeanSquaresFilterTest {
         double[] initWeights = new double[] {3, -1};
 
         LeastMeanSquaresFilter leastMeanSquaresFilter = new LeastMeanSquaresFilter(learningRate, initWeights);
-        leastMeanSquaresFilter.addDataPoints(dataPoints);
+        leastMeanSquaresFilter.learn(dataPoints);
 
         //AR = 1.75 0.8745
         double[] weights = leastMeanSquaresFilter.getWeights();

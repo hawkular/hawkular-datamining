@@ -27,15 +27,15 @@ public interface TimeSeriesLinkedModel extends TimeSeriesModel {
 
     Metric getLinkedMetric();
 
-    void addSubscriptionOwner(SubscriptionManager.SubscriptionOwner owner);
+    void addSubscriptionOwner(ModelManager.ModelOwner owner);
 
-    void removeSubscriptionOwner(SubscriptionManager.SubscriptionOwner owner);
+    void removeSubscriptionOwner(ModelManager.ModelOwner owner);
 
-    void addAllSubscriptionOwners(Set<SubscriptionManager.SubscriptionOwner> owners);
+    void addAllSubscriptionOwners(Set<ModelManager.ModelOwner> owners);
 
     Long getPredictionInterval();
 
     Long getCollectionInterval();
 
-    Set<SubscriptionManager.SubscriptionOwner> getSubscriptionOwners();
+    Set<ModelManager.ModelOwner> getModelOwners();
 }

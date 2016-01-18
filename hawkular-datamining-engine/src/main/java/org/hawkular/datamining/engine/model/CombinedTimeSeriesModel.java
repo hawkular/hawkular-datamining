@@ -24,7 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.hawkular.datamining.api.SubscriptionManager;
+import org.hawkular.datamining.api.ModelManager;
 import org.hawkular.datamining.api.TenantSubscriptions;
 import org.hawkular.datamining.api.TimeSeriesLinkedModel;
 import org.hawkular.datamining.api.model.DataPoint;
@@ -45,7 +45,7 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
 
     private final Metric metric;
     private final TenantSubscriptions tenantSubscriptions;
-    private Set<SubscriptionManager.SubscriptionOwner> subscriptionOwners = new HashSet<>();
+    private Set<ModelManager.ModelOwner> modelOwners = new HashSet<>();
 
     // in ms
     private long lastTimestamp;
@@ -54,10 +54,10 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
 
 
     public CombinedTimeSeriesModel(Metric metric, TenantSubscriptions tenantSubscriptions,
-                                   Set<SubscriptionManager.SubscriptionOwner> subscriptionOwner) {
+                                   Set<ModelManager.ModelOwner> modelOwner) {
         this.metric = metric;
         this.tenantSubscriptions = tenantSubscriptions;
-        this.subscriptionOwners.addAll(subscriptionOwner);
+        this.modelOwners.addAll(modelOwner);
 
         this.ewma = new ExponentiallyWeightedMovingAverages(EWMA_ALPHA, EWMA_BETA);
         this.leastMeanSquaresFilter = new LeastMeanSquaresFilter(LMS_ALPHA, LMS_WEIGHTS);
@@ -69,12 +69,12 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
     }
 
     @Override
-    public void addDataPoint(DataPoint dataPoint) {
+    public void learn(DataPoint dataPoint) {
         addData(Arrays.asList(dataPoint));
     }
 
     @Override
-    public void addDataPoints(List<DataPoint> dataPoints) {
+    public void learn(List<DataPoint> dataPoints) {
         addData(dataPoints);
     }
 
@@ -120,17 +120,17 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
 
         lastTimestamp = newLastTimestamp;
 
-        ewma.addDataPoints(dataPoints);
-        leastMeanSquaresFilter.addDataPoints(dataPoints);
+        ewma.learn(dataPoints);
+        leastMeanSquaresFilter.learn(dataPoints);
     }
 
     @Override
     public Long getPredictionInterval() {
         Long predictionInterval = null;
 
-        if (subscriptionOwners.contains(SubscriptionManager.SubscriptionOwner.Metric)) {
+        if (modelOwners.contains(ModelManager.ModelOwner.Metric)) {
             predictionInterval = metric.getPredictionInterval();
-        } else if (subscriptionOwners.contains(SubscriptionManager.SubscriptionOwner.MetricType)) {
+        } else if (modelOwners.contains(ModelManager.ModelOwner.MetricType)) {
             predictionInterval = metric.getMetricType().getPredictionInterval();
         } else {
             predictionInterval = tenantSubscriptions.getPredictionInterval();
@@ -152,22 +152,22 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
         return collectionInterval;
     }
 
-    public Set<SubscriptionManager.SubscriptionOwner> getSubscriptionOwners() {
-        return new HashSet<>(subscriptionOwners);
+    public Set<ModelManager.ModelOwner> getModelOwners() {
+        return new HashSet<>(modelOwners);
     }
 
     @Override
-    public void addSubscriptionOwner(SubscriptionManager.SubscriptionOwner subscriptionOwner) {
-        this.subscriptionOwners.add(subscriptionOwner);
+    public void addSubscriptionOwner(ModelManager.ModelOwner modelOwner) {
+        this.modelOwners.add(modelOwner);
     }
 
     @Override
-    public void addAllSubscriptionOwners(Set<SubscriptionManager.SubscriptionOwner> owners) {
-        this.subscriptionOwners.addAll(owners);
+    public void addAllSubscriptionOwners(Set<ModelManager.ModelOwner> owners) {
+        this.modelOwners.addAll(owners);
     }
 
     @Override
-    public void removeSubscriptionOwner(SubscriptionManager.SubscriptionOwner subscriptionOwner) {
-        this.subscriptionOwners.remove(subscriptionOwner);
+    public void removeSubscriptionOwner(ModelManager.ModelOwner modelOwner) {
+        this.modelOwners.remove(modelOwner);
     }
 }

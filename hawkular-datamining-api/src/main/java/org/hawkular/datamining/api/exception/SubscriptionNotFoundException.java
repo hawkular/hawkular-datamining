@@ -35,7 +35,7 @@ public class SubscriptionNotFoundException extends DataMiningException {
 
     @Override
     public String getMessage() {
-        String msg = "There is no subscription for " + tenant + ", on " + metricId;
+        String msg = "There is no model for " + tenant + ", on " + metricId;
 
         return msg;
     }

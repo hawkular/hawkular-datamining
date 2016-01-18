@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.hawkular.datamining.engine.model;
 
 import java.util.ArrayList;
@@ -58,12 +57,12 @@ public class LeastMeanSquaresFilter implements TimeSeriesModel {
     }
 
     @Override
-    public void addDataPoint(DataPoint dataPoint) {
+    public void learn(DataPoint dataPoint) {
         process(Arrays.asList(dataPoint));
     }
 
     @Override
-    public void addDataPoints(List<DataPoint> dataPoints) {
+    public void learn(List<DataPoint> dataPoints) {
         process(dataPoints);
     }
 

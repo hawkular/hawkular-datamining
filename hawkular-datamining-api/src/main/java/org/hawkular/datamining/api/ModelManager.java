@@ -28,9 +28,9 @@ import org.hawkular.datamining.api.model.Metric;
 /**
  * @author Pavol Loffay
  */
-public interface SubscriptionManager {
+public interface ModelManager {
 
-    void subscribe(Metric metric, Set<SubscriptionOwner> subscriptionOwner);
+    void subscribe(Metric metric, Set<ModelOwner> modelOwner);
 
     void subscribe(String tenant, TenantSubscriptions tenantSubscriptions);
 
@@ -38,9 +38,9 @@ public interface SubscriptionManager {
 
     void unSubscribe(String tenant, String metricId);
 
-    void unSubscribe(String tenant, String metricId, SubscriptionOwner subscriptionOwner);
+    void unSubscribe(String tenant, String metricId, ModelOwner modelOwner);
 
-    void unSubscribe(String tenant, String metricId, Set<SubscriptionOwner> subscriptionOwners);
+    void unSubscribe(String tenant, String metricId, Set<ModelOwner> modelOwners);
 
     Metric subscription(String tenant, String metricId);
 
@@ -57,12 +57,12 @@ public interface SubscriptionManager {
     /**
      * Represents relationship from Tenant to:
      */
-    enum SubscriptionOwner {
+    enum ModelOwner {
         Tenant,
         MetricType,
         Metric;
 
-        public static Set<SubscriptionOwner> getAllDefined() {
+        public static Set<ModelOwner> getAllDefined() {
             return new HashSet<>(Arrays.asList(Tenant, MetricType, Metric));
         }
     }
