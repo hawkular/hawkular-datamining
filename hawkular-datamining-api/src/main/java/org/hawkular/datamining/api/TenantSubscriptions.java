@@ -28,22 +28,22 @@ public class TenantSubscriptions {
     // <tenant,models>
     private Map<String, TimeSeriesLinkedModel> subscriptions = new HashMap<>();
 
-    private Long predictionInterval;
+    private Long forecastingHorizon;
 
 
     public TenantSubscriptions() {
     }
 
-    public TenantSubscriptions(Long predictionInterval) {
-        this.predictionInterval = predictionInterval;
+    public TenantSubscriptions(Long forecastingHorizon) {
+        this.forecastingHorizon = forecastingHorizon;
     }
 
-    public Long getPredictionInterval() {
-        return predictionInterval;
+    public Long getForecastingHorizon() {
+        return forecastingHorizon;
     }
 
-    public void setPredictionInterval(Long predictionInterval) {
-        this.predictionInterval = predictionInterval;
+    public void setForecastingHorizon(Long forecastingHorizon) {
+        this.forecastingHorizon = forecastingHorizon;
     }
 
     public Map<String, TimeSeriesLinkedModel> getSubscriptions() {

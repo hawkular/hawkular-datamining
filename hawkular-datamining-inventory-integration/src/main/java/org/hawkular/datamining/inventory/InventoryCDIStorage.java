@@ -156,7 +156,7 @@ public class InventoryCDIStorage implements InventoryStorage {
             } else if (relationship.getTarget().getSegment().getElementType().equals(Tenant.class)) {
 
                 TenantSubscriptions tenantSubscriptions = new TenantSubscriptions(InventoryUtil
-                        .parsePredictionInterval(relationship.getProperties()));
+                        .parseForecastingHorizon(relationship.getProperties()));
                 modelManager.subscribe(relationship.getTarget().ids().getTenantId(), tenantSubscriptions);
 
                 tenantsCp.add(relationship.getTarget());

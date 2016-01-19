@@ -33,7 +33,7 @@ public interface TimeSeriesLinkedModel extends TimeSeriesModel {
 
     void addAllSubscriptionOwners(Set<ModelManager.ModelOwner> owners);
 
-    Long getPredictionInterval();
+    Long getForecastingHorizon();
 
     Long getCollectionInterval();
 

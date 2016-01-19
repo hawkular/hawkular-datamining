@@ -24,7 +24,7 @@ public class MetricType {
     private String path;
 
     private Long collectionInterval;
-    private Long predictionInterval;
+    private Long forecastingHorizon;
 
 
     public MetricType() {
@@ -34,10 +34,10 @@ public class MetricType {
         this(id, collectionInterval, null);
     }
 
-    public MetricType(String path, Long collectionInterval, Long predictionInterval) {
+    public MetricType(String path, Long collectionInterval, Long forecastingHorizon) {
         this.path = path;
         this.collectionInterval = collectionInterval;
-        this.predictionInterval = predictionInterval;
+        this.forecastingHorizon = forecastingHorizon;
     }
 
     public String getPath() {
@@ -52,11 +52,11 @@ public class MetricType {
         this.collectionInterval = collectionInterval;
     }
 
-    public Long getPredictionInterval() {
-        return predictionInterval;
+    public Long getForecastingHorizon() {
+        return forecastingHorizon;
     }
 
-    public void setPredictionInterval(Long predictionInterval) {
-        this.predictionInterval = predictionInterval;
+    public void setForecastingHorizon(Long forecastingHorizon) {
+        this.forecastingHorizon = forecastingHorizon;
     }
 }

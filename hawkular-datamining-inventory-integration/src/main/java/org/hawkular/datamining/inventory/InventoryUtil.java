@@ -35,10 +35,10 @@ import org.hawkular.inventory.api.model.Tenant;
  */
 public class InventoryUtil {
 
-    public static Long parsePredictionInterval(Map<String, Object> properties) {
-        String predictionIntervalObject = (String) properties.get(InventoryConfiguration.PREDICTION_INTERVAL_PROP);
+    public static Long parseForecastingHorizon(Map<String, Object> properties) {
+        String forecastingHorizonObject = (String) properties.get(InventoryConfiguration.PREDICTION_INTERVAL_PROP);
 
-        return predictionIntervalObject == null ? null : Long.parseLong(predictionIntervalObject);
+        return forecastingHorizonObject == null ? null : Long.parseLong(forecastingHorizonObject);
     }
 
     public static Set<org.hawkular.datamining.api.model.Metric> convertMetrics(Set<Metric> metrics,
@@ -66,52 +66,52 @@ public class InventoryUtil {
 
     public static org.hawkular.datamining.api.model.Metric convertMetric(Metric invMetric,
                                                                          Set<Relationship> relationships) {
-        Long metricPredictionInterval = predictionInterval(relationships, invMetric.getPath());
-        Long typePredictionInterval = predictionInterval(relationships, invMetric.getType().getPath());
+        Long metricForecastingHorizon = forecastingHorizon(relationships, invMetric.getPath());
+        Long typeForecastingHorizon = forecastingHorizon(relationships, invMetric.getType().getPath());
 
         org.hawkular.datamining.api.model.MetricType type = convertMetricType(invMetric.getType(),
-                typePredictionInterval);
+                typeForecastingHorizon);
 
         String tenant = invMetric.getPath().ids().getTenantId();
         String feed = invMetric.getPath().ids().getFeedId();
         org.hawkular.datamining.api.model.Metric metric = new org.hawkular.datamining.api.model.Metric(tenant,
-                feed, invMetric.getId(), invMetric.getCollectionInterval(), type, metricPredictionInterval);
+                feed, invMetric.getId(), invMetric.getCollectionInterval(), type, metricForecastingHorizon);
 
         return metric;
     }
 
     public static org.hawkular.datamining.api.model.Metric convertMetric(Metric invMetric,
-                                                                         Long typePredictionInterval,
-                                                                         Long metricPredictionInterval) {
+                                                                         Long typeForecastingHorizon,
+                                                                         Long metricForecastingHorizon) {
 
         org.hawkular.datamining.api.model.MetricType type = convertMetricType(invMetric.getType(),
-                typePredictionInterval);
+                typeForecastingHorizon);
 
         String tenant = invMetric.getPath().ids().getTenantId();
         String feed = invMetric.getPath().ids().getFeedId();
         org.hawkular.datamining.api.model.Metric metric = new org.hawkular.datamining.api.model.Metric(tenant,
-                feed, invMetric.getId(), invMetric.getCollectionInterval(), type, metricPredictionInterval);
+                feed, invMetric.getId(), invMetric.getCollectionInterval(), type, metricForecastingHorizon);
 
         return metric;
     }
 
     private static org.hawkular.datamining.api.model.MetricType convertMetricType(MetricType metricType,
-                                                                                  Long predictionInterval) {
+                                                                                  Long forecastingHorizon) {
         return new org.hawkular.datamining.api.model.MetricType(metricType.getPath().toString(),
-                metricType.getCollectionInterval(), predictionInterval);
+                metricType.getCollectionInterval(), forecastingHorizon);
     }
 
-    public static Long predictionInterval(Set<Relationship> relationships, CanonicalPath targetEntityPath) {
+    public static Long forecastingHorizon(Set<Relationship> relationships, CanonicalPath targetEntityPath) {
 
-        Long predictionInterval = null;
+        Long forecastingHorizon = null;
         for (Relationship relationship: relationships) {
 
             if (relationship.getTarget().equals(targetEntityPath)) {
-                predictionInterval = parsePredictionInterval(relationship.getProperties());
+                forecastingHorizon = parseForecastingHorizon(relationship.getProperties());
             }
         }
 
-        return predictionInterval;
+        return forecastingHorizon;
     }
 
     public static Set<CanonicalPath> extractCanonicalPaths(Collection<? extends AbstractElement<?, ?>> elements) {
