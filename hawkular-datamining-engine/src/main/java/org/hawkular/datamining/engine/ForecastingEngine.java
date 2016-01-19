@@ -52,10 +52,10 @@ public class ForecastingEngine implements org.hawkular.datamining.api.Forecastin
         TimeSeriesLinkedModel model = modelManager.model(metricData.getTenant(), metricData.getMetricId());
         model.learn(metricData.getDataPoint());
 
-        if (model.getPredictionInterval() == null || model.getPredictionInterval() == 0) {
+        if (model.getForecastingHorizon() == null || model.getForecastingHorizon() == 0) {
             return;
         }
-        int nAhead = (int) (model.getPredictionInterval() / model.getCollectionInterval()) + 1;
+        int nAhead = (int) (model.getForecastingHorizon() / model.getCollectionInterval()) + 1;
 
         List<DataPoint> predicted = predict(metricData.getTenant(), metricData.getMetricId(), nAhead);
         predictionOutput.send(predicted, metricData.getTenant(), metricData.getMetricId());

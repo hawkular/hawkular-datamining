@@ -38,7 +38,7 @@ $ curl -ivX POST -H "Content-Type: application/json" 'http://jdoe:password@local
     "name": "__inPrediction",
     "source": "'$tenant'",
     "target": "'$tenant'",
-    "properties": {"predictionInterval": 150}
+    "properties": {"forecastingHorizon": 150}
 }'
 ----
 Source and target are canonical paths.

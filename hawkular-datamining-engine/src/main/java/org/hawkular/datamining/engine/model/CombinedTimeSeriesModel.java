@@ -125,18 +125,18 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
     }
 
     @Override
-    public Long getPredictionInterval() {
-        Long predictionInterval = null;
+    public Long getForecastingHorizon() {
+        Long forecastingHorizon = null;
 
         if (modelOwners.contains(ModelManager.ModelOwner.Metric)) {
-            predictionInterval = metric.getPredictionInterval();
+            forecastingHorizon = metric.getForecastingHorizon();
         } else if (modelOwners.contains(ModelManager.ModelOwner.MetricType)) {
-            predictionInterval = metric.getMetricType().getPredictionInterval();
+            forecastingHorizon = metric.getMetricType().getForecastingHorizon();
         } else {
-            predictionInterval = tenantSubscriptions.getPredictionInterval();
+            forecastingHorizon = tenantSubscriptions.getForecastingHorizon();
         }
 
-        return predictionInterval;
+        return forecastingHorizon;
     }
 
     @Override

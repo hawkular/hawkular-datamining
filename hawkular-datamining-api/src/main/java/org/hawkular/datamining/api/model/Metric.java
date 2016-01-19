@@ -28,8 +28,8 @@ public class Metric {
 
     // collectionInterval in seconds
     private Long collectionInterval;
-    // predictionInterval in seconds
-    private Long predictionInterval;
+    // forecastingHorizon in seconds
+    private Long forecastingHorizon;
 
     private MetricType metricType;
 
@@ -39,13 +39,13 @@ public class Metric {
     }
 
     public Metric(String tenant, String feed, String id, Long collectionInterval, MetricType metricType,
-                  Long predictionInterval) {
+                  Long forecastingHorizon) {
         this.tenant = tenant;
         this.feed = feed;
         this.id = id;
         this.collectionInterval = collectionInterval;
         this.metricType = metricType;
-        this.predictionInterval = predictionInterval;
+        this.forecastingHorizon = forecastingHorizon;
     }
 
     public Metric(Metric that) {
@@ -86,12 +86,12 @@ public class Metric {
         return metricType;
     }
 
-    public Long getPredictionInterval() {
-        return predictionInterval;
+    public Long getForecastingHorizon() {
+        return forecastingHorizon;
     }
 
-    public void setPredictionInterval(Long predictionInterval) {
-        this.predictionInterval = predictionInterval;
+    public void setForecastingHorizon(Long forecastingHorizon) {
+        this.forecastingHorizon = forecastingHorizon;
     }
 
     @Override

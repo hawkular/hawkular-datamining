@@ -118,7 +118,7 @@ public class InventoryChangesListener extends InventoryEventMessageListener {
             return;
         }
 
-       final Long predictionInterval = InventoryUtil.parsePredictionInterval(relationship.getProperties());
+       final Long forecastingHorizon = InventoryUtil.parseForecastingHorizon(relationship.getProperties());
 
         switch (action) {
             case CREATED: {
@@ -166,7 +166,7 @@ public class InventoryChangesListener extends InventoryEventMessageListener {
 
                     // set prediction interval for tenant
                     modelManager.subscriptionsOfTenant(tenant.ids().getTenantId())
-                            .setPredictionInterval(predictionInterval);
+                            .setForecastingHorizon(forecastingHorizon);
                 }
             }
                 break;
@@ -178,7 +178,7 @@ public class InventoryChangesListener extends InventoryEventMessageListener {
                     TimeSeriesLinkedModel model = modelManager
                             .model(target.ids().getTenantId(), target.getSegment().getElementId());
 
-                    model.getLinkedMetric().setPredictionInterval(predictionInterval);
+                    model.getLinkedMetric().setForecastingHorizon(forecastingHorizon);
                 } else if (target.getSegment().getElementType().equals(MetricType.class)) {
                     Set<Metric> metricsOfType = inventoryStorage.metricsOfType(target);
                     Set<org.hawkular.datamining.api.model.Metric> dataminingMetrics =
@@ -186,13 +186,13 @@ public class InventoryChangesListener extends InventoryEventMessageListener {
 
                     dataminingMetrics.forEach(metric -> {
                         TimeSeriesLinkedModel model = modelManager.model(metric.getTenant(), metric.getId());
-                        model.getLinkedMetric().getMetricType().setPredictionInterval(predictionInterval);
+                        model.getLinkedMetric().getMetricType().setForecastingHorizon(forecastingHorizon);
                     });
                 } else  {
                     // tenant
                     CanonicalPath tenant = relationship.getTarget();
                     modelManager.subscriptionsOfTenant(tenant.ids().getTenantId())
-                            .setPredictionInterval(predictionInterval);
+                            .setForecastingHorizon(forecastingHorizon);
                 }
             }
                 break;
