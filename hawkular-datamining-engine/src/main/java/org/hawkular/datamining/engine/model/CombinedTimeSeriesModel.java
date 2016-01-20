@@ -37,7 +37,7 @@ import org.hawkular.datamining.engine.EngineLogger;
 public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
     // ewma
     public static final double EWMA_ALPHA = 0.4;
-    public static final double EWMA_BETA = 0.1;
+    public static final double EWMA_BETA = 0.15;
     // lms
     public static final double[] LMS_WEIGHTS = new double[] {3, -1};
     // TODO this has to be calculated from data, or use normalized version
@@ -50,7 +50,7 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
     // in ms
     private long lastTimestamp;
     private LeastMeanSquaresFilter leastMeanSquaresFilter;
-    private ExponentiallyWeightedMovingAverages ewma;
+    private DoubleExponentialSmoothing ewma;
 
 
     public CombinedTimeSeriesModel(Metric metric, TenantSubscriptions tenantSubscriptions,
@@ -59,7 +59,7 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
         this.tenantSubscriptions = tenantSubscriptions;
         this.modelOwners.addAll(modelOwner);
 
-        this.ewma = new ExponentiallyWeightedMovingAverages(EWMA_ALPHA, EWMA_BETA);
+        this.ewma = new DoubleExponentialSmoothing(EWMA_ALPHA, EWMA_BETA);
         this.leastMeanSquaresFilter = new LeastMeanSquaresFilter(LMS_ALPHA, LMS_WEIGHTS);
     }
 
@@ -92,7 +92,7 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
             return Collections.EMPTY_LIST;
         }
 
-        List<DataPoint> result = new ArrayList<>();
+        List<DataPoint> result = new ArrayList<>(nAhead);
         List<DataPoint> predictionEWMA = ewma.predict(nAhead);
 
         for (int i = 0; i < nAhead; i++) {

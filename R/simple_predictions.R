@@ -41,6 +41,13 @@ accuracy(ex)
 accuracy(exHolt)
 accuracy(exHoltExp)
 
+plot(holt(as.numeric(getPoints()$value)))
+
+# ts linear regression
+p = getPoints()
+df = data.frame('timestamp' = as.numeric(p$timestamp), 'value'= as.numeric(p$value))
+t <- ts(df)
+reg <- tslm(t ~ trend)
 
 #Linear regression
 x = as.numeric(df$start)
