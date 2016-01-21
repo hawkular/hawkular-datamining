@@ -36,8 +36,8 @@ import org.hawkular.datamining.engine.EngineLogger;
  */
 public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
     // ewma
-    public static final double EWMA_ALPHA = 0.4;
-    public static final double EWMA_BETA = 0.15;
+    public static final double EWMA_ALPHA = 0.3;
+    public static final double EWMA_BETA = 0.02;
     // lms
     public static final double[] LMS_WEIGHTS = new double[] {3, -1};
     // TODO this has to be calculated from data, or use normalized version
