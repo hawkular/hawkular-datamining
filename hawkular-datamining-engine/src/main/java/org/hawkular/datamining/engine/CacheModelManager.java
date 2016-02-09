@@ -35,7 +35,7 @@ import org.hawkular.datamining.api.model.DataPoint;
 import org.hawkular.datamining.api.model.Metric;
 import org.hawkular.datamining.api.storage.MetricsClient;
 import org.hawkular.datamining.bus.RestMetricsClient;
-import org.hawkular.datamining.engine.model.CombinedTimeSeriesModel;
+import org.hawkular.datamining.engine.model.OnlineForecaster;
 
 /**
  * @author Pavol Loffay
@@ -95,7 +95,7 @@ public class CacheModelManager implements ModelManager {
             return;
         }
 
-        model = new CombinedTimeSeriesModel(metric, tenantSubscriptions, modelOwner);
+        model = new OnlineForecaster(metric, tenantSubscriptions, modelOwner);
 
         /**
          * Initialize model with old data

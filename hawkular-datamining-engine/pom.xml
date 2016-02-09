@@ -47,7 +47,6 @@
       <version>${version.org.hawkular.inventory}</version>
     </dependency>
 
-
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
       <artifactId>resteasy-jackson2-provider</artifactId>
@@ -58,6 +57,12 @@
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
       <version>${version.com.google.guava}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-math3</artifactId>
+      <version>${version.org.apache.commons-commons-math3}</version>
     </dependency>
 
     <!--Test-->
@@ -83,6 +88,12 @@
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
       <version>3.2.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.lbordowitz.openforecast</groupId>
+      <artifactId>openforecast</artifactId>
+      <version>0.5.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

@@ -18,14 +18,9 @@ package org.hawkular.datamining.engine.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
-import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVRecord;
 import org.hawkular.datamining.api.model.DataPoint;
 import org.junit.Test;
 
@@ -50,30 +45,7 @@ public class LeastMeanSquaresFilterTest {
     @Test
     public void testSeries() throws IOException {
 
-        String header = "label";
-        String file = this.getClass().getClassLoader().getResource("ar2.csv").getPath();
-
-        Reader in = new FileReader(file);
-        Iterable<CSVRecord> records = CSVFormat.DEFAULT.withAllowMissingColumnNames(true)
-                .withHeader(header)
-                .parse(in);
-
-        List<DataPoint> dataPoints = new ArrayList<>();
-        for (CSVRecord record : records) {
-            String value = record.get(0);
-//            record.
-
-            Double doubleValue = null;
-            try {
-                doubleValue = Double.parseDouble(value);
-            } catch (NumberFormatException ex) {
-                continue;
-            }
-
-            DataPoint dataPoint = new DataPoint(doubleValue, 1L);
-            dataPoints.add(dataPoint);
-        }
-
+        List<DataPoint> dataPoints = CSVTimeSeriesReader.getData("ar.csv");
 
         double learningRate = 0.005;
         double[] initWeights = new double[] {3, -1};

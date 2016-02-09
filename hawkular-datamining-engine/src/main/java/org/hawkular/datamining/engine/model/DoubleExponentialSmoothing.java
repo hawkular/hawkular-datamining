@@ -16,13 +16,27 @@
  */
 package org.hawkular.datamining.engine.model;
 
+import static java.lang.Math.abs;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.math3.analysis.MultivariateFunction;
+import org.apache.commons.math3.optim.InitialGuess;
+import org.apache.commons.math3.optim.MaxEval;
+import org.apache.commons.math3.optim.MaxIter;
+import org.apache.commons.math3.optim.PointValuePair;
+import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
+import org.apache.commons.math3.optim.nonlinear.scalar.MultivariateFunctionMappingAdapter;
+import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
+import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
+import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.hawkular.datamining.api.TimeSeriesModel;
 import org.hawkular.datamining.api.model.DataPoint;
+import org.hawkular.datamining.engine.AccuracyStatistics;
+import org.hawkular.datamining.engine.EngineLogger;
 
 import com.google.common.collect.EvictingQueue;
 
@@ -31,21 +45,75 @@ import com.google.common.collect.EvictingQueue;
  */
 public class DoubleExponentialSmoothing implements TimeSeriesModel {
 
-    public static int BUFFER_SIZE = 5;
+    public static final double DEFAULT_LEVEL_SMOOTHING = 0.4;
+    public static final double DEFAULT_TREND_SMOOTHING = 0.1;
 
-    private double levelSmoothing;
-    private double trendSmoothing;
+    public static int MIN_BUFFER_SIZE = 5;
+
+    private final double levelSmoothing;
+    private final double trendSmoothing;
 
     private double level;
     private double slope;
 
+    private long counter;
+
+    private AccuracyStatistics initAccuracy;
     private EvictingQueue<DataPoint> oldPoints;
 
 
+    public DoubleExponentialSmoothing() {
+        this(DEFAULT_LEVEL_SMOOTHING, DEFAULT_TREND_SMOOTHING);
+    }
+
+    /**
+     * Double exponential smoothing - additive variant
+     */
     public DoubleExponentialSmoothing(double levelSmoothing, double trendSmoothing) {
+        if (levelSmoothing < 0.0 || levelSmoothing > 1.0) {
+            throw new IllegalArgumentException("Level parameter should be in interval 0-1");
+        }
+        if (trendSmoothing < 0.0 || trendSmoothing > 1.0) {
+            throw new IllegalArgumentException("Trend parameter should be in 0-1");
+        }
+
         this.levelSmoothing = levelSmoothing;
         this.trendSmoothing = trendSmoothing;
-        this.oldPoints = EvictingQueue.create(BUFFER_SIZE);
+        this.oldPoints = EvictingQueue.create(MIN_BUFFER_SIZE);
+    }
+
+    public AccuracyStatistics init(List<DataPoint> dataPoints) {
+
+        if (dataPoints == null || dataPoints.size() < MIN_BUFFER_SIZE) {
+            throw new IllegalArgumentException("For init are required " + MIN_BUFFER_SIZE + " points.");
+        }
+
+        double mseSum = 0;
+        double maeSum = 0;
+
+        for (DataPoint point: dataPoints) {
+
+            learn(point);
+            double error = predict().getValue() - point.getValue();
+
+            mseSum += error * error;
+            maeSum += abs(error);
+        }
+
+        initAccuracy = new AccuracyStatistics(mseSum/ (double) dataPoints.size(),
+                maeSum / (double) dataPoints.size());
+
+        return initAccuracy;
+    }
+
+    public static DoubleExponentialSmoothing bestModel(List<DataPoint> dataPoints) {
+
+        ParameterOptimizer parameterOptimizer = new ParameterOptimizer(dataPoints);
+        DoubleExponentialSmoothing bestModel = parameterOptimizer.bestModel();
+
+        // todo do init here?
+
+        return bestModel;
     }
 
     @Override
@@ -61,9 +129,8 @@ public class DoubleExponentialSmoothing implements TimeSeriesModel {
 
             if (oldPoints.remainingCapacity() == 1) {
                 // compute level, trend
-                level = oldPoints.element().getValue();
-                slope = getInitialSlope(oldPoints.iterator());
-                oldPoints.forEach(oldPoint -> updateLevelAndSlope(oldPoint));
+                initParams(dataPoints.iterator());
+                oldPoints.forEach(oldPoint -> updateState(oldPoint));
                 continue;
             }
 
@@ -71,14 +138,14 @@ public class DoubleExponentialSmoothing implements TimeSeriesModel {
                 continue;
             }
 
-            updateLevelAndSlope(point);
+            updateState(point);
         }
     }
 
     @Override
     public DataPoint predict() {
         double prediction = calculatePrediction(1);
-        return new DataPoint(prediction, 1L);
+        return new DataPoint(prediction, 0L); //TODO should be or 1?
     }
 
     @Override
@@ -95,22 +162,35 @@ public class DoubleExponentialSmoothing implements TimeSeriesModel {
         return result;
     }
 
-    private void updateLevelAndSlope(DataPoint point) {
+    @Override
+    public double mse() {
+        return initAccuracy.getMse();
+    }
+
+    @Override
+    public double mae() {
+        return initAccuracy.getMae();
+    }
+
+    private void updateState(DataPoint point) {
         double level_old = level;
         level = levelSmoothing * point.getValue() + (1 - levelSmoothing) * (level + slope);
         slope = trendSmoothing * (level - level_old) + (1 - trendSmoothing) * (slope);
+
+        counter++;
     }
 
     private double calculatePrediction(int nAhead) {
         return level + slope * nAhead;
     }
 
-    public double getInitialSlope(Iterator<DataPoint> dataPointStream) {
+    private void initParams(Iterator<DataPoint> dataPointStream) {
         double slope = 0;
         int count = 0;
 
         if (!dataPointStream.hasNext()) {
-            return slope;
+            slope = 0;
+            level = 0;
         }
 
         DataPoint previous = dataPointStream.next();
@@ -121,6 +201,57 @@ public class DoubleExponentialSmoothing implements TimeSeriesModel {
             count++;
         }
 
-        return slope / count;
+        slope = slope/count;
+    }
+
+    private static class ParameterOptimizer {
+
+        private List<DataPoint> dataPoints;
+
+        public ParameterOptimizer(List<DataPoint> dataPoints) {
+            this.dataPoints = dataPoints;
+        }
+
+        public DoubleExponentialSmoothing bestModel() {
+
+            MultivariateFunctionMappingAdapter constFunction = costFunction(dataPoints);
+
+            int maxIter = 10000;
+            int maxEval = 10000;
+
+            // Nelder-Mead Simplex
+            SimplexOptimizer nelderSimplexOptimizer = new SimplexOptimizer(0.0001, 0.0001);
+            PointValuePair nelderResult = nelderSimplexOptimizer.optimize(
+                    GoalType.MINIMIZE, new MaxIter(maxIter), new MaxEval(maxEval),
+                    new InitialGuess(new double[]{DEFAULT_LEVEL_SMOOTHING, DEFAULT_TREND_SMOOTHING}),
+                    new ObjectiveFunction(constFunction),
+                    new NelderMeadSimplex(2));
+
+            double[] param = constFunction.unboundedToBounded(nelderResult.getPoint());
+            DoubleExponentialSmoothing bestModel = new DoubleExponentialSmoothing(param[0], param[1]);
+
+            return bestModel;
+        }
+
+        private MultivariateFunctionMappingAdapter costFunction(final List<DataPoint> dataPoints) {
+            // func for minimization
+            MultivariateFunction multivariateFunction = point -> {
+
+                double alpha = point[0];
+                double beta = point[1];
+
+                DoubleExponentialSmoothing doubleExponentialSmoothing = new DoubleExponentialSmoothing(alpha, beta);
+                AccuracyStatistics accuracyStatistics = doubleExponentialSmoothing.init(dataPoints);
+
+                EngineLogger.LOGGER.tracef("%s MSE = %s, alpha=%f, beta=%f\n",
+                        accuracyStatistics.getMse(), alpha, beta);
+                return accuracyStatistics.getMse();
+            };
+            MultivariateFunctionMappingAdapter multivariateFunctionMappingAdapter =
+                    new MultivariateFunctionMappingAdapter(multivariateFunction,
+                            new double[]{0.0, 0.0}, new double[]{1, 1});
+
+            return multivariateFunctionMappingAdapter;
+        }
     }
 }

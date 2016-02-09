@@ -49,6 +49,7 @@
     <version.org.hawkular.commons>0.3.1.Final</version.org.hawkular.commons>
     <version.org.hawkular.alerts>0.8.1.Final</version.org.hawkular.alerts>
 
+    <version.org.apache.commons-commons-math3>3.6</version.org.apache.commons-commons-math3>
     <version.com.squareup.okhttp>2.5.0</version.com.squareup.okhttp>
     <version.org.jboss.logging>3.2.1.Final</version.org.jboss.logging>
     <version.org.jboss.logging.jboss-logging-tools>2.0.0.Final</version.org.jboss.logging.jboss-logging-tools>

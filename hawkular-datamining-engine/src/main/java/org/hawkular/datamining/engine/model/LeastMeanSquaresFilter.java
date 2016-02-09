@@ -83,6 +83,16 @@ public class LeastMeanSquaresFilter implements TimeSeriesModel {
     }
 
     @Override
+    public double mse() {
+        return 0;
+    }
+
+    @Override
+    public double mae() {
+        return 0;
+    }
+
+    @Override
     public  DataPoint predict() {
         double prediction = currentPrediction();
 

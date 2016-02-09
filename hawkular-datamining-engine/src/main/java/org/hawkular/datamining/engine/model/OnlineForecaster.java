@@ -27,40 +27,35 @@ import java.util.Set;
 import org.hawkular.datamining.api.ModelManager;
 import org.hawkular.datamining.api.TenantSubscriptions;
 import org.hawkular.datamining.api.TimeSeriesLinkedModel;
+import org.hawkular.datamining.api.TimeSeriesModel;
 import org.hawkular.datamining.api.model.DataPoint;
 import org.hawkular.datamining.api.model.Metric;
 import org.hawkular.datamining.engine.EngineLogger;
 
+import com.google.common.collect.EvictingQueue;
+
 /**
  * @author Pavol Loffay
  */
-public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
-    // ewma
-    public static final double EWMA_ALPHA = 0.3;
-    public static final double EWMA_BETA = 0.02;
-    // lms
-    public static final double[] LMS_WEIGHTS = new double[] {3, -1};
-    // TODO this has to be calculated from data, or use normalized version
-    public static final double LMS_ALPHA = 0.000000000000000000000000001;
+public class OnlineForecaster implements TimeSeriesLinkedModel {
 
     private final Metric metric;
     private final TenantSubscriptions tenantSubscriptions;
     private Set<ModelManager.ModelOwner> modelOwners = new HashSet<>();
 
+    private TimeSeriesModel usedModel;
+
     // in ms
     private long lastTimestamp;
-    private LeastMeanSquaresFilter leastMeanSquaresFilter;
-    private DoubleExponentialSmoothing ewma;
+
+    private EvictingQueue<DataPoint> oldPoints;
 
 
-    public CombinedTimeSeriesModel(Metric metric, TenantSubscriptions tenantSubscriptions,
-                                   Set<ModelManager.ModelOwner> modelOwner) {
+    public OnlineForecaster(Metric metric, TenantSubscriptions tenantSubscriptions,
+                            Set<ModelManager.ModelOwner> modelOwner) {
         this.metric = metric;
         this.tenantSubscriptions = tenantSubscriptions;
         this.modelOwners.addAll(modelOwner);
-
-        this.ewma = new DoubleExponentialSmoothing(EWMA_ALPHA, EWMA_BETA);
-        this.leastMeanSquaresFilter = new LeastMeanSquaresFilter(LMS_ALPHA, LMS_WEIGHTS);
     }
 
     @Override
@@ -70,12 +65,25 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
 
     @Override
     public void learn(DataPoint dataPoint) {
-        addData(Arrays.asList(dataPoint));
+        learn(Arrays.asList(dataPoint));
     }
 
     @Override
     public void learn(List<DataPoint> dataPoints) {
-        addData(dataPoints);
+        // todo data from metrics arrives at <new>, <older>. Maybe its better to reverse iterate
+        Collections.sort(dataPoints);
+
+        Long newLastTimestamp = dataPoints.size() > 0 ?
+                dataPoints.get(dataPoints.size() - 1).getTimestamp() : lastTimestamp;
+
+        if (newLastTimestamp < lastTimestamp) {
+            throw new IllegalArgumentException("Data point has older timestamp than current state.");
+        }
+
+        lastTimestamp = newLastTimestamp;
+        oldPoints.addAll(dataPoints);
+
+        usedModel.learn(dataPoints);
     }
 
     @Override
@@ -93,11 +101,11 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
         }
 
         List<DataPoint> result = new ArrayList<>(nAhead);
-        List<DataPoint> predictionEWMA = ewma.predict(nAhead);
+        List<DataPoint> prediction = usedModel.predict(nAhead);
 
         for (int i = 0; i < nAhead; i++) {
 
-            double ewma = predictionEWMA.get(i).getValue();
+            double ewma = prediction.get(i).getValue();
 
             DataPoint dataPoint = new DataPoint(ewma, lastTimestamp + (i * getCollectionInterval() * 1000));
             result.add(dataPoint);
@@ -107,21 +115,14 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
         return result;
     }
 
-    private void addData(List<DataPoint> dataPoints) {
-        // todo data from metrics arrives at <new>, <older>. Maybe its better to reverse itterate
-        Collections.sort(dataPoints);
+    @Override
+    public double mse() {
+        return usedModel.mse();
+    }
 
-        Long newLastTimestamp = dataPoints.size() > 0 ?
-                dataPoints.get(dataPoints.size() - 1).getTimestamp() : lastTimestamp;
-
-        if (newLastTimestamp < lastTimestamp) {
-            throw new IllegalArgumentException("Data point has older timestamp than current state.");
-        }
-
-        lastTimestamp = newLastTimestamp;
-
-        ewma.learn(dataPoints);
-        leastMeanSquaresFilter.learn(dataPoints);
+    @Override
+    public double mae() {
+        return usedModel.mae();
     }
 
     @Override
@@ -152,6 +153,7 @@ public class CombinedTimeSeriesModel implements TimeSeriesLinkedModel {
         return collectionInterval;
     }
 
+    @Override
     public Set<ModelManager.ModelOwner> getModelOwners() {
         return new HashSet<>(modelOwners);
     }

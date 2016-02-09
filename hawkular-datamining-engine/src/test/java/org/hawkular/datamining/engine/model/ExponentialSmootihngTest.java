@@ -14,33 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.hawkular.datamining.engine.model;
 
-package org.hawkular.datamining.api;
-
-import java.util.List;
-
-import org.hawkular.datamining.api.model.DataPoint;
+import org.apache.commons.math3.fitting.leastsquares.LevenbergMarquardtOptimizer;
+import org.junit.Test;
 
 /**
  * @author Pavol Loffay
  */
-public interface TimeSeriesModel {
+public class ExponentialSmootihngTest {
 
-    void learn(DataPoint dataPoint);
+    @Test
+    public void testParametersEstimation() {
 
-    void learn(List<DataPoint> dataPoints);
+        LevenbergMarquardtOptimizer optimizer = new LevenbergMarquardtOptimizer();
 
-    /**
-     * one step ahead prediction
-     */
-    DataPoint predict();
-
-    /**
-     * Multi step ahead prediction
-     */
-    List<DataPoint> predict(int nAhead);
-
-    double mse();
-
-    double mae();
+//        OptimizationProblem
+//        optimizer.optimize();
+    }
 }
