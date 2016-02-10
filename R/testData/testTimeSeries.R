@@ -24,7 +24,9 @@ trendStatDownwardHighVar <- trendStationary(wnHighVariance, intercept=0, slope=-
 rw <- randomWalk(LENGTH)
 
 # time series export to CSV file
-timeSeriesList <- list(addName(wnLowVariance), addName(wnHighVariance), addName(trendStatUpwardLowVar), addName(trendStatUpwardHighVar), addName(trendStatDownwardLowVar), addName(trendStatDownwardHighVar))
+timeSeriesList <- list(addName(wnLowVariance), addName(wnHighVariance),
+  addName(trendStatUpwardLowVar), addName(trendStatUpwardHighVar),
+  addName(trendStatDownwardLowVar), addName(trendStatDownwardHighVar))
 
 timeSeriesList <- fitModels(timeSeriesList)
 

@@ -26,7 +26,7 @@ import java.util.Map;
 public class TenantSubscriptions {
 
     // <tenant,models>
-    private Map<String, TimeSeriesLinkedModel> subscriptions = new HashMap<>();
+    private Map<String, Subscription> subscriptions = new HashMap<>();
 
     private Long forecastingHorizon;
 
@@ -46,12 +46,11 @@ public class TenantSubscriptions {
         this.forecastingHorizon = forecastingHorizon;
     }
 
-    public Map<String, TimeSeriesLinkedModel> getSubscriptions() {
+    public Map<String, Subscription> getSubscriptions() {
         return subscriptions;
     }
 
-    public void setSubscriptions(
-            Map<String, TimeSeriesLinkedModel> subscriptions) {
+    public void setSubscriptions(Map<String, Subscription> subscriptions) {
         this.subscriptions = subscriptions;
     }
 }

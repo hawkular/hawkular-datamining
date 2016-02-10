@@ -39,7 +39,7 @@ public class OpenForecastTest {
 
     @BeforeClass
     public static void init() throws IOException {
-        metricData = CSVTimeSeriesReader.getData("ar2.csv");
+        metricData = RTimeSeriesReader.getData("ar2.csv");
     }
 
     @Test

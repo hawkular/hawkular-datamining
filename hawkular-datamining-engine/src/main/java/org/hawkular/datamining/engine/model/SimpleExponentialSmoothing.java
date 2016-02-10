@@ -31,32 +31,36 @@ import org.apache.commons.math3.optim.nonlinear.scalar.MultivariateFunctionMappi
 import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
+import org.hawkular.datamining.api.AccuracyStatistics;
+import org.hawkular.datamining.api.ModelOptimization;
 import org.hawkular.datamining.api.TimeSeriesModel;
 import org.hawkular.datamining.api.model.DataPoint;
-import org.hawkular.datamining.engine.AccuracyStatistics;
 import org.hawkular.datamining.engine.EngineLogger;
-
-import com.google.common.collect.EvictingQueue;
 
 /**
  * @author Pavol Loffay
  */
 public class SimpleExponentialSmoothing implements TimeSeriesModel {
 
+    public static final double DEFAULT_LEVEL_SMOOTHING = 0.4;
     public static final int MIN_BUFFER_SIZE = 5;
 
-    private final double alpha;
+    private final double levelSmoothing;
 
     private double level;
 
     private AccuracyStatistics initAccuracy;
-    private EvictingQueue<DataPoint> oldPoints;
 
-    public SimpleExponentialSmoothing(double alpha) {
-        if (alpha < 0.0 || alpha > 1.0) {
+
+    public SimpleExponentialSmoothing() {
+        this(DEFAULT_LEVEL_SMOOTHING);
+    }
+
+    public SimpleExponentialSmoothing(double levelSmoothing) {
+        if (levelSmoothing < 0.0 || levelSmoothing > 1.0) {
             throw new IllegalArgumentException("Level parameter should be in interval 0-1");
         }
-        this.alpha = alpha;
+        this.levelSmoothing = levelSmoothing;
     }
 
     @Override
@@ -67,30 +71,19 @@ public class SimpleExponentialSmoothing implements TimeSeriesModel {
     @Override
     public void learn(List<DataPoint> dataPoints) {
         dataPoints.forEach(point -> {
-            level = alpha * point.getValue() + (1 - alpha) * level;
-            oldPoints.add(point);
+            level = levelSmoothing * point.getValue() + (1 - levelSmoothing) * level;
         });
     }
 
     @Override
-    public DataPoint predict() {
+    public DataPoint forecast() {
         double prediction = calculatePrediction();
         return new DataPoint(prediction, 0L);
     }
 
     @Override
-    public List<DataPoint> predict(int nAhead) {
+    public List<DataPoint> forecast(int nAhead) {
         return null;
-    }
-
-    @Override
-    public double mse() {
-        return initAccuracy.getMse();
-    }
-
-    @Override
-    public double mae() {
-        return initAccuracy.getMae();
     }
 
     public AccuracyStatistics init(List<DataPoint> dataPoints) {
@@ -99,13 +92,15 @@ public class SimpleExponentialSmoothing implements TimeSeriesModel {
             throw new IllegalArgumentException("For init are required " + MIN_BUFFER_SIZE + " points.");
         }
 
+        level = 0;
+
         double mseSum = 0;
         double maeSum = 0;
 
         for (DataPoint point: dataPoints) {
 
             learn(point);
-            double error = predict().getValue() - point.getValue();
+            double error = forecast().getValue() - point.getValue();
 
             mseSum += error * error;
             maeSum += abs(error);
@@ -117,20 +112,20 @@ public class SimpleExponentialSmoothing implements TimeSeriesModel {
         return initAccuracy;
     }
 
+    @Override
+    public AccuracyStatistics statistics() {
+        return initAccuracy;
+    }
+
     // flat forecast function
     private double calculatePrediction() {
         return level;
     }
 
-    private static class ParameterOptimizer {
+    public static class Optimizer implements ModelOptimization {
 
-        private List<DataPoint> dataPoints;
-
-        public ParameterOptimizer(List<DataPoint> dataPoints) {
-            this.dataPoints = dataPoints;
-        }
-
-        public SimpleExponentialSmoothing bestModel() {
+        @Override
+        public TimeSeriesModel minimizedMSE(List<DataPoint> dataPoints) {
 
             MultivariateFunctionMappingAdapter constFunction = costFunction(dataPoints);
 
@@ -145,7 +140,9 @@ public class SimpleExponentialSmoothing implements TimeSeriesModel {
                     new NelderMeadSimplex(1));
 
             double[] param = constFunction.unboundedToBounded(nelderResult.getPoint());
+
             SimpleExponentialSmoothing bestModel = new SimpleExponentialSmoothing(param[0]);
+            bestModel.init(dataPoints);
 
             return bestModel;
         }

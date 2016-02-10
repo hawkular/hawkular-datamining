@@ -28,7 +28,7 @@ import org.hawkular.datamining.api.model.Metric;
 /**
  * @author Pavol Loffay
  */
-public interface ModelManager {
+public interface SubscriptionManager {
 
     void subscribe(Metric metric, Set<ModelOwner> modelOwner);
 
@@ -42,15 +42,15 @@ public interface ModelManager {
 
     void unSubscribe(String tenant, String metricId, Set<ModelOwner> modelOwners);
 
-    Metric subscription(String tenant, String metricId);
+    Metric metric(String tenant, String metricId);
 
-    TimeSeriesLinkedModel model(String tenant, String metricId);
+    Subscription subscription(String tenant, String metricId);
 
     TenantSubscriptions subscriptionsOfTenant(String tenant);
 
     Set<Metric> metricsOfTenant(String tenant);
 
-    List<TimeSeriesLinkedModel> getAllModels();
+    List<Subscription> getAllModels();
 
     Map<String, TenantSubscriptions> getAllSubscriptions();
 

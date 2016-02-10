@@ -27,28 +27,27 @@ import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import org.hawkular.datamining.api.ModelManager;
+import org.hawkular.datamining.api.Subscription;
+import org.hawkular.datamining.api.SubscriptionManager;
 import org.hawkular.datamining.api.TenantSubscriptions;
-import org.hawkular.datamining.api.TimeSeriesLinkedModel;
 import org.hawkular.datamining.api.exception.SubscriptionNotFoundException;
 import org.hawkular.datamining.api.model.DataPoint;
 import org.hawkular.datamining.api.model.Metric;
 import org.hawkular.datamining.api.storage.MetricsClient;
 import org.hawkular.datamining.bus.RestMetricsClient;
-import org.hawkular.datamining.engine.model.OnlineForecaster;
 
 /**
  * @author Pavol Loffay
  */
 @ApplicationScoped
-public class CacheModelManager implements ModelManager {
+public class CacheSubscriptionManager implements SubscriptionManager {
 
     // tenant, metricId, model
     private final Map<String, TenantSubscriptions> subscriptions;
 
     private MetricsClient restMetricsClient = new RestMetricsClient();
 
-    public CacheModelManager() {
+    public CacheSubscriptionManager() {
         subscriptions = new HashMap<>();
     }
 
@@ -68,8 +67,8 @@ public class CacheModelManager implements ModelManager {
         TenantSubscriptions tenantSubscriptions = subscriptionsOfTenant(tenant);
 
         Set<Metric> subscriptions = new HashSet<>();
-        for (Map.Entry<String, TimeSeriesLinkedModel> entry: tenantSubscriptions.getSubscriptions().entrySet()) {
-            Metric metric = entry.getValue().getLinkedMetric();
+        for (Map.Entry<String, Subscription> entry : tenantSubscriptions.getSubscriptions().entrySet()) {
+            Metric metric = entry.getValue().getMetric();
             subscriptions.add(metric);
         }
 
@@ -89,22 +88,22 @@ public class CacheModelManager implements ModelManager {
             subscriptions.put(metric.getTenant(), tenantSubscriptions);
         }
 
-        TimeSeriesLinkedModel model = tenantSubscriptions.getSubscriptions().get(metric.getId());
-        if (model != null) {
-            model.addAllSubscriptionOwners(modelOwner);
+        Subscription subscription = tenantSubscriptions.getSubscriptions().get(metric.getId());
+        if (subscription != null) {
+            subscription.addAllSubscriptionOwners(modelOwner);
             return;
         }
 
-        model = new OnlineForecaster(metric, tenantSubscriptions, modelOwner);
+        subscription = new TimeSeriesSubscription(metric, tenantSubscriptions, modelOwner);
 
         /**
-         * Initialize model with old data
+         * Initialize subscription with old data
          */
         List<DataPoint> points = restMetricsClient.loadPoints(metric.getId(), metric.getTenant());
-        model.learn(points);
+        subscription.forecaster().learn(points);
 
         EngineLogger.LOGGER.subscribing(metric.getId(), metric.getTenant());
-        tenantSubscriptions.getSubscriptions().put(metric.getId(), model);
+        tenantSubscriptions.getSubscriptions().put(metric.getId(), subscription);
     }
 
     @Override
@@ -129,12 +128,12 @@ public class CacheModelManager implements ModelManager {
             throw new SubscriptionNotFoundException(tenant, metricId);
         }
 
-        TimeSeriesLinkedModel model = tenantSubscriptions.getSubscriptions().get(metricId);
+        Subscription model = tenantSubscriptions.getSubscriptions().get(metricId);
         if (model == null) {
             throw new SubscriptionNotFoundException(tenant, metricId);
         }
 
-        for (ModelOwner owner: modelOwners) {
+        for (ModelOwner owner : modelOwners) {
             model.removeSubscriptionOwner(owner);
         }
 
@@ -156,47 +155,47 @@ public class CacheModelManager implements ModelManager {
     }
 
     @Override
-    public Metric subscription(String tenant, String metricId) {
+    public Metric metric(String tenant, String metricId) {
         TenantSubscriptions tenantsModels = subscriptions.get(tenant);
         if (tenantsModels == null) {
             throw new SubscriptionNotFoundException(tenant, metricId);
         }
 
-        TimeSeriesLinkedModel model = tenantsModels.getSubscriptions().get(metricId);
+        Subscription model = tenantsModels.getSubscriptions().get(metricId);
         if (model == null) {
             throw new SubscriptionNotFoundException(tenant, metricId);
         }
 
-        Metric metric = model.getLinkedMetric();
+        Metric metric = model.getMetric();
         return metric;
     }
 
     @Override
-    public TimeSeriesLinkedModel model(String tenant, String metricId) {
+    public Subscription subscription(String tenant, String metricId) {
         TenantSubscriptions tenantsModels = subscriptions.get(tenant);
         if (tenantsModels == null) {
             throw new SubscriptionNotFoundException(tenant, metricId);
         }
 
-        TimeSeriesLinkedModel timeSeriesLinkedModel = tenantsModels.getSubscriptions().get(metricId);
+        Subscription subscription = tenantsModels.getSubscriptions().get(metricId);
 
-        if (timeSeriesLinkedModel == null) {
+        if (subscription == null) {
             throw new SubscriptionNotFoundException(tenant, metricId);
         }
 
-        return timeSeriesLinkedModel;
+        return subscription;
     }
 
     @Override
-    public List<TimeSeriesLinkedModel> getAllModels() {
-        List<TimeSeriesLinkedModel> result = new ArrayList<>();
+    public List<Subscription> getAllModels() {
+        List<Subscription> result = new ArrayList<>();
 
-        for (Map.Entry<String, TenantSubscriptions> tenantEntry: subscriptions.entrySet()) {
+        for (Map.Entry<String, TenantSubscriptions> tenantEntry : subscriptions.entrySet()) {
 
-            for (Map.Entry<String, TimeSeriesLinkedModel> modelEntry: tenantEntry.getValue()
+            for (Map.Entry<String, Subscription> modelEntry : tenantEntry.getValue()
                     .getSubscriptions().entrySet()) {
 
-                TimeSeriesLinkedModel model = modelEntry.getValue();
+                Subscription model = modelEntry.getValue();
                 result.add(model);
             }
         }

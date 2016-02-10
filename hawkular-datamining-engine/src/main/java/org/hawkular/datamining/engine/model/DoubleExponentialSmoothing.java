@@ -33,9 +33,10 @@ import org.apache.commons.math3.optim.nonlinear.scalar.MultivariateFunctionMappi
 import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
+import org.hawkular.datamining.api.AccuracyStatistics;
+import org.hawkular.datamining.api.ModelOptimization;
 import org.hawkular.datamining.api.TimeSeriesModel;
 import org.hawkular.datamining.api.model.DataPoint;
-import org.hawkular.datamining.engine.AccuracyStatistics;
 import org.hawkular.datamining.engine.EngineLogger;
 
 import com.google.common.collect.EvictingQueue;
@@ -55,8 +56,6 @@ public class DoubleExponentialSmoothing implements TimeSeriesModel {
 
     private double level;
     private double slope;
-
-    private long counter;
 
     private AccuracyStatistics initAccuracy;
     private EvictingQueue<DataPoint> oldPoints;
@@ -82,6 +81,7 @@ public class DoubleExponentialSmoothing implements TimeSeriesModel {
         this.oldPoints = EvictingQueue.create(MIN_BUFFER_SIZE);
     }
 
+    @Override
     public AccuracyStatistics init(List<DataPoint> dataPoints) {
 
         if (dataPoints == null || dataPoints.size() < MIN_BUFFER_SIZE) {
@@ -94,7 +94,7 @@ public class DoubleExponentialSmoothing implements TimeSeriesModel {
         for (DataPoint point: dataPoints) {
 
             learn(point);
-            double error = predict().getValue() - point.getValue();
+            double error = forecast().getValue() - point.getValue();
 
             mseSum += error * error;
             maeSum += abs(error);
@@ -104,16 +104,6 @@ public class DoubleExponentialSmoothing implements TimeSeriesModel {
                 maeSum / (double) dataPoints.size());
 
         return initAccuracy;
-    }
-
-    public static DoubleExponentialSmoothing bestModel(List<DataPoint> dataPoints) {
-
-        ParameterOptimizer parameterOptimizer = new ParameterOptimizer(dataPoints);
-        DoubleExponentialSmoothing bestModel = parameterOptimizer.bestModel();
-
-        // todo do init here?
-
-        return bestModel;
     }
 
     @Override
@@ -129,7 +119,7 @@ public class DoubleExponentialSmoothing implements TimeSeriesModel {
 
             if (oldPoints.remainingCapacity() == 1) {
                 // compute level, trend
-                initParams(dataPoints.iterator());
+                initParams(oldPoints.iterator());
                 oldPoints.forEach(oldPoint -> updateState(oldPoint));
                 continue;
             }
@@ -143,13 +133,13 @@ public class DoubleExponentialSmoothing implements TimeSeriesModel {
     }
 
     @Override
-    public DataPoint predict() {
+    public DataPoint forecast() {
         double prediction = calculatePrediction(1);
         return new DataPoint(prediction, 0L); //TODO should be or 1?
     }
 
     @Override
-    public List<DataPoint> predict(int nAhead) {
+    public List<DataPoint> forecast(int nAhead) {
 
         List<DataPoint> result = new ArrayList<>(nAhead);
         for (int i = 0; i < nAhead; i++) {
@@ -163,21 +153,14 @@ public class DoubleExponentialSmoothing implements TimeSeriesModel {
     }
 
     @Override
-    public double mse() {
-        return initAccuracy.getMse();
-    }
-
-    @Override
-    public double mae() {
-        return initAccuracy.getMae();
+    public AccuracyStatistics statistics() {
+        return initAccuracy;
     }
 
     private void updateState(DataPoint point) {
         double level_old = level;
         level = levelSmoothing * point.getValue() + (1 - levelSmoothing) * (level + slope);
         slope = trendSmoothing * (level - level_old) + (1 - trendSmoothing) * (slope);
-
-        counter++;
     }
 
     private double calculatePrediction(int nAhead) {
@@ -185,7 +168,6 @@ public class DoubleExponentialSmoothing implements TimeSeriesModel {
     }
 
     private void initParams(Iterator<DataPoint> dataPointStream) {
-        double slope = 0;
         int count = 0;
 
         if (!dataPointStream.hasNext()) {
@@ -194,6 +176,7 @@ public class DoubleExponentialSmoothing implements TimeSeriesModel {
         }
 
         DataPoint previous = dataPointStream.next();
+        level = previous.getValue();
         while (dataPointStream.hasNext()) {
             DataPoint current = dataPointStream.next();
 
@@ -201,23 +184,18 @@ public class DoubleExponentialSmoothing implements TimeSeriesModel {
             count++;
         }
 
-        slope = slope/count;
+        slope = slope / count;
     }
 
-    private static class ParameterOptimizer {
+    public static class Optimizer implements ModelOptimization {
 
-        private List<DataPoint> dataPoints;
-
-        public ParameterOptimizer(List<DataPoint> dataPoints) {
-            this.dataPoints = dataPoints;
-        }
-
-        public DoubleExponentialSmoothing bestModel() {
+        @Override
+        public TimeSeriesModel minimizedMSE(List<DataPoint> dataPoints) {
 
             MultivariateFunctionMappingAdapter constFunction = costFunction(dataPoints);
 
-            int maxIter = 10000;
-            int maxEval = 10000;
+            int maxIter = 1000;
+            int maxEval = 1000;
 
             // Nelder-Mead Simplex
             SimplexOptimizer nelderSimplexOptimizer = new SimplexOptimizer(0.0001, 0.0001);
@@ -228,7 +206,9 @@ public class DoubleExponentialSmoothing implements TimeSeriesModel {
                     new NelderMeadSimplex(2));
 
             double[] param = constFunction.unboundedToBounded(nelderResult.getPoint());
+
             DoubleExponentialSmoothing bestModel = new DoubleExponentialSmoothing(param[0], param[1]);
+            bestModel.init(dataPoints);
 
             return bestModel;
         }

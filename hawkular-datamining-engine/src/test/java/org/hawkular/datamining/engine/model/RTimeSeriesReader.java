@@ -16,6 +16,7 @@
  */
 package org.hawkular.datamining.engine.model;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -29,19 +30,30 @@ import org.hawkular.datamining.api.model.DataPoint;
 /**
  * @author Pavol Loffay
  */
-public class CSVTimeSeriesReader {
+public class RTimeSeriesReader {
+
+    public static String pathPrefix;
+    // supports execution from IDE and CMD
+    static {
+        if (new File(".", "R").exists()) {
+            pathPrefix = "R/testData/";
+        } else {
+            pathPrefix = "../R/testData/";
+        }
+    }
 
     public static List<DataPoint> getData(String fileName) throws IOException {
 
-        String header = "label";
-        String file = CSVTimeSeriesReader.class.getClassLoader().getResource("ar2.csv").getPath();
+        fileName = pathPrefix + fileName;
+        File fileToRead = new File(fileName);
+        Reader in = new FileReader(fileToRead);
 
-        Reader in = new FileReader(file);
         Iterable<CSVRecord> records = CSVFormat.DEFAULT.withAllowMissingColumnNames(true)
-                .withHeader(header)
+                .withHeader("")
                 .parse(in);
 
         List<DataPoint> dataPoints = new ArrayList<>();
+        long counter = 0;
         for (CSVRecord record : records) {
             String value = record.get(0);
 
@@ -52,7 +64,7 @@ public class CSVTimeSeriesReader {
                 continue;
             }
 
-            DataPoint dataPoint = new DataPoint(doubleValue, 1L);
+            DataPoint dataPoint = new DataPoint(doubleValue, counter++);
             dataPoints.add(dataPoint);
         }
 

@@ -23,11 +23,7 @@ import org.hawkular.datamining.api.model.DataPoint;
 /**
  * @author Pavol Loffay
  */
-public interface ForecastingEngine<T> {
+public interface ModelOptimization {
 
-    void process(T data);
-
-    void process(List<T> data);
-
-    List<DataPoint> predict(String tenant, String metricsId, int nAhead);
+    TimeSeriesModel minimizedMSE(List<DataPoint> dataPoints);
 }

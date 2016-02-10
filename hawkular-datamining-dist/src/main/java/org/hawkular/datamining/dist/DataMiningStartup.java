@@ -23,7 +23,7 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 
-import org.hawkular.datamining.api.ForecastingEngine;
+import org.hawkular.datamining.api.DataMiningEngine;
 import org.hawkular.datamining.api.Official;
 import org.hawkular.datamining.api.model.MetricData;
 import org.hawkular.datamining.bus.listener.MetricDataListener;
@@ -41,14 +41,14 @@ public class DataMiningStartup {
 
     @Official
     @Inject
-    private ForecastingEngine<MetricData> forecastingEngine;
+    private DataMiningEngine<MetricData> dataMiningEngine;
 
     private MetricDataListener metricDataListener;
 
     @PostConstruct
     public void postConstruct() {
 
-        metricDataListener = new MetricDataListener(forecastingEngine);
+        metricDataListener = new MetricDataListener(dataMiningEngine);
 
         LOG.debug("Ejb starting");
     }

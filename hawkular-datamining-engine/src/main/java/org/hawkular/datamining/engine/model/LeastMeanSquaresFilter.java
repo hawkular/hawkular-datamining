@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.hawkular.datamining.api.AccuracyStatistics;
 import org.hawkular.datamining.api.TimeSeriesModel;
 import org.hawkular.datamining.api.model.DataPoint;
 
@@ -67,13 +68,13 @@ public class LeastMeanSquaresFilter implements TimeSeriesModel {
     }
 
     @Override
-    public List<DataPoint> predict(int nAhead) {
+    public List<DataPoint> forecast(int nAhead) {
         LeastMeanSquaresFilter lmsPredict = new LeastMeanSquaresFilter(this.alphaLearningRate, this.weights,
                 this.oldPoints);
 
         List<DataPoint> result = new ArrayList<>(nAhead);
         for (int i = 0; i < nAhead; i++) {
-            DataPoint predictedPoint = lmsPredict.predict();
+            DataPoint predictedPoint = lmsPredict.forecast();
             result.add(predictedPoint);
 
             lmsPredict.process(Arrays.asList(predictedPoint));
@@ -83,17 +84,17 @@ public class LeastMeanSquaresFilter implements TimeSeriesModel {
     }
 
     @Override
-    public double mse() {
-        return 0;
+    public AccuracyStatistics init(List<DataPoint> dataPoints) {
+        return null;
     }
 
     @Override
-    public double mae() {
-        return 0;
+    public AccuracyStatistics statistics() {
+        return null;
     }
 
     @Override
-    public  DataPoint predict() {
+    public  DataPoint forecast() {
         double prediction = currentPrediction();
 
         return new DataPoint(prediction, 1L);

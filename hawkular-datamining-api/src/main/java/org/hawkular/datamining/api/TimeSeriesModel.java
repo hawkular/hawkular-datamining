@@ -33,14 +33,14 @@ public interface TimeSeriesModel {
     /**
      * one step ahead prediction
      */
-    DataPoint predict();
+    DataPoint forecast();
 
     /**
      * Multi step ahead prediction
      */
-    List<DataPoint> predict(int nAhead);
+    List<DataPoint> forecast(int nAhead);
 
-    double mse();
+   AccuracyStatistics init(List<DataPoint> dataPoints);
 
-    double mae();
+    AccuracyStatistics statistics();
 }

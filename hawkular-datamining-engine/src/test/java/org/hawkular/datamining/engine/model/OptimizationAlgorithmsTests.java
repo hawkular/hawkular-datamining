@@ -33,8 +33,8 @@ import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.BOBYQAOptimizer;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.MultiDirectionalSimplex;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
+import org.hawkular.datamining.api.AccuracyStatistics;
 import org.hawkular.datamining.api.model.DataPoint;
-import org.hawkular.datamining.engine.AccuracyStatistics;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -47,7 +47,7 @@ public class OptimizationAlgorithmsTests {
 
     @BeforeClass
     public static void init() throws IOException {
-        metricData = CSVTimeSeriesReader.getData("ar2.csv");
+        metricData = RTimeSeriesReader.getData("ar2.csv");
     }
 
     @Test

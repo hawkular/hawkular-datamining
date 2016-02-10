@@ -16,26 +16,18 @@
  */
 package org.hawkular.datamining.api;
 
-import java.util.Set;
+import java.util.List;
 
-import org.hawkular.datamining.api.model.Metric;
+import org.hawkular.datamining.api.model.DataPoint;
 
 /**
  * @author Pavol Loffay
  */
-public interface TimeSeriesLinkedModel extends TimeSeriesModel {
+public interface DataMiningEngine<T> {
 
-    Metric getLinkedMetric();
+    void process(T data);
 
-    void addSubscriptionOwner(ModelManager.ModelOwner owner);
+    void process(List<T> data);
 
-    void removeSubscriptionOwner(ModelManager.ModelOwner owner);
-
-    void addAllSubscriptionOwners(Set<ModelManager.ModelOwner> owners);
-
-    Long getForecastingHorizon();
-
-    Long getCollectionInterval();
-
-    Set<ModelManager.ModelOwner> getModelOwners();
+    List<DataPoint> predict(String tenant, String metricsId, int nAhead);
 }

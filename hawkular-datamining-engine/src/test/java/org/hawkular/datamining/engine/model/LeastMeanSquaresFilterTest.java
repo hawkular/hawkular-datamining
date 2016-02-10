@@ -45,7 +45,7 @@ public class LeastMeanSquaresFilterTest {
     @Test
     public void testSeries() throws IOException {
 
-        List<DataPoint> dataPoints = CSVTimeSeriesReader.getData("ar.csv");
+        List<DataPoint> dataPoints = RTimeSeriesReader.getData("ar2.csv");
 
         double learningRate = 0.005;
         double[] initWeights = new double[] {3, -1};
@@ -68,7 +68,7 @@ public class LeastMeanSquaresFilterTest {
         /**
          * Check convergence to zero
          */
-        List<DataPoint> predictions = leastMeanSquaresFilter.predict(150);
+        List<DataPoint> predictions = leastMeanSquaresFilter.forecast(150);
         maxError = 0.01;
         double expectedlastPrediction = 0;
         DataPoint lastPredictedPoint = predictions.get(predictions.size() - 1);

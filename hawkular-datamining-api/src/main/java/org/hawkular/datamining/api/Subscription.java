@@ -14,22 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.datamining.engine.model;
+package org.hawkular.datamining.api;
 
-import org.apache.commons.math3.fitting.leastsquares.LevenbergMarquardtOptimizer;
-import org.junit.Test;
+import java.util.Set;
+
+import org.hawkular.datamining.api.model.Metric;
 
 /**
  * @author Pavol Loffay
  */
-public class ExponentialSmootihngTest {
+public interface Subscription {
 
-    @Test
-    public void testParametersEstimation() {
+    Metric getMetric();
 
-        LevenbergMarquardtOptimizer optimizer = new LevenbergMarquardtOptimizer();
+    void addSubscriptionOwner(SubscriptionManager.ModelOwner owner);
 
-//        OptimizationProblem
-//        optimizer.optimize();
-    }
+    void removeSubscriptionOwner(SubscriptionManager.ModelOwner owner);
+
+    void addAllSubscriptionOwners(Set<SubscriptionManager.ModelOwner> owners);
+
+    Long getForecastingHorizon();
+
+    Long getCollectionInterval();
+
+    Set<SubscriptionManager.ModelOwner> getModelOwners();
+
+    Forecaster forecaster();
 }

@@ -19,8 +19,8 @@ package org.hawkular.datamining.engine;
 
 import java.util.List;
 
-import org.hawkular.datamining.api.ModelManager;
-import org.hawkular.datamining.api.TimeSeriesLinkedModel;
+import org.hawkular.datamining.api.Subscription;
+import org.hawkular.datamining.api.SubscriptionManager;
 import org.hawkular.datamining.api.model.DataPoint;
 import org.hawkular.datamining.api.model.MetricData;
 import org.hawkular.datamining.api.storage.PredictionStorage;
@@ -30,14 +30,14 @@ import org.hawkular.datamining.bus.sender.PredictionSender;
 /**
  * @author Pavol Loffay
  */
-public class ForecastingEngine implements org.hawkular.datamining.api.ForecastingEngine<MetricData> {
+public class DataMiningEngine implements org.hawkular.datamining.api.DataMiningEngine<MetricData> {
 
-    private final ModelManager modelManager;
+    private final SubscriptionManager subscriptionManager;
 
     private PredictionStorage predictionOutput;
 
-    public ForecastingEngine(ModelManager modelManager) {
-        this.modelManager = modelManager;
+    public DataMiningEngine(SubscriptionManager subscriptionManager) {
+        this.subscriptionManager = subscriptionManager;
 
         // todo should be CDI
         this.predictionOutput = new PredictionSender(BusConfiguration.TOPIC_METRIC_DATA, BusConfiguration.BROKER_URL);
@@ -45,17 +45,17 @@ public class ForecastingEngine implements org.hawkular.datamining.api.Forecastin
 
     @Override
     public void process(MetricData metricData) {
-        if (!modelManager.subscribes(metricData.getTenant(), metricData.getMetricId())) {
+        if (!subscriptionManager.subscribes(metricData.getTenant(), metricData.getMetricId())) {
             return;
         }
 
-        TimeSeriesLinkedModel model = modelManager.model(metricData.getTenant(), metricData.getMetricId());
-        model.learn(metricData.getDataPoint());
+        Subscription subscription = subscriptionManager.subscription(metricData.getTenant(), metricData.getMetricId());
+        subscription.forecaster().learn(metricData.getDataPoint());
 
-        if (model.getForecastingHorizon() == null || model.getForecastingHorizon() == 0) {
+        if (subscription.getForecastingHorizon() == null || subscription.getForecastingHorizon() == 0) {
             return;
         }
-        int nAhead = (int) (model.getForecastingHorizon() / model.getCollectionInterval()) + 1;
+        int nAhead = (int) (subscription.getForecastingHorizon() / subscription.getCollectionInterval()) + 1;
 
         List<DataPoint> predicted = predict(metricData.getTenant(), metricData.getMetricId(), nAhead);
         predictionOutput.send(predicted, metricData.getTenant(), metricData.getMetricId());
@@ -69,8 +69,8 @@ public class ForecastingEngine implements org.hawkular.datamining.api.Forecastin
     @Override
     public List<DataPoint> predict(String tenant, String metricsId, int nAhead) {
 
-        TimeSeriesLinkedModel model = modelManager.model(tenant, metricsId);
-        List<DataPoint> points = model.predict(nAhead);
+        Subscription subscription = subscriptionManager.subscription(tenant, metricsId);
+        List<DataPoint> points = subscription.forecaster().forecast(nAhead);
 
         return points;
     }

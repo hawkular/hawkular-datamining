@@ -14,27 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.datamining.engine;
+package org.hawkular.datamining.api;
+
+import java.util.List;
+
+import org.hawkular.datamining.api.model.DataPoint;
 
 /**
  * @author Pavol Loffay
  */
-public class AccuracyStatistics {
+public interface Forecaster {
 
-    private final double mse;
-    private final double mae;
+    void learn(DataPoint dataPoint);
 
+    void learn(List<DataPoint> dataPoints);
 
-    public AccuracyStatistics(double mse, double mae) {
-        this.mse = mse;
-        this.mae = mae;
-    }
+    /**
+     * one step ahead prediction
+     */
+    DataPoint forecast();
 
-    public double getMse() {
-        return mse;
-    }
+    /**
+     * Multi step ahead prediction
+     */
+    List<DataPoint> forecast(int nAhead);
 
-    public double getMae() {
-        return mae;
-    }
+    TimeSeriesModel model();
 }

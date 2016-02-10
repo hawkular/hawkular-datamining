@@ -22,7 +22,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.hawkular.datamining.api.ModelManager;
+import org.hawkular.datamining.api.SubscriptionManager;
 import org.hawkular.inventory.api.model.AbstractElement;
 import org.hawkular.inventory.api.model.CanonicalPath;
 import org.hawkular.inventory.api.model.Metric;
@@ -124,26 +124,26 @@ public class InventoryUtil {
         return canonicalPaths;
     }
 
-    public static Set<ModelManager.ModelOwner> predictionRelationshipsToOwners(Set<Relationship>
+    public static Set<SubscriptionManager.ModelOwner> predictionRelationshipsToOwners(Set<Relationship>
                                                                                                relationships) {
-        Set<ModelManager.ModelOwner> modelOwners = new HashSet<>();
+        Set<SubscriptionManager.ModelOwner> modelOwners = new HashSet<>();
 
         for (Relationship relationship: relationships) {
             Class<?> targetEntity = relationship.getTarget().getSegment().getElementType();
 
             if (targetEntity.equals(Metric.class)) {
-                modelOwners.add(ModelManager.ModelOwner.Metric);
+                modelOwners.add(SubscriptionManager.ModelOwner.Metric);
             } else if (targetEntity.equals(MetricType.class)) {
-                modelOwners.add(ModelManager.ModelOwner.MetricType);
+                modelOwners.add(SubscriptionManager.ModelOwner.MetricType);
             } else if (targetEntity.equals(Tenant.class)) {
-                modelOwners.add(ModelManager.ModelOwner.Tenant);
+                modelOwners.add(SubscriptionManager.ModelOwner.Tenant);
             }
         }
 
         return modelOwners;
     }
 
-    public static Set<ModelManager.ModelOwner> predictionRelationshipsToOwners(
+    public static Set<SubscriptionManager.ModelOwner> predictionRelationshipsToOwners(
             Relationship relationship) {
 
         return predictionRelationshipsToOwners(new HashSet<>(Arrays.asList(relationship)));
