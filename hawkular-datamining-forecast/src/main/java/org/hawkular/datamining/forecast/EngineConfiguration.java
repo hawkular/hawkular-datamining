@@ -14,31 +14,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.datamining.api;
 
-import java.util.Set;
+package org.hawkular.datamining.forecast;
 
-import org.hawkular.datamining.api.model.Metric;
-import org.hawkular.datamining.forecast.Forecaster;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Properties;
+
 
 /**
  * @author Pavol Loffay
  */
-public interface Subscription {
+public class EngineConfiguration {
 
-    Metric getMetric();
+    public static final String CONF_FILE = "hawkular-datamining.properties";
 
-    void addSubscriptionOwner(SubscriptionManager.ModelOwner owner);
+    private Properties properties = new Properties();
 
-    void removeSubscriptionOwner(SubscriptionManager.ModelOwner owner);
+    public EngineConfiguration() throws IOException {
+        properties.load(getConfigurationFile().openStream());
+    }
 
-    void addAllSubscriptionOwners(Set<SubscriptionManager.ModelOwner> owners);
+    public String getProperty(String key) {
+        return properties.getProperty(key);
+    }
 
-    Long getForecastingHorizon();
-
-    Long getCollectionInterval();
-
-    Set<SubscriptionManager.ModelOwner> getModelOwners();
-
-    Forecaster forecaster();
+    private URL getConfigurationFile() {
+        return this.getClass().getClassLoader().getResource(CONF_FILE);
+    }
 }

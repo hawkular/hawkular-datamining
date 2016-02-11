@@ -37,8 +37,8 @@ import javax.ws.rs.core.Response;
 import org.hawkular.datamining.api.Constants;
 import org.hawkular.datamining.api.DataMiningEngine;
 import org.hawkular.datamining.api.Official;
-import org.hawkular.datamining.api.model.DataPoint;
 import org.hawkular.datamining.api.model.MetricData;
+import org.hawkular.datamining.forecast.DataPoint;
 
 /**
  * @author Pavol Loffay

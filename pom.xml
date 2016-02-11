@@ -35,12 +35,11 @@
   <inceptionYear>2015</inceptionYear>
 
   <modules>
-    <module>hawkular-datamining-engine</module>
-    <module>hawkular-datamining-bus</module>
+    <module>hawkular-datamining-api</module>
+    <module>hawkular-datamining-forecast</module>
+    <module>hawkular-datamining-cdi</module>
     <module>hawkular-datamining-rest</module>
     <module>hawkular-datamining-dist</module>
-    <module>hawkular-datamining-api</module>
-    <module>hawkular-datamining-inventory-integration</module>
   </modules>
 
   <properties>

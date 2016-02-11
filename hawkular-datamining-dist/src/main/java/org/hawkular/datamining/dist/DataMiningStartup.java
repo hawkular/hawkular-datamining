@@ -26,14 +26,14 @@ import javax.inject.Inject;
 import org.hawkular.datamining.api.DataMiningEngine;
 import org.hawkular.datamining.api.Official;
 import org.hawkular.datamining.api.model.MetricData;
-import org.hawkular.datamining.bus.listener.MetricDataListener;
+import org.hawkular.datamining.integration.metrics.listener.MetricDataListener;
 import org.jboss.logging.Logger;
 
 /**
  * @author Pavol Loffay
  */
 @Startup
-@Singleton
+@Singleton //todo eager?
 @TransactionAttribute(value = TransactionAttributeType.NOT_SUPPORTED) //todo never?
 public class DataMiningStartup {
 

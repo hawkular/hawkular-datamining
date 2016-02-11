@@ -18,7 +18,8 @@ package org.hawkular.datamining.api;
 
 import java.util.List;
 
-import org.hawkular.datamining.api.model.DataPoint;
+import org.hawkular.datamining.api.storage.PredictionListener;
+import org.hawkular.datamining.forecast.DataPoint;
 
 /**
  * @author Pavol Loffay
@@ -30,4 +31,6 @@ public interface DataMiningEngine<T> {
     void process(List<T> data);
 
     List<DataPoint> predict(String tenant, String metricsId, int nAhead);
+
+    void addPredictionListener(PredictionListener predictionListener);
 }

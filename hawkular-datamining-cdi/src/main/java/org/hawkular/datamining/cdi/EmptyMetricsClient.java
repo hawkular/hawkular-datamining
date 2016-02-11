@@ -14,31 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.datamining.api;
 
-import java.util.Set;
+package org.hawkular.datamining.cdi;
 
-import org.hawkular.datamining.api.model.Metric;
-import org.hawkular.datamining.forecast.Forecaster;
+import java.util.Collections;
+import java.util.List;
+
+import javax.enterprise.context.ApplicationScoped;
+
+import org.hawkular.datamining.api.model.BucketPoint;
+import org.hawkular.datamining.api.storage.MetricsClient;
+import org.hawkular.datamining.forecast.DataPoint;
 
 /**
  * @author Pavol Loffay
  */
-public interface Subscription {
+@ApplicationScoped
+public class EmptyMetricsClient implements MetricsClient {
 
-    Metric getMetric();
+    @Override
+    public List<BucketPoint> loadBuckets(long buckets, String metricId, String tenant) {
+        return Collections.emptyList();
+    }
 
-    void addSubscriptionOwner(SubscriptionManager.ModelOwner owner);
-
-    void removeSubscriptionOwner(SubscriptionManager.ModelOwner owner);
-
-    void addAllSubscriptionOwners(Set<SubscriptionManager.ModelOwner> owners);
-
-    Long getForecastingHorizon();
-
-    Long getCollectionInterval();
-
-    Set<SubscriptionManager.ModelOwner> getModelOwners();
-
-    Forecaster forecaster();
+    @Override
+    public List<DataPoint> loadPoints(String metricId, String tenant) {
+        return Collections.emptyList();
+    }
 }

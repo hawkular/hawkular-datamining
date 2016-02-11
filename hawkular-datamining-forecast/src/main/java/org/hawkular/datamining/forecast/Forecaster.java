@@ -14,31 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.datamining.api;
 
-import java.util.Set;
+package org.hawkular.datamining.forecast;
 
-import org.hawkular.datamining.api.model.Metric;
-import org.hawkular.datamining.forecast.Forecaster;
+import java.util.List;
+
+import org.hawkular.datamining.forecast.model.TimeSeriesModel;
 
 /**
  * @author Pavol Loffay
  */
-public interface Subscription {
+public interface Forecaster {
 
-    Metric getMetric();
+    void learn(DataPoint dataPoint);
 
-    void addSubscriptionOwner(SubscriptionManager.ModelOwner owner);
+    void learn(List<DataPoint> dataPoints);
 
-    void removeSubscriptionOwner(SubscriptionManager.ModelOwner owner);
+    /**
+     * one step ahead prediction
+     */
+    DataPoint forecast();
 
-    void addAllSubscriptionOwners(Set<SubscriptionManager.ModelOwner> owners);
+    /**
+     * Multi step ahead prediction
+     */
+    List<DataPoint> forecast(int nAhead);
 
-    Long getForecastingHorizon();
-
-    Long getCollectionInterval();
-
-    Set<SubscriptionManager.ModelOwner> getModelOwners();
-
-    Forecaster forecaster();
+    TimeSeriesModel model();
 }

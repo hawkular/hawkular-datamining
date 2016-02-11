@@ -14,31 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.datamining.api;
 
-import java.util.Set;
+package org.hawkular.datamining.forecast.model;
 
-import org.hawkular.datamining.api.model.Metric;
-import org.hawkular.datamining.forecast.Forecaster;
+import java.util.List;
+
+import org.hawkular.datamining.forecast.DataPoint;
 
 /**
  * @author Pavol Loffay
  */
-public interface Subscription {
+public interface ModelOptimization {
 
-    Metric getMetric();
-
-    void addSubscriptionOwner(SubscriptionManager.ModelOwner owner);
-
-    void removeSubscriptionOwner(SubscriptionManager.ModelOwner owner);
-
-    void addAllSubscriptionOwners(Set<SubscriptionManager.ModelOwner> owners);
-
-    Long getForecastingHorizon();
-
-    Long getCollectionInterval();
-
-    Set<SubscriptionManager.ModelOwner> getModelOwners();
-
-    Forecaster forecaster();
+    TimeSeriesModel minimizedMSE(List<DataPoint> dataPoints);
 }

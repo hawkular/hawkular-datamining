@@ -17,22 +17,8 @@
     limitations under the License.
 
 -->
-
-<!-- This file is used to  control class loading in a fine grained manner -->
-<jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.2">
-
-  <deployment>
-    <exclusions>
-      <module name="org.jboss.resteasy.resteasy-jackson-provider"/>
-      <module name="org.jboss.resteasy.resteasy-jettison-provider"/>
-    </exclusions>
-    <dependencies>
-      <module name="org.jboss.resteasy.resteasy-jackson2-provider" services="import"/>
-      <!--<module name="deployment.hawkular-inventory-dist.war" services="import"/>-->
-
-      <module name="javax.jms.api" />
-      <module name="javaee.api" />
-      <!--<module name="org.hawkular.bus" />-->
-    </dependencies>
-  </deployment>
-</jboss-deployment-structure>
+<beans xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/beans_1_1.xsd"
+       version="1.1" bean-discovery-mode="all">
+</beans>

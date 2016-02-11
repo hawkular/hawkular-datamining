@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2015 Red Hat, Inc. and/or its affiliates
+    Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
     and other contributors as indicated by the @author tags.
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,21 +34,29 @@
   <dependencies>
     <dependency>
       <groupId>org.hawkular.datamining</groupId>
-      <artifactId>hawkular-datamining-engine</artifactId>
+      <artifactId>hawkular-datamining-api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.hawkular.datamining</groupId>
-      <artifactId>hawkular-datamining-bus</artifactId>
+      <artifactId>hawkular-datamining-cdi</artifactId>
       <version>${project.version}</version>
     </dependency>
 
+    <!-- Servlet Filter -->
     <dependency>
       <groupId>org.jboss.spec.javax.servlet</groupId>
       <artifactId>jboss-servlet-api_3.1_spec</artifactId>
       <scope>provided</scope>
     </dependency>
 
+    <!-- Rest -->
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-jaxrs</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <!-- JSON -->
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
       <artifactId>resteasy-jackson2-provider</artifactId>
@@ -57,12 +65,93 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>${version.com.fasterxml.jackson.core}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.resteasy</groupId>
-      <artifactId>resteasy-jaxrs</artifactId>
       <scope>provided</scope>
     </dependency>
   </dependencies>
+
+  <profiles>
+    <profile>
+      <id>dev</id>
+      <build>
+        <plugins>
+          <!-- Download wildfly and copy dist war there -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>unpack-wildfly</id>
+                <phase>prepare-package</phase>
+                <goals>
+                  <goal>unpack</goal>
+                </goals>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>org.wildfly</groupId>
+                      <artifactId>wildfly-dist</artifactId>
+                      <version>${version.org.wildfly}</version>
+                      <type>zip</type>
+                      <outputDirectory>${project.build.directory}</outputDirectory>
+                    </artifactItem>
+                  </artifactItems>
+                </configuration>
+              </execution>
+              <execution>
+                <id>copy</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>copy</goal>
+                </goals>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>org.hawkular.datamining</groupId>
+                      <artifactId>hawkular-datamining-rest</artifactId>
+                      <version>${project.version}</version>
+                      <type>war</type>
+                      <overWrite>false</overWrite>
+                      <outputDirectory>${project.build.directory}/wildfly-${version.org.wildfly}/standalone/deployments</outputDirectory>
+                    </artifactItem>
+                  </artifactItems>
+                  <outputDirectory>${project.build.directory}/wars</outputDirectory>
+                  <overWriteReleases>false</overWriteReleases>
+                  <overWriteSnapshots>true</overWriteSnapshots>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+          <!-- further customize standalone.xml -->
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>xml-maven-plugin</artifactId>
+            <version>${version.org.codehaus.mojo.xml-maven-plugin}</version>
+            <executions>
+              <execution>
+                <id>transform-standalone-xml</id>
+                <phase>install</phase>
+                <goals>
+                  <goal>transform</goal>
+                </goals>
+                <configuration>
+                  <transformationSets>
+                     standalone.xml
+                    <transformationSet>
+                      <dir>${project.build.directory}/wildfly-${version.org.wildfly}/standalone/configuration</dir>
+                      <stylesheet>jboss-standalone.xsl</stylesheet>
+                      <includes>
+                        <include>standalone.xml</include>
+                      </includes>
+                      <outputDir>${project.build.directory}/wildfly-${version.org.wildfly}/standalone/configuration</outputDir>
+                    </transformationSet>
+                  </transformationSets>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

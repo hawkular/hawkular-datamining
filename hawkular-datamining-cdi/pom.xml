@@ -17,22 +17,23 @@
     limitations under the License.
 
 -->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>hawkular-datamining-parent</artifactId>
+    <groupId>org.hawkular.datamining</groupId>
+    <version>0.0.1.Alpha1-SNAPSHOT</version>
+  </parent>
 
-<!-- This file is used to  control class loading in a fine grained manner -->
-<jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.2">
+  <artifactId>hawkular-datamining-cdi</artifactId>
 
-  <deployment>
-    <exclusions>
-      <module name="org.jboss.resteasy.resteasy-jackson-provider"/>
-      <module name="org.jboss.resteasy.resteasy-jettison-provider"/>
-    </exclusions>
-    <dependencies>
-      <module name="org.jboss.resteasy.resteasy-jackson2-provider" services="import"/>
-      <!--<module name="deployment.hawkular-inventory-dist.war" services="import"/>-->
-
-      <module name="javax.jms.api" />
-      <module name="javaee.api" />
-      <!--<module name="org.hawkular.bus" />-->
-    </dependencies>
-  </deployment>
-</jboss-deployment-structure>
+  <dependencies>
+    <dependency>
+      <groupId>org.hawkular.datamining</groupId>
+      <artifactId>hawkular-datamining-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+</project>

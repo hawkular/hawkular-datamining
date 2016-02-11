@@ -14,31 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.datamining.api;
 
-import java.util.Set;
+package org.hawkular.datamining.forecast;
 
-import org.hawkular.datamining.api.model.Metric;
-import org.hawkular.datamining.forecast.Forecaster;
+import org.jboss.logging.BasicLogger;
+import org.jboss.logging.annotations.MessageLogger;
 
 /**
  * @author Pavol Loffay
  */
-public interface Subscription {
+@MessageLogger(projectCode = "HAWKDMING")
+public interface Logger extends BasicLogger {
 
-    Metric getMetric();
-
-    void addSubscriptionOwner(SubscriptionManager.ModelOwner owner);
-
-    void removeSubscriptionOwner(SubscriptionManager.ModelOwner owner);
-
-    void addAllSubscriptionOwners(Set<SubscriptionManager.ModelOwner> owners);
-
-    Long getForecastingHorizon();
-
-    Long getCollectionInterval();
-
-    Set<SubscriptionManager.ModelOwner> getModelOwners();
-
-    Forecaster forecaster();
+    Logger LOGGER = org.jboss.logging.Logger.getMessageLogger(Logger.class, "org.hawkular.datamining.forecast");
 }

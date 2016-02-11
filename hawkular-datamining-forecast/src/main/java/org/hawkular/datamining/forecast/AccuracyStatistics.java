@@ -14,31 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.datamining.api;
 
-import java.util.Set;
-
-import org.hawkular.datamining.api.model.Metric;
-import org.hawkular.datamining.forecast.Forecaster;
+package org.hawkular.datamining.forecast;
 
 /**
  * @author Pavol Loffay
  */
-public interface Subscription {
+public class AccuracyStatistics {
 
-    Metric getMetric();
+    private final double mse;
+    private final double mae;
 
-    void addSubscriptionOwner(SubscriptionManager.ModelOwner owner);
 
-    void removeSubscriptionOwner(SubscriptionManager.ModelOwner owner);
+    public AccuracyStatistics(double mse, double mae) {
+        this.mse = mse;
+        this.mae = mae;
+    }
 
-    void addAllSubscriptionOwners(Set<SubscriptionManager.ModelOwner> owners);
+    public double getMse() {
+        return mse;
+    }
 
-    Long getForecastingHorizon();
-
-    Long getCollectionInterval();
-
-    Set<SubscriptionManager.ModelOwner> getModelOwners();
-
-    Forecaster forecaster();
+    public double getMae() {
+        return mae;
+    }
 }

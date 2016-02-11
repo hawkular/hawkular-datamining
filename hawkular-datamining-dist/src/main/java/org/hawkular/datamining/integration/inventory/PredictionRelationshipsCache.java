@@ -14,31 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.datamining.api;
+package org.hawkular.datamining.integration.inventory;
 
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.hawkular.datamining.api.model.Metric;
-import org.hawkular.datamining.forecast.Forecaster;
+import org.hawkular.inventory.api.model.CanonicalPath;
+import org.hawkular.inventory.api.model.Relationship;
 
 /**
  * @author Pavol Loffay
  */
-public interface Subscription {
+public class PredictionRelationshipsCache {
 
-    Metric getMetric();
+    private Map<CanonicalPath, Relationship> targetEntityRelationships = new HashMap<>();
 
-    void addSubscriptionOwner(SubscriptionManager.ModelOwner owner);
-
-    void removeSubscriptionOwner(SubscriptionManager.ModelOwner owner);
-
-    void addAllSubscriptionOwners(Set<SubscriptionManager.ModelOwner> owners);
-
-    Long getForecastingHorizon();
-
-    Long getCollectionInterval();
-
-    Set<SubscriptionManager.ModelOwner> getModelOwners();
-
-    Forecaster forecaster();
+    public Map<CanonicalPath, Relationship> relationships() {
+        return targetEntityRelationships;
+    }
 }

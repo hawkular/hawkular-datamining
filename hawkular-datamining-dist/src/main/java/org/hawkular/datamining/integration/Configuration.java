@@ -14,31 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.datamining.api;
 
-import java.util.Set;
-
-import org.hawkular.datamining.api.model.Metric;
-import org.hawkular.datamining.forecast.Forecaster;
+package org.hawkular.datamining.integration;
 
 /**
  * @author Pavol Loffay
  */
-public interface Subscription {
+public class Configuration {
 
-    Metric getMetric();
+    public static final String TOPIC_INVENTORY_CHANGES = "HawkularInventoryChanges";
+    public static final String QUEUE_INVENTORY_QUERY = "HawkularInventoryQuery";
 
-    void addSubscriptionOwner(SubscriptionManager.ModelOwner owner);
+    public static final String PREDICTION_RELATIONSHIP = "__inPrediction";
+    public static final String PREDICTION_INTERVAL_PROP = "forecastingHorizon";
 
-    void removeSubscriptionOwner(SubscriptionManager.ModelOwner owner);
-
-    void addAllSubscriptionOwners(Set<SubscriptionManager.ModelOwner> owners);
-
-    Long getForecastingHorizon();
-
-    Long getCollectionInterval();
-
-    Set<SubscriptionManager.ModelOwner> getModelOwners();
-
-    Forecaster forecaster();
+    public static final String BROKER_URL = "tcp://localhost:62626";
+    public static final String TOPIC_METRIC_DATA = "HawkularMetricData";
 }
+
