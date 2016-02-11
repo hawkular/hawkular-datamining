@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.integration.inventory;
+package org.hawkular.datamining.dist.integration.inventory;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,9 +29,9 @@ import javax.inject.Inject;
 
 import org.hawkular.datamining.api.SubscriptionManager;
 import org.hawkular.datamining.api.TenantSubscriptions;
-import org.hawkular.datamining.api.util.Eager;
-import org.hawkular.datamining.integration.Configuration;
-import org.hawkular.datamining.integration.Logger;
+import org.hawkular.datamining.cdi.qualifiers.Eager;
+import org.hawkular.datamining.dist.Logger;
+import org.hawkular.datamining.dist.integration.Configuration;
 import org.hawkular.inventory.api.Inventory;
 import org.hawkular.inventory.api.Query;
 import org.hawkular.inventory.api.Relationships;
@@ -59,7 +59,7 @@ public class InventoryCDIStorage implements InventoryStorage {
     @Inject
     private SubscriptionManager subscriptionManager;
 
-    private org.hawkular.datamining.integration.inventory.PredictionRelationshipsCache predictionRelationshipsCache;
+    private PredictionRelationshipsCache predictionRelationshipsCache;
 
     @PostConstruct
     public void init() {

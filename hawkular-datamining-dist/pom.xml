@@ -42,6 +42,11 @@
     </dependency>
     <dependency>
       <groupId>org.hawkular.datamining</groupId>
+      <artifactId>hawkular-datamining-cdi</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hawkular.datamining</groupId>
       <artifactId>hawkular-datamining-rest</artifactId>
       <version>${project.version}</version>
       <type>war</type>
@@ -51,6 +56,13 @@
       <groupId>org.hawkular.alerts</groupId>
       <artifactId>hawkular-alerts-bus-api</artifactId>
       <version>${version.org.hawkular.alerts}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hawkular.commons</groupId>
+      <artifactId>hawkular-bus-common</artifactId>
+      <version>${version.org.hawkular.commons}</version>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -69,23 +81,20 @@
     <dependency>
       <groupId>org.jboss.spec.javax.ejb</groupId>
       <artifactId>jboss-ejb-api_3.2_spec</artifactId>
-      <version>${version.org.jboss.spec.javax.ejb.jboss-ejb-api_3.2_spec}</version>
       <scope>provided</scope>
     </dependency>
-
+    <dependency>
+      <groupId>javax.enterprise</groupId>
+      <artifactId>cdi-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>org.jboss.spec.javax.jms</groupId>
       <artifactId>jboss-jms-api_2.0_spec</artifactId>
       <scope>provided</scope>
     </dependency>
 
-    <dependency>
-      <groupId>org.hawkular.commons</groupId>
-      <artifactId>hawkular-bus-common</artifactId>
-      <version>${version.org.hawkular.commons}</version>
-      <scope>provided</scope>
-    </dependency>
-
+    <!-- JSON -->
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
       <artifactId>resteasy-jackson2-provider</artifactId>
@@ -94,7 +103,6 @@
   </dependencies>
 
   <build>
-    <!-- Build war -->
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -105,10 +113,13 @@
             <overlay>
               <groupId>org.hawkular.datamining</groupId>
               <artifactId>hawkular-datamining-rest</artifactId>
+              <excludes>
+                <exclude>WEB-INF/*</exclude>
+              </excludes>
             </overlay>
-            <overlay>
+            <!--<overlay>-->
               <!-- empty groupId/artifactId represents the current build -->
-            </overlay>
+            <!--</overlay>-->
           </overlays>
         </configuration>
       </plugin>
@@ -157,8 +168,7 @@
                       <version>${project.version}</version>
                       <type>war</type>
                       <overWrite>false</overWrite>
-                      <outputDirectory>
-                        ${project.build.directory}/wildfly-${version.org.wildfly}/standalone/deployments</outputDirectory>
+                      <outputDirectory>${project.build.directory}/wildfly-${version.org.wildfly}/standalone/deployments</outputDirectory>
                     </artifactItem>
                   </artifactItems>
                   <outputDirectory>${project.build.directory}/wars</outputDirectory>

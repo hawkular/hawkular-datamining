@@ -31,8 +31,8 @@ import org.hawkular.bus.common.Endpoint;
 import org.hawkular.bus.common.MessageProcessor;
 import org.hawkular.bus.common.producer.ProducerConnectionContext;
 import org.hawkular.datamining.api.storage.PredictionListener;
+import org.hawkular.datamining.dist.Logger;
 import org.hawkular.datamining.forecast.DataPoint;
-import org.hawkular.datamining.integration.Logger;
 
 /**
  * @author Pavol Loffay

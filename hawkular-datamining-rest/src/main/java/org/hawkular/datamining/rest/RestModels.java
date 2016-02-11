@@ -34,10 +34,10 @@ import javax.ws.rs.core.Response;
 
 import org.hawkular.datamining.api.Constants;
 import org.hawkular.datamining.api.DataMiningEngine;
-import org.hawkular.datamining.api.Official;
 import org.hawkular.datamining.api.SubscriptionManager;
 import org.hawkular.datamining.api.model.Metric;
 import org.hawkular.datamining.api.model.MetricData;
+import org.hawkular.datamining.cdi.qualifiers.Official;
 
 /**
  * @author Pavol Loffay

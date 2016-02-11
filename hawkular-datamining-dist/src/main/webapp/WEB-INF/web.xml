@@ -17,12 +17,15 @@
     limitations under the License.
 
 -->
-<beans xmlns="http://xmlns.jcp.org/xml/ns/javaee"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/beans_1_1.xsd"
-       version="1.1" bean-discovery-mode="all">
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         version="3.1">
 
-  <alternatives>
-    <class>org.hawkular.datamining.dist.integration.metrics.RestMetricsClient</class>
-  </alternatives>
-</beans>
+  <display-name>Hawkular Data mining</display-name>
+
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+  </welcome-file-list>
+
+</web-app>

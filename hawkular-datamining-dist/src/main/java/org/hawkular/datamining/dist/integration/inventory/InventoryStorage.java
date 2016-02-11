@@ -14,21 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.hawkular.datamining.dist.integration.inventory;
 
-package org.hawkular.datamining.integration;
+import java.util.Set;
+
+import org.hawkular.inventory.api.model.CanonicalPath;
+import org.hawkular.inventory.api.model.Metric;
+import org.hawkular.inventory.api.model.Relationship;
 
 /**
  * @author Pavol Loffay
  */
-public class Configuration {
+public interface InventoryStorage {
 
-    public static final String TOPIC_INVENTORY_CHANGES = "HawkularInventoryChanges";
-    public static final String QUEUE_INVENTORY_QUERY = "HawkularInventoryQuery";
+    Set<Relationship> predictionRelationships(CanonicalPath... targetEntity);
 
-    public static final String PREDICTION_RELATIONSHIP = "__inPrediction";
-    public static final String PREDICTION_INTERVAL_PROP = "forecastingHorizon";
+    Metric metric(CanonicalPath metric);
 
-    public static final String BROKER_URL = "tcp://localhost:62626";
-    public static final String TOPIC_METRIC_DATA = "HawkularMetricData";
+    Set<Metric> metricsOfType(CanonicalPath metricType);
+
+    Set<Metric> metricsUnderTenant(CanonicalPath tenant);
+
+    void addPredictionRelationship(Relationship relationship);
+    void removePredictionRelationship(Relationship relationship);
 }
-

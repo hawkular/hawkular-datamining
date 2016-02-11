@@ -21,11 +21,11 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.hawkular.datamining.api.Official;
 import org.hawkular.datamining.api.SubscriptionManager;
 import org.hawkular.datamining.api.base.DataMiningEngine;
 import org.hawkular.datamining.api.model.MetricData;
 import org.hawkular.datamining.cdi.Logger;
+import org.hawkular.datamining.cdi.qualifiers.Official;
 
 
 /**

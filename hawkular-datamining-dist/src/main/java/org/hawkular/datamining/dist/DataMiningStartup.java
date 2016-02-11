@@ -24,9 +24,9 @@ import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 
 import org.hawkular.datamining.api.DataMiningEngine;
-import org.hawkular.datamining.api.Official;
 import org.hawkular.datamining.api.model.MetricData;
-import org.hawkular.datamining.integration.metrics.listener.MetricDataListener;
+import org.hawkular.datamining.cdi.qualifiers.Official;
+import org.hawkular.datamining.dist.integration.metrics.listener.MetricDataListener;
 import org.jboss.logging.Logger;
 
 /**

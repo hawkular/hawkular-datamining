@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.datamining.integration.inventory;
+package org.hawkular.datamining.dist.integration.inventory;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.hawkular.datamining.api.SubscriptionManager;
-import org.hawkular.datamining.integration.Configuration;
+import org.hawkular.datamining.dist.integration.Configuration;
 import org.hawkular.inventory.api.model.AbstractElement;
 import org.hawkular.inventory.api.model.CanonicalPath;
 import org.hawkular.inventory.api.model.Metric;

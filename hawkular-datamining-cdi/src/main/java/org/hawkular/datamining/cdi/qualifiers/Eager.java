@@ -14,22 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.datamining.integration.inventory;
 
-import java.util.HashMap;
-import java.util.Map;
+package org.hawkular.datamining.cdi.qualifiers;
 
-import org.hawkular.inventory.api.model.CanonicalPath;
-import org.hawkular.inventory.api.model.Relationship;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * @author Pavol Loffay
  */
-public class PredictionRelationshipsCache {
-
-    private Map<CanonicalPath, Relationship> targetEntityRelationships = new HashMap<>();
-
-    public Map<CanonicalPath, Relationship> relationships() {
-        return targetEntityRelationships;
-    }
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface Eager {
 }

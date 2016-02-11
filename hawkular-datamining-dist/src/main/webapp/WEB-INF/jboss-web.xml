@@ -17,12 +17,9 @@
     limitations under the License.
 
 -->
-<beans xmlns="http://xmlns.jcp.org/xml/ns/javaee"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/beans_1_1.xsd"
-       version="1.1" bean-discovery-mode="all">
-
-  <alternatives>
-    <class>org.hawkular.datamining.dist.integration.metrics.RestMetricsClient</class>
-  </alternatives>
-</beans>
+<!-- JbossWeb specific You need only to use it if you want properties and behaviour
+     that extent the web.xml of the Servlet 3.0 specifications
+     https://docs.jboss.org/jbossweb/7.0.x/appdev/jbossweb.html -->
+<jboss-web>
+  <context-root>/hawkular/datamining</context-root>
+</jboss-web>

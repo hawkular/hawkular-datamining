@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.integration.metrics.listener;
+package org.hawkular.datamining.dist.integration.metrics.listener;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -30,8 +30,8 @@ import org.hawkular.bus.common.consumer.BasicMessageListener;
 import org.hawkular.bus.common.consumer.ConsumerConnectionContext;
 import org.hawkular.datamining.api.DataMiningEngine;
 import org.hawkular.datamining.api.model.MetricData;
-import org.hawkular.datamining.integration.Configuration;
-import org.hawkular.datamining.integration.Logger;
+import org.hawkular.datamining.dist.Logger;
+import org.hawkular.datamining.dist.integration.Configuration;
 
 /**
  * @author Pavol Loffay

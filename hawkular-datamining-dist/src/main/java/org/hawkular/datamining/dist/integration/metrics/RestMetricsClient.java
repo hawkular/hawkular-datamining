@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.integration.metrics;
+package org.hawkular.datamining.dist.integration.metrics;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -25,12 +25,13 @@ import java.util.List;
 import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Alternative;
 
 import org.hawkular.datamining.api.Constants;
 import org.hawkular.datamining.api.model.BucketPoint;
 import org.hawkular.datamining.api.storage.MetricsClient;
+import org.hawkular.datamining.dist.Logger;
 import org.hawkular.datamining.forecast.DataPoint;
-import org.hawkular.datamining.integration.Logger;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -42,6 +43,7 @@ import com.squareup.okhttp.Response;
 /**
  * @author Pavol Loffay
  */
+@Alternative
 @ApplicationScoped
 public class RestMetricsClient implements MetricsClient {
 

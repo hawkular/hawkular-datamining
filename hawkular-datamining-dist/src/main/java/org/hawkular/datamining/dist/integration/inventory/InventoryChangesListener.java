@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.integration.inventory;
+package org.hawkular.datamining.dist.integration.inventory;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -37,8 +37,8 @@ import org.hawkular.datamining.api.Subscription;
 import org.hawkular.datamining.api.SubscriptionManager;
 import org.hawkular.datamining.api.TenantSubscriptions;
 import org.hawkular.datamining.api.exception.DataMiningException;
-import org.hawkular.datamining.api.util.Eager;
-import org.hawkular.datamining.integration.Configuration;
+import org.hawkular.datamining.cdi.qualifiers.Eager;
+import org.hawkular.datamining.dist.integration.Configuration;
 import org.hawkular.inventory.api.Action;
 import org.hawkular.inventory.api.model.CanonicalPath;
 import org.hawkular.inventory.api.model.Metric;

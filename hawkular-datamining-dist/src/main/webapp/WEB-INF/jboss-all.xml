@@ -17,12 +17,10 @@
     limitations under the License.
 
 -->
-<beans xmlns="http://xmlns.jcp.org/xml/ns/javaee"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/beans_1_1.xsd"
-       version="1.1" bean-discovery-mode="all">
-
-  <alternatives>
-    <class>org.hawkular.datamining.dist.integration.metrics.RestMetricsClient</class>
-  </alternatives>
-</beans>
+<!-- specify deployment dependency (order)-->
+<jboss umlns="urn:jboss:1.0">
+  <jboss-deployment-dependencies xmlns="urn:jboss:deployment-dependencies:1.0">
+    <dependency name="hawkular-inventory-dist.war"/>
+    <dependency name="hawkular-commons-embedded-cassandra-ear.ear"/>
+  </jboss-deployment-dependencies>
+</jboss>

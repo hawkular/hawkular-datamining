@@ -14,20 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.datamining.api;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import javax.inject.Qualifier;
+package org.hawkular.datamining.dist.integration;
 
 /**
  * @author Pavol Loffay
  */
-@Qualifier
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD})
-public @interface Official {
+public class Configuration {
+
+    public static final String TOPIC_INVENTORY_CHANGES = "HawkularInventoryChanges";
+    public static final String QUEUE_INVENTORY_QUERY = "HawkularInventoryQuery";
+
+    public static final String PREDICTION_RELATIONSHIP = "__inPrediction";
+    public static final String PREDICTION_INTERVAL_PROP = "forecastingHorizon";
+
+    public static final String BROKER_URL = "tcp://localhost:62626";
+    public static final String TOPIC_METRIC_DATA = "HawkularMetricData";
 }
+

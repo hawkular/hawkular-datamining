@@ -14,27 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.datamining.integration.inventory;
+package org.hawkular.datamining.dist.integration.inventory;
 
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.hawkular.inventory.api.model.CanonicalPath;
-import org.hawkular.inventory.api.model.Metric;
 import org.hawkular.inventory.api.model.Relationship;
 
 /**
  * @author Pavol Loffay
  */
-public interface InventoryStorage {
+public class PredictionRelationshipsCache {
 
-    Set<Relationship> predictionRelationships(CanonicalPath... targetEntity);
+    private Map<CanonicalPath, Relationship> targetEntityRelationships = new HashMap<>();
 
-    Metric metric(CanonicalPath metric);
-
-    Set<Metric> metricsOfType(CanonicalPath metricType);
-
-    Set<Metric> metricsUnderTenant(CanonicalPath tenant);
-
-    void addPredictionRelationship(Relationship relationship);
-    void removePredictionRelationship(Relationship relationship);
+    public Map<CanonicalPath, Relationship> relationships() {
+        return targetEntityRelationships;
+    }
 }
