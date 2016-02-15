@@ -23,17 +23,17 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 
-import org.hawkular.datamining.api.ForecastingEngine;
-import org.hawkular.datamining.api.Official;
+import org.hawkular.datamining.api.DataMiningEngine;
 import org.hawkular.datamining.api.model.MetricData;
-import org.hawkular.datamining.bus.listener.MetricDataListener;
+import org.hawkular.datamining.cdi.qualifiers.Official;
+import org.hawkular.datamining.dist.integration.metrics.listener.MetricDataListener;
 import org.jboss.logging.Logger;
 
 /**
  * @author Pavol Loffay
  */
 @Startup
-@Singleton
+@Singleton //todo eager?
 @TransactionAttribute(value = TransactionAttributeType.NOT_SUPPORTED) //todo never?
 public class DataMiningStartup {
 
@@ -41,14 +41,14 @@ public class DataMiningStartup {
 
     @Official
     @Inject
-    private ForecastingEngine<MetricData> forecastingEngine;
+    private DataMiningEngine<MetricData> dataMiningEngine;
 
     private MetricDataListener metricDataListener;
 
     @PostConstruct
     public void postConstruct() {
 
-        metricDataListener = new MetricDataListener(forecastingEngine);
+        metricDataListener = new MetricDataListener(dataMiningEngine);
 
         LOG.debug("Ejb starting");
     }

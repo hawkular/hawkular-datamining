@@ -35,10 +35,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.hawkular.datamining.api.Constants;
-import org.hawkular.datamining.api.ForecastingEngine;
-import org.hawkular.datamining.api.Official;
-import org.hawkular.datamining.api.model.DataPoint;
+import org.hawkular.datamining.api.DataMiningEngine;
 import org.hawkular.datamining.api.model.MetricData;
+import org.hawkular.datamining.cdi.qualifiers.Official;
+import org.hawkular.datamining.forecast.DataPoint;
 
 /**
  * @author Pavol Loffay
@@ -53,7 +53,7 @@ public class RestPredictions {
 
     @Inject
     @Official
-    private ForecastingEngine<MetricData> forecastingEngine;
+    private DataMiningEngine<MetricData> dataMiningEngine;
 
 
     @GET
@@ -61,7 +61,7 @@ public class RestPredictions {
     public Response predict(@PathParam("metricId") String metricId,
                             @DefaultValue("1") @QueryParam("ahead") int ahead) {
 
-        List<DataPoint> dataPoints = forecastingEngine.predict(tenant, metricId, ahead);
+        List<DataPoint> dataPoints = dataMiningEngine.predict(tenant, metricId, ahead);
 
         return Response.ok().entity(dataPoints).build();
     }
@@ -75,7 +75,7 @@ public class RestPredictions {
         metricData.addAll(data.stream().map(point -> new MetricData(tenant, id, point.getTimestamp(), point.getValue()))
                 .collect(Collectors.toList()));
 
-        forecastingEngine.process(metricData);
+        dataMiningEngine.process(metricData);
 
         return Response.status(Response.Status.NO_CONTENT).build();
     }

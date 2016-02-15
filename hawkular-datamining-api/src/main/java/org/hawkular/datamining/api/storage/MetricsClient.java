@@ -19,7 +19,7 @@ package org.hawkular.datamining.api.storage;
 import java.util.List;
 
 import org.hawkular.datamining.api.model.BucketPoint;
-import org.hawkular.datamining.api.model.DataPoint;
+import org.hawkular.datamining.forecast.DataPoint;
 
 /**
  * @author Pavol Loffay

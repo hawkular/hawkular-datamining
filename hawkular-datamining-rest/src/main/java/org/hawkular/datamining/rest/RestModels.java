@@ -33,11 +33,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.hawkular.datamining.api.Constants;
-import org.hawkular.datamining.api.ForecastingEngine;
-import org.hawkular.datamining.api.ModelManager;
-import org.hawkular.datamining.api.Official;
+import org.hawkular.datamining.api.DataMiningEngine;
+import org.hawkular.datamining.api.SubscriptionManager;
 import org.hawkular.datamining.api.model.Metric;
 import org.hawkular.datamining.api.model.MetricData;
+import org.hawkular.datamining.cdi.qualifiers.Official;
 
 /**
  * @author Pavol Loffay
@@ -48,11 +48,11 @@ import org.hawkular.datamining.api.model.MetricData;
 public class RestModels {
 
     @Inject
-    private ModelManager modelManager;
+    private SubscriptionManager subscriptionManager;
 
     @Official
     @Inject
-    private ForecastingEngine<MetricData> forecastingEngine = null;
+    private DataMiningEngine<MetricData> dataMiningEngine = null;
 
     @HeaderParam(Constants.TENANT_HEADER_NAME)
     private String tenant;
@@ -61,7 +61,7 @@ public class RestModels {
     @GET
     @Path("/models")
     public Response getAll() {
-        Set<Metric> tenantsSubscriptions = modelManager.metricsOfTenant(tenant);
+        Set<Metric> tenantsSubscriptions = subscriptionManager.metricsOfTenant(tenant);
 
         return Response.status(Response.Status.OK).entity(tenantsSubscriptions).build();
     }
@@ -69,7 +69,7 @@ public class RestModels {
     @GET
     @Path("/models/{metricId}")
     public Response getOne(@PathParam("metricId") String metricId) {
-        Metric metric = modelManager.subscription(tenant, metricId);
+        Metric metric = subscriptionManager.metric(tenant, metricId);
 
         return Response.status(Response.Status.OK).entity(metric).build();
     }
@@ -79,8 +79,8 @@ public class RestModels {
     public Response subscribe(Metric.RestBlueprint blueprint) {
 
         Metric metric = new Metric(blueprint, tenant, null);
-        modelManager.subscribe(metric,
-                new HashSet<>(Arrays.asList(ModelManager.ModelOwner.Metric)));
+        subscriptionManager.subscribe(metric,
+                new HashSet<>(Arrays.asList(SubscriptionManager.ModelOwner.Metric)));
 
         return Response.status(Response.Status.CREATED).build();
     }
@@ -89,7 +89,7 @@ public class RestModels {
     @Path("/models/{id}")
     public Response unSubscribe(@PathParam("id") String metricId) {
 
-        modelManager.unSubscribe(tenant, metricId);
+        subscriptionManager.unSubscribe(tenant, metricId);
 
         return Response.status(Response.Status.NO_CONTENT).build();
     }

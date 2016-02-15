@@ -28,11 +28,9 @@
     </exclusions>
     <dependencies>
       <module name="org.jboss.resteasy.resteasy-jackson2-provider" services="import"/>
-      <module name="deployment.hawkular-inventory-dist.war" services="import"/>
 
       <module name="javax.jms.api" />
       <module name="javaee.api" />
-      <module name="org.hawkular.bus" />
     </dependencies>
   </deployment>
 </jboss-deployment-structure>
