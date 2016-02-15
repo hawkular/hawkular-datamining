@@ -13,6 +13,6 @@ cache:
   - $HOME/.m2
 
 install:
-- mvn -s .travis.maven.settings.xml clean install
+- mvn -s .travis.maven.settings.xml clean install -Pitest
 - df -h
 - du -sh $HOME/.m2/repository

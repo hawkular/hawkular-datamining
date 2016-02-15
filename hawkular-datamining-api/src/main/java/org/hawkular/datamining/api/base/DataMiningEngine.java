@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.hawkular.datamining.api.Subscription;
 import org.hawkular.datamining.api.SubscriptionManager;
+import org.hawkular.datamining.api.exception.SubscriptionNotFoundException;
 import org.hawkular.datamining.api.model.MetricData;
 import org.hawkular.datamining.api.storage.PredictionListener;
 import org.hawkular.datamining.forecast.DataPoint;
@@ -44,7 +45,7 @@ public class DataMiningEngine implements org.hawkular.datamining.api.DataMiningE
     @Override
     public void process(MetricData metricData) {
         if (!subscriptionManager.subscribes(metricData.getTenant(), metricData.getMetricId())) {
-            return;
+            throw new SubscriptionNotFoundException(metricData.getTenant(), metricData.getMetricId());
         }
 
         Subscription subscription = subscriptionManager.subscription(metricData.getTenant(), metricData.getMetricId());

@@ -19,6 +19,7 @@ package org.hawkular.datamining.forecast.model;
 
 import static java.lang.Math.abs;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -82,7 +83,14 @@ public class SimpleExponentialSmoothing implements TimeSeriesModel {
 
     @Override
     public List<DataPoint> forecast(int nAhead) {
-        return null;
+        double prediction = calculatePrediction();
+
+        List<DataPoint> dataPoints = new ArrayList<>(nAhead);
+        for (int i = 0; i < nAhead; i++) {
+            dataPoints.add(new DataPoint(prediction, (long)i));
+        }
+
+        return dataPoints;
     }
 
     public AccuracyStatistics init(List<DataPoint> dataPoints) {

@@ -35,7 +35,7 @@ import com.google.common.collect.EvictingQueue;
  */
 public class AutomaticForecaster implements Forecaster {
 
-    public static final int WINDOW_SIZE = 50;
+    public static final int WINDOW_SIZE = 10;
     public static final int MIN_SIZE = 20;
 
     private long counter;
@@ -61,16 +61,21 @@ public class AutomaticForecaster implements Forecaster {
 
     @Override
     public void learn(List<DataPoint> dataPoints) {
+
         sortPoints(dataPoints);
-        window.addAll(dataPoints);
 
-        counter += dataPoints.size();
+        dataPoints.forEach(dataPoint -> {
+            window.add(dataPoint);
 
-        if (dataPoints.size() >= WINDOW_SIZE || counter % WINDOW_SIZE == 0) {
-            useBestModel();
-        }
+            if (++counter % WINDOW_SIZE == 0) {
+                useBestModel();
+                counter = 0;
+            }
 
-        usedModel.learn(dataPoints);
+            if (usedModel != null) {
+                usedModel.learn(dataPoint);
+            }
+        });
     }
 
     @Override
@@ -98,10 +103,10 @@ public class AutomaticForecaster implements Forecaster {
 
             TimeSeriesModel model = modelOptimizer.minimizedMSE(initPoints);
 
-            AccuracyStatistics accurancy = model.init(initPoints);
+            AccuracyStatistics accuracy = model.init(initPoints);
 
-            if (accurancy.getMse() < bestModelMSE) {
-                bestModelMSE = accurancy.getMse();
+            if (accuracy.getMse() < bestModelMSE) {
+                bestModelMSE = accuracy.getMse();
                 bestModel = model;
             }
         }
