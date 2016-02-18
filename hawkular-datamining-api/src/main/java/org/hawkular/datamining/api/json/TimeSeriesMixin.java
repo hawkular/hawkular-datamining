@@ -14,17 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.datamining.api.storage;
 
-import java.util.List;
+package org.hawkular.datamining.api.json;
 
-import org.hawkular.datamining.forecast.DataPoint;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author Pavol Loffay
  */
-public interface PredictionListener {
+public abstract class TimeSeriesMixin {
 
-    void send(List<DataPoint> predictedPoints, String tenant, String metricId);
+    @JsonProperty
+    public abstract String name();
 }

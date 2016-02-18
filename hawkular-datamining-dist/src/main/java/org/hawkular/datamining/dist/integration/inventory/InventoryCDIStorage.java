@@ -17,18 +17,18 @@
 
 package org.hawkular.datamining.dist.integration.inventory;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.hawkular.datamining.api.Subscription;
 import org.hawkular.datamining.api.SubscriptionManager;
-import org.hawkular.datamining.api.TenantSubscriptions;
+import org.hawkular.datamining.api.base.DataMiningForecaster;
+import org.hawkular.datamining.api.base.DataMiningSubscription;
 import org.hawkular.datamining.cdi.qualifiers.Eager;
 import org.hawkular.datamining.dist.Logger;
 import org.hawkular.datamining.dist.integration.Configuration;
@@ -59,22 +59,46 @@ public class InventoryCDIStorage implements InventoryStorage {
     @Inject
     private SubscriptionManager subscriptionManager;
 
-    private PredictionRelationshipsCache predictionRelationshipsCache;
+    private PredictionRelationships predictionRelationships;
 
     @PostConstruct
     public void init() {
-        predictionRelationshipsCache = new PredictionRelationshipsCache();
+        predictionRelationships = new PredictionRelationships();
 
-        Map<org.hawkular.datamining.api.model.Metric, Set<SubscriptionManager.ModelOwner>> allPredictedMetrics =
-                getAllPredictedMetrics();
+        Set<Metric> predictedMetrics = getAllPredictedMetrics();
 
-        for (Map.Entry<org.hawkular.datamining.api.model.Metric, Set<SubscriptionManager.ModelOwner>> entry:
-                allPredictedMetrics.entrySet()) {
+        predictedMetrics.forEach(metric -> {
+            CanonicalPath tenantCp = metric.getPath().getRoot();
+            CanonicalPath metricTypeCp = metric.getType().getPath();
+            CanonicalPath metricCp = metric.getPath();
 
-            subscriptionManager.subscribe(entry.getKey(), entry.getValue());
-        }
+            org.hawkular.datamining.api.model.Metric dataMMetric = InventoryUtil.convertMetric(metric);
 
-      Logger.LOGGER.inventoryInitialized(allPredictedMetrics.size());
+            Set<Subscription.SubscriptionOwner> subscriptionOwners = new HashSet<>();
+            CanonicalPath forecastingHorizonCp = null;
+            if (predictionRelationships.relationships().get(tenantCp) != null) {
+                subscriptionOwners.add(Subscription.SubscriptionOwner.Tenant);
+                forecastingHorizonCp = tenantCp;
+            }
+            if (predictionRelationships.relationships().get(metricTypeCp) != null) {
+                subscriptionOwners.add(Subscription.SubscriptionOwner.MetricType);
+                forecastingHorizonCp = metricTypeCp;
+            }
+            if (predictionRelationships.relationships().get(metricCp) != null) {
+                subscriptionOwners.add(Subscription.SubscriptionOwner.Metric);
+                forecastingHorizonCp = metricCp;
+            }
+
+            Long forecastingHorizon = InventoryUtil.parseForecastingHorizon(predictionRelationships.relationships()
+                    .get(forecastingHorizonCp));
+
+            final Subscription subscription = new DataMiningSubscription(
+                    new DataMiningForecaster(dataMMetric, forecastingHorizon), subscriptionOwners);
+
+            subscriptionManager.subscribe(subscription);
+        });
+
+        Logger.LOGGER.inventoryInitialized(predictedMetrics.size());
     }
 
     @Override
@@ -87,7 +111,7 @@ public class InventoryCDIStorage implements InventoryStorage {
 
         Set<Relationship> result = new HashSet<>();
         for (CanonicalPath target: targetEntity) {
-            Relationship relationship  = predictionRelationshipsCache.relationships().get(target);
+            Relationship relationship  = predictionRelationships.relationships().get(target);
 
             if (relationship != null) {
                 result.add(relationship);
@@ -129,16 +153,15 @@ public class InventoryCDIStorage implements InventoryStorage {
 
     @Override
     public void addPredictionRelationship(Relationship relationship) {
-        predictionRelationshipsCache.relationships().put(relationship.getTarget(), relationship);
+        predictionRelationships.relationships().put(relationship.getTarget(), relationship);
     }
 
     @Override
     public void removePredictionRelationship(Relationship relationship) {
-        predictionRelationshipsCache.relationships().remove(relationship);
+        predictionRelationships.relationships().remove(relationship.getTarget());
     }
 
-    private Map<org.hawkular.datamining.api.model.Metric, Set<SubscriptionManager.ModelOwner>>
-    getAllPredictedMetrics() {
+    private Set<Metric> getAllPredictedMetrics() {
 
         Set<Relationship> relationships =
                 inventory.relationships().named(Configuration.PREDICTION_RELATIONSHIP).entities();
@@ -147,20 +170,15 @@ public class InventoryCDIStorage implements InventoryStorage {
         Set<CanonicalPath> metricTypesCp = new HashSet<>();
         Set<CanonicalPath> tenantsCp = new HashSet<>();
 
-        for (Relationship relationship: relationships) {
+        for (Relationship relationship : relationships) {
 
-            predictionRelationshipsCache.relationships().put(relationship.getTarget(), relationship);
+            predictionRelationships.relationships().put(relationship.getTarget(), relationship);
 
             if (relationship.getTarget().getSegment().getElementType().equals(Metric.class)) {
                 metricsCp.add(relationship.getTarget());
             } else if (relationship.getTarget().getSegment().getElementType().equals(MetricType.class)) {
                 metricTypesCp.add(relationship.getTarget());
             } else if (relationship.getTarget().getSegment().getElementType().equals(Tenant.class)) {
-
-                TenantSubscriptions tenantSubscriptions = new TenantSubscriptions(InventoryUtil
-                        .parseForecastingHorizon(relationship.getProperties()));
-                subscriptionManager.subscribe(relationship.getTarget().ids().getTenantId(), tenantSubscriptions);
-
                 tenantsCp.add(relationship.getTarget());
             }
         }
@@ -170,71 +188,11 @@ public class InventoryCDIStorage implements InventoryStorage {
         Set<Metric> metricsUnderTypes = inventory.tenants().getAll().feeds().getAll().metricTypes()
                 .getAll(With.paths(metricTypesCp.toArray(new CanonicalPath[0]))).metrics().getAll().entities();
         Set<Metric> metricsUnderTenant = inventory.tenants().getAll(With.paths(tenantsCp.toArray(new CanonicalPath[0])))
-                        .feeds().getAll().metrics().getAll().entities();
+                .feeds().getAll().metrics().getAll().entities();
 
         metrics.addAll(metricsUnderTypes);
         metrics.addAll(metricsUnderTenant);
 
-
-        Set<org.hawkular.datamining.api.model.Metric> dataminingMetrics =
-                InventoryUtil.convertMetrics(metrics, relationships);
-
-        return metricsWithOwnersOfSubscription(relationships, dataminingMetrics);
-    }
-
-    private Map<org.hawkular.datamining.api.model.Metric, Set<SubscriptionManager.ModelOwner>>
-    metricsWithOwnersOfSubscription(Set<Relationship> relationships,
-                                    Set<org.hawkular.datamining.api.model.Metric> dataminingMetrics) {
-
-        Map<org.hawkular.datamining.api.model.Metric, Set<SubscriptionManager.ModelOwner>> result =
-                new HashMap<>();
-
-        Map<String, SubscriptionManager.ModelOwner> metrics = toIdAndOwner(relationships,
-                SubscriptionManager.ModelOwner.Metric);
-        Map<String, SubscriptionManager.ModelOwner> metricTypes = toIdAndOwner(relationships,
-                SubscriptionManager.ModelOwner.MetricType);
-        Map<String, SubscriptionManager.ModelOwner> tenants = toIdAndOwner(relationships,
-                SubscriptionManager.ModelOwner.Tenant);
-
-        for (org.hawkular.datamining.api.model.Metric metric: dataminingMetrics) {
-            Set<SubscriptionManager.ModelOwner> modelOwners = new HashSet<>();
-
-            if (metrics.get(metric.getId()) != null) {
-                modelOwners.add(SubscriptionManager.ModelOwner.Metric);
-            }
-
-            if (metricTypes.get(metric.getMetricType().getPath()) != null) {
-                modelOwners.add(SubscriptionManager.ModelOwner.MetricType);
-            }
-
-            if (tenants.get(metric.getTenant()) != null) {
-                modelOwners.add(SubscriptionManager.ModelOwner.Tenant);
-            }
-
-            result.put(metric, modelOwners);
-        }
-
-        return result;
-    }
-
-    private Map<String, SubscriptionManager.ModelOwner> toIdAndOwner(Set<Relationship> relationships,
-                                                                     SubscriptionManager.ModelOwner owner) {
-        Map<String, SubscriptionManager.ModelOwner> result = new HashMap<>();
-
-        for (Relationship relationship: relationships) {
-            Class<?> target = relationship.getTarget().getSegment().getElementType();
-
-            if (owner.equals(SubscriptionManager.ModelOwner.Metric) && target.equals(Metric.class)) {
-                result.put(relationship.getTarget().ids().getMetricId(), SubscriptionManager.ModelOwner.Metric);
-            } else if (owner.equals(SubscriptionManager.ModelOwner.MetricType) &&
-                    target.equals(MetricType.class)) {
-                result.put(relationship.getTarget().toString(),
-                        SubscriptionManager.ModelOwner.MetricType);
-            } else if (owner.equals(SubscriptionManager.ModelOwner.Tenant) && target.equals(Tenant.class)) {
-                result.put(relationship.getTarget().ids().getTenantId(), SubscriptionManager.ModelOwner.Tenant);
-            }
-        }
-
-        return result;
+        return metrics;
     }
 }

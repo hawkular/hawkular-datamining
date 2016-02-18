@@ -35,7 +35,8 @@ import org.hawkular.bus.common.MessageProcessor;
 import org.hawkular.bus.common.consumer.ConsumerConnectionContext;
 import org.hawkular.datamining.api.Subscription;
 import org.hawkular.datamining.api.SubscriptionManager;
-import org.hawkular.datamining.api.TenantSubscriptions;
+import org.hawkular.datamining.api.base.DataMiningForecaster;
+import org.hawkular.datamining.api.base.DataMiningSubscription;
 import org.hawkular.datamining.api.exception.DataMiningException;
 import org.hawkular.datamining.cdi.qualifiers.Eager;
 import org.hawkular.datamining.dist.integration.Configuration;
@@ -119,7 +120,7 @@ public class InventoryChangesListener extends InventoryEventMessageListener {
             return;
         }
 
-       final Long forecastingHorizon = InventoryUtil.parseForecastingHorizon(relationship.getProperties());
+       final Long forecastingHorizon = InventoryUtil.parseForecastingHorizon(relationship);
 
         switch (action) {
             case CREATED: {
@@ -128,107 +129,104 @@ public class InventoryChangesListener extends InventoryEventMessageListener {
                 if (target.getSegment().getElementType().equals(Metric.class)) {
 
                     Metric metric = inventoryStorage.metric(target);
-                    org.hawkular.datamining.api.model.Metric dataminingMetric =
-                            InventoryUtil.convertMetric(metric, relationship);
+                    if (subscriptionManager.subscribes(metric.getPath().ids().getTenantId(), metric.getId())) {
+                        Subscription subscription =
+                                subscriptionManager.subscription(metric.getPath().ids().getTenantId(), metric.getId());
 
-                    subscriptionManager.subscribe(dataminingMetric,
-                            InventoryUtil.predictionRelationshipsToOwners(relationship));
+                        subscription.addSubscriptionOwner(Subscription.SubscriptionOwner.Metric);
+                        subscription.forecaster().setForecastingHorizon(forecastingHorizon);
+                    } else {
+                        org.hawkular.datamining.api.model.Metric dataminingMetric =
+                                InventoryUtil.convertMetric(metric);
 
-                } else if (target.getSegment().getElementType().equals(MetricType.class)){
+                        final Subscription subscription = new DataMiningSubscription(
+                                new DataMiningForecaster(dataminingMetric, forecastingHorizon),
+                                new HashSet<>(Arrays.asList(Subscription.SubscriptionOwner.Metric)));
+                        subscriptionManager.subscribe(subscription);
+                    }
+                } else if (target.getSegment().getElementType().equals(MetricType.class)) {
                     // get all metrics of that type
                     Set<Metric> metrics = inventoryStorage.metricsOfType(target);
-                    Set<org.hawkular.datamining.api.model.Metric> dataminingMetrics =
-                            InventoryUtil.convertMetrics(metrics,
-                                    new HashSet<>(Arrays.asList(relationship)));
 
-                    dataminingMetrics.forEach(metric ->
-                            subscriptionManager.subscribe(metric,
-                                    InventoryUtil.predictionRelationshipsToOwners(relationship)));
+                    metrics.forEach(metric1 -> {
+                        if (subscriptionManager.subscribes(metric1.getPath().ids().getTenantId(), metric1.getId())) {
+                            Subscription subscription = subscriptionManager
+                                    .subscription(metric1.getPath().ids().getTenantId(), metric1.getId());
+                            if (!subscription.getSubscriptionOwners().contains(Subscription.SubscriptionOwner.Metric)) {
+                                subscription.forecaster().setForecastingHorizon(forecastingHorizon);
+                            }
+                            subscription.addSubscriptionOwner(Subscription.SubscriptionOwner.MetricType);
+                        } else {
+                            // convert and subscribe
+                            org.hawkular.datamining.api.model.Metric dataminingMetric =
+                                    InventoryUtil.convertMetric(metric1);
+                            final Subscription subscription = new DataMiningSubscription(
+                                    new DataMiningForecaster(dataminingMetric, forecastingHorizon),
+                                    new HashSet<>(Arrays.asList(Subscription.SubscriptionOwner.MetricType)));
+                            subscriptionManager.subscribe(subscription);
+                        }
+                    });
                 } else {
                     // tenant
                     CanonicalPath tenant = relationship.getTarget();
                     Set<Metric> metricsUnderTenant = inventoryStorage.metricsUnderTenant(tenant);
 
-                    Set<CanonicalPath> metricsMetricAndTypes = new HashSet<>();
-                    for (Metric metric: metricsUnderTenant) {
-                        metricsMetricAndTypes.add(metric.getPath());
-                        metricsMetricAndTypes.add(metric.getType().getPath());
-                    }
+                    metricsUnderTenant.forEach(metric1 -> {
+                        if (subscriptionManager.subscribes(metric1.getPath().ids().getTenantId(), metric1.getId())) {
+                            Subscription subscription = subscriptionManager
+                                    .subscription(metric1.getPath().ids().getTenantId(), metric1.getId());
+                            if (!subscription.getSubscriptionOwners().containsAll(Arrays.asList(
+                                    Subscription.SubscriptionOwner.Metric,
+                                    Subscription.SubscriptionOwner.MetricType))) {
+                                subscription.forecaster().setForecastingHorizon(forecastingHorizon);
+                            }
 
-                    Set<Relationship> relationships = inventoryStorage
-                            .predictionRelationships(metricsMetricAndTypes.toArray(new CanonicalPath[0]));
-
-                    Set<org.hawkular.datamining.api.model.Metric> dataminingMetrics =
-                            InventoryUtil.convertMetrics(metricsUnderTenant, relationships);
-
-                    dataminingMetrics.forEach(metric ->
-                            subscriptionManager.subscribe(metric,
-                                    InventoryUtil.predictionRelationshipsToOwners(relationship)));
-
-                    // set prediction interval for tenant
-                    subscriptionManager.subscriptionsOfTenant(tenant.ids().getTenantId())
-                            .setForecastingHorizon(forecastingHorizon);
-                }
-            }
-                break;
-            case UPDATED: {
-                inventoryStorage.addPredictionRelationship(relationship);
-
-                if (target.getSegment().getElementType().equals(Metric.class)) {
-
-                    Subscription model = subscriptionManager
-                            .subscription(target.ids().getTenantId(), target.getSegment().getElementId());
-
-                    model.getMetric().setForecastingHorizon(forecastingHorizon);
-                } else if (target.getSegment().getElementType().equals(MetricType.class)) {
-                    Set<Metric> metricsOfType = inventoryStorage.metricsOfType(target);
-                    Set<org.hawkular.datamining.api.model.Metric> dataminingMetrics =
-                            InventoryUtil.convertMetrics(metricsOfType, new HashSet<>(Arrays.asList(relationship)));
-
-                    dataminingMetrics.forEach(metric -> {
-                        Subscription model = subscriptionManager.subscription(metric.getTenant(), metric.getId());
-                        model.getMetric().getMetricType().setForecastingHorizon(forecastingHorizon);
+                            subscription.addSubscriptionOwner(Subscription.SubscriptionOwner.Tenant);
+                        } else {
+                            org.hawkular.datamining.api.model.Metric dataminingMetric =
+                                    InventoryUtil.convertMetric(metric1);
+                            final Subscription subscription = new DataMiningSubscription(
+                                    new DataMiningForecaster(dataminingMetric, forecastingHorizon),
+                                    new HashSet<>(Arrays.asList(Subscription.SubscriptionOwner.Tenant)));
+                            subscriptionManager.subscribe(subscription);
+                        }
                     });
-                } else  {
-                    // tenant
-                    CanonicalPath tenant = relationship.getTarget();
-                    subscriptionManager.subscriptionsOfTenant(tenant.ids().getTenantId())
-                            .setForecastingHorizon(forecastingHorizon);
                 }
             }
                 break;
             case DELETED: {
                 inventoryStorage.removePredictionRelationship(relationship);
 
+                Set<Metric> metricsToRemove;
+                Subscription.SubscriptionOwner owner;
+
                 if (target.getSegment().getElementType().equals(Metric.class)) {
-                    subscriptionManager.unSubscribe(target.ids().getTenantId(), target.getSegment().getElementId(),
-                            SubscriptionManager.ModelOwner.Metric);
+                    metricsToRemove = new HashSet<>(Arrays.asList(inventoryStorage.metric(target)));
+                    owner = Subscription.SubscriptionOwner.Metric;
                 } else if (target.getSegment().getElementType().equals(MetricType.class)) {
-                    Set<Metric> metricsOfType = inventoryStorage.metricsOfType(target);
-                    Set<org.hawkular.datamining.api.model.Metric> dataminingMetrics =
-                            InventoryUtil.convertMetrics(metricsOfType, relationship);
-
-                    dataminingMetrics.forEach(x ->
-                            subscriptionManager.unSubscribe(x.getTenant(), x.getId(),
-                                    SubscriptionManager.ModelOwner.MetricType));
+                    metricsToRemove = inventoryStorage.metricsOfType(target);
+                    owner = Subscription.SubscriptionOwner.MetricType;
                 } else {
-                    // tenant
-                    CanonicalPath tenant = relationship.getTarget();
-                    TenantSubscriptions tenantSubscriptions =
-                            subscriptionManager.subscriptionsOfTenant(tenant.ids().getTenantId());
-
-                    tenantSubscriptions.getSubscriptions().forEach((metricId, model) ->
-                        subscriptionManager.unSubscribe(tenant.ids().getTenantId(), metricId,
-                                SubscriptionManager.ModelOwner.Tenant));
+                    metricsToRemove = inventoryStorage.metricsUnderTenant(target);
+                    owner = Subscription.SubscriptionOwner.Tenant;
                 }
-            }
+
+                metricsToRemove.forEach(metric -> {
+                    Set<Relationship> relationships = inventoryStorage
+                            .predictionRelationships(metric.getPath(), metric.getType().getPath(),
+                                    metric.getPath().getRoot());
+                    Long horizon = InventoryUtil.closestForecastingHorizon(relationships);
+
+                    subscriptionManager.subscription(metric.getPath().ids().getTenantId(), metric.getId())
+                            .forecaster().setForecastingHorizon(horizon);
+                    subscriptionManager.unSubscribe(metric.getPath().ids().getTenantId(), metric.getId(), owner);
+                });
                 break;
+            }
         }
     }
 
     private void metricEvent(final Metric metric, Action.Enumerated action) {
-        //get relationship to metric or metric type, and decide if predict
-
         CanonicalPath tenant = metric.getPath().getRoot();
 
         Set<Relationship> predictionRelationships =
@@ -241,25 +239,26 @@ public class InventoryChangesListener extends InventoryEventMessageListener {
         switch (action) {
             case CREATED: {
                 org.hawkular.datamining.api.model.Metric dataminingMetric =
-                        InventoryUtil.convertMetric(metric, predictionRelationships);
-
-                subscriptionManager.subscribe(dataminingMetric,
+                        InventoryUtil.convertMetric(metric);
+                final Subscription subscription = new DataMiningSubscription(
+                        new DataMiningForecaster(dataminingMetric,
+                                InventoryUtil.closestForecastingHorizon(predictionRelationships)),
                         InventoryUtil.predictionRelationshipsToOwners(predictionRelationships));
+                subscriptionManager.subscribe(subscription);
             }
             break;
 
             case UPDATED: {
-                Subscription model = subscriptionManager.subscription(metric.getPath().ids().getTenantId(),
+                Subscription subscription = subscriptionManager.subscription(metric.getPath().ids().getTenantId(),
                         metric.getId());
-
-                org.hawkular.datamining.api.model.Metric dataminingMetric = model.getMetric();
-                dataminingMetric.setCollectionInterval(metric.getCollectionInterval());
+                ((org.hawkular.datamining.api.model.Metric)subscription.getMetric())
+                        .getMetricType().setCollectionInterval(metric.getCollectionInterval());
             }
             break;
 
             case DELETED: {
                 subscriptionManager.unSubscribe(metric.getPath().ids().getTenantId(), metric.getId(),
-                        SubscriptionManager.ModelOwner.Metric);
+                        Subscription.SubscriptionOwner.Metric);
             }
             break;
         }
@@ -275,7 +274,7 @@ public class InventoryChangesListener extends InventoryEventMessageListener {
         CanonicalPath tenant = metricType.getPath().getRoot();
 
         Set<Relationship> predictionRelationships =
-                inventoryStorage.predictionRelationships(CanonicalPath.empty().get(), metricType.getPath(), tenant);
+                inventoryStorage.predictionRelationships(metricType.getPath(), tenant);
 
         if (predictionRelationships.isEmpty()) {
             // no predicted metrics
@@ -286,23 +285,20 @@ public class InventoryChangesListener extends InventoryEventMessageListener {
             case UPDATED: {
 
                 Set<Metric> metricsOfType = inventoryStorage.metricsOfType(metricType.getPath());
-                Set<org.hawkular.datamining.api.model.Metric> dataminingMetrics =
-                        InventoryUtil.convertMetrics(metricsOfType, predictionRelationships);
-
-                dataminingMetrics.forEach(x -> {
-                    Subscription model = subscriptionManager.subscription(x.getTenant(), x.getId());
-                    model.getMetric().getMetricType().setCollectionInterval(metricType.getCollectionInterval());
+                metricsOfType.forEach(metric -> {
+                    if (subscriptionManager.subscribes(metric.getPath().ids().getTenantId(), metric.getId())) {
+                        org.hawkular.datamining.api.model.Metric metricc = (org.hawkular.datamining.api.model.Metric)
+                                 subscriptionManager.subscription(metric.getPath().ids().getTenantId(), metric.getId())
+                                .getMetric();
+                        metricc.setCollectionInterval(metric.getType().getCollectionInterval());
+                    }
                 });
             }
                 break;
             case DELETED: {
-
                 Set<Metric> metrics = inventoryStorage.metricsOfType(metricType.getPath());
-                Set<org.hawkular.datamining.api.model.Metric> dataminingMetrics =
-                        InventoryUtil.convertMetrics(metrics, predictionRelationships);
-
-                dataminingMetrics.forEach(metric -> subscriptionManager.unSubscribe(metric.getTenant(), metric.getId(),
-                        SubscriptionManager.ModelOwner.MetricType));
+                metrics.forEach(metric ->
+                    subscriptionManager.unSubscribeAll(metric.getPath().ids().getTenantId(), metric.getId()));
             }
                 break;
         }

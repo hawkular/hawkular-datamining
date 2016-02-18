@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.dist.integration.metrics.listener;
+package org.hawkular.datamining.dist.integration.metrics;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -28,21 +28,21 @@ import org.hawkular.bus.common.Endpoint;
 import org.hawkular.bus.common.MessageProcessor;
 import org.hawkular.bus.common.consumer.BasicMessageListener;
 import org.hawkular.bus.common.consumer.ConsumerConnectionContext;
-import org.hawkular.datamining.api.DataMiningEngine;
-import org.hawkular.datamining.api.model.MetricData;
+import org.hawkular.datamining.api.SubscriptionManager;
 import org.hawkular.datamining.dist.Logger;
 import org.hawkular.datamining.dist.integration.Configuration;
+import org.hawkular.datamining.forecast.DataPoint;
 
 /**
  * @author Pavol Loffay
  */
 public class MetricDataListener extends BasicMessageListener<MetricDataMessage> {
 
-    private final DataMiningEngine<MetricData> dataMiningEngine;
+    private final SubscriptionManager subscriptionManager;
 
 
-    public MetricDataListener(DataMiningEngine<MetricData> dataMiningEngine) {
-        this.dataMiningEngine = dataMiningEngine;
+    public MetricDataListener(SubscriptionManager subscriptionManager) {
+        this.subscriptionManager = subscriptionManager;
 
         try {
             InitialContext initialContext = new InitialContext();
@@ -76,10 +76,10 @@ public class MetricDataListener extends BasicMessageListener<MetricDataMessage> 
                 continue;
             }
 
-            MetricData engineData = new MetricData(tenantId, singleMetric.getSource(),
-                    singleMetric.getTimestamp(), singleMetric.getValue());
-
-            dataMiningEngine.process(engineData);
+            if (subscriptionManager.subscribes(tenantId, singleMetric.getSource())) {
+                DataPoint dataPoint = new DataPoint(singleMetric.getValue(), singleMetric.getTimestamp());
+                subscriptionManager.subscription(tenantId, singleMetric.getSource()).forecaster().learn(dataPoint);
+            }
         }
     }
 

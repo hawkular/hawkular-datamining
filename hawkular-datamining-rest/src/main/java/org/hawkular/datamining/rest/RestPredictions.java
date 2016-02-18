@@ -17,9 +17,7 @@
 
 package org.hawkular.datamining.rest;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -35,9 +33,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.hawkular.datamining.api.Constants;
-import org.hawkular.datamining.api.DataMiningEngine;
-import org.hawkular.datamining.api.model.MetricData;
-import org.hawkular.datamining.cdi.qualifiers.Official;
+import org.hawkular.datamining.api.SubscriptionManager;
 import org.hawkular.datamining.forecast.DataPoint;
 
 /**
@@ -52,30 +48,24 @@ public class RestPredictions {
     private String tenant;
 
     @Inject
-    @Official
-    private DataMiningEngine<MetricData> dataMiningEngine;
+    private SubscriptionManager subscriptionManager;
 
 
     @GET
     @Path("/models/{metricId}/predict")
-    public Response predict(@PathParam("metricId") String metricId,
-                            @DefaultValue("1") @QueryParam("ahead") int ahead) {
+    public Response predict(@PathParam("metricId") String metricId, @DefaultValue("1") @QueryParam("ahead") int ahead) {
 
-        List<DataPoint> dataPoints = dataMiningEngine.predict(tenant, metricId, ahead);
+        List<DataPoint> dataPoints = subscriptionManager.subscription(tenant, metricId)
+                .forecaster().forecast(ahead);
 
         return Response.ok().entity(dataPoints).build();
     }
 
     @POST
     @Path("/models/{metricId}/learn")
-    public Response process(@PathParam("metricId") String id,
-                            List<DataPoint> data) {
+    public Response process(@PathParam("metricId") String metricId, List<DataPoint> data) {
 
-        List<MetricData> metricData = new ArrayList<>(data.size());
-        metricData.addAll(data.stream().map(point -> new MetricData(tenant, id, point.getTimestamp(), point.getValue()))
-                .collect(Collectors.toList()));
-
-        dataMiningEngine.process(metricData);
+        subscriptionManager.subscription(tenant, metricId).forecaster().learn(data);
 
         return Response.status(Response.Status.NO_CONTENT).build();
     }

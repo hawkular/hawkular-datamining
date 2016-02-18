@@ -14,34 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.datamining.api.model;
+package org.hawkular.datamining.dist.integration.inventory;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.hawkular.inventory.api.model.CanonicalPath;
+import org.hawkular.inventory.api.model.Relationship;
 
 /**
  * @author Pavol Loffay
  */
-public class MetricType {
+public class PredictionRelationships {
 
-    private String path;
-    private Long collectionInterval;
+    // <targetEntity, relationship>
+    private Map<CanonicalPath, Relationship> targetEntityRelationships = new HashMap<>();
 
-
-    public MetricType() {
-    }
-
-    public MetricType(String id, Long collectionInterval) {
-        this.path = id;
-        this.collectionInterval = collectionInterval;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public Long getCollectionInterval() {
-        return collectionInterval;
-    }
-
-    public void setCollectionInterval(Long collectionInterval) {
-        this.collectionInterval = collectionInterval;
+    public Map<CanonicalPath, Relationship> relationships() {
+        return targetEntityRelationships;
     }
 }

@@ -14,34 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.datamining.api.model;
+
+package org.hawkular.datamining.forecast;
 
 /**
  * @author Pavol Loffay
  */
-public class MetricType {
+public interface MetricContext {
 
-    private String path;
-    private Long collectionInterval;
+    Long getCollectionInterval();
 
+    void setCollectionInterval(Long collectionInterval);
 
-    public MetricType() {
-    }
+    String getMetricId();
 
-    public MetricType(String id, Long collectionInterval) {
-        this.path = id;
-        this.collectionInterval = collectionInterval;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public Long getCollectionInterval() {
-        return collectionInterval;
-    }
-
-    public void setCollectionInterval(Long collectionInterval) {
-        this.collectionInterval = collectionInterval;
-    }
+    String getTenant();
 }

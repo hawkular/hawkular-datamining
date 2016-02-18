@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.hawkular.datamining.forecast.model.DoubleExponentialSmoothing;
 import org.hawkular.datamining.forecast.model.ModelOptimization;
@@ -45,13 +46,19 @@ public class AutomaticForecaster implements Forecaster {
     private TimeSeriesModel usedModel;
     private final Set<ModelOptimization> applicableModels;
 
+    private final MetricContext metricContext;
 
-    public AutomaticForecaster() {
-        applicableModels = new HashSet<>(Arrays.asList(
+    public AutomaticForecaster(MetricContext context) {
+        if (context == null ||
+                context.getCollectionInterval() == null || context.getCollectionInterval() <= 0) {
+            throw new IllegalArgumentException("Invalid context.");
+        }
+
+        this.applicableModels = new HashSet<>(Arrays.asList(
                 new SimpleExponentialSmoothing.Optimizer(),
                 new DoubleExponentialSmoothing.Optimizer()));
-
-        window = EvictingQueue.create(WINDOW_SIZE);
+        this.window = EvictingQueue.create(WINDOW_SIZE);
+        this.metricContext = context;
     }
 
     @Override
@@ -80,17 +87,40 @@ public class AutomaticForecaster implements Forecaster {
 
     @Override
     public DataPoint forecast() {
-        return usedModel.forecast();
+        if (!initialized()) {
+            throw new IllegalStateException("Model not initialized, window remaining capacity = " +
+                    window.remainingCapacity());
+        }
+        DataPoint point = usedModel.forecast();
+        return new DataPoint(point.getValue(), lastTimestamp + metricContext.getCollectionInterval());
     }
 
     @Override
     public List<DataPoint> forecast(int nAhead) {
-        return usedModel.forecast(nAhead);
+        if (!initialized()) {
+            throw new IllegalStateException("Model not initialized, window remaining capacity = " +
+                    window.remainingCapacity());
+        }
+        List<DataPoint> points = usedModel.forecast(nAhead);
+
+        return points.stream().map(dataPoint -> new DataPoint(dataPoint.getValue(),
+                lastTimestamp + dataPoint.getTimestamp() * metricContext.getCollectionInterval()))
+                .collect(Collectors.toList());
     }
 
     @Override
     public TimeSeriesModel model() {
         return usedModel;
+    }
+
+    @Override
+    public MetricContext context() {
+        return metricContext;
+    }
+
+    @Override
+    public boolean initialized() {
+        return usedModel != null;
     }
 
     private TimeSeriesModel useBestModel() {

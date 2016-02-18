@@ -41,7 +41,9 @@ public interface TimeSeriesModel {
      */
     List<DataPoint> forecast(int nAhead);
 
-   AccuracyStatistics init(List<DataPoint> dataPoints);
+    AccuracyStatistics init(List<DataPoint> dataPoints);
 
     AccuracyStatistics statistics();
+
+    String name();
 }

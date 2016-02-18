@@ -17,10 +17,12 @@
 
 package org.hawkular.datamining.api.model;
 
+import org.hawkular.datamining.forecast.MetricContext;
+
 /**
  * @author Pavol Loffay
  */
-public class Metric {
+public class Metric implements MetricContext {
 
     private final String id;
     private final String feed;
@@ -28,29 +30,21 @@ public class Metric {
 
     // collectionInterval in seconds
     private Long collectionInterval;
-    // forecastingHorizon in seconds
-    private Long forecastingHorizon;
 
     private MetricType metricType;
 
 
     public Metric(String tenant, String feed, String id, Long collectionInterval, MetricType metricType) {
-        this(tenant, feed, id, collectionInterval, metricType, null);
-    }
-
-    public Metric(String tenant, String feed, String id, Long collectionInterval, MetricType metricType,
-                  Long forecastingHorizon) {
         this.tenant = tenant;
         this.feed = feed;
         this.id = id;
         this.collectionInterval = collectionInterval;
         this.metricType = metricType;
-        this.forecastingHorizon = forecastingHorizon;
     }
 
     public Metric(Metric that) {
         this.tenant = that.getTenant();
-        this.id = that.getId();
+        this.id = that.getMetricId();
         this.feed = that.getFeed();
         this.collectionInterval = that.getCollectionInterval();
     }
@@ -66,32 +60,34 @@ public class Metric {
         this.collectionInterval = collectionInterval;
     }
 
+    @Override
     public String getTenant() {
         return tenant;
+    }
+    @Override
+    public String getMetricId() {
+        return id;
+    }
+
+    @Override
+    public Long getCollectionInterval() {
+        if (this.collectionInterval != null) {
+            return collectionInterval;
+        }
+
+        if (metricType != null && metricType.getCollectionInterval() != null) {
+            return metricType.getCollectionInterval();
+        }
+
+        return null;
     }
 
     public String getFeed() {
         return feed;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public Long getCollectionInterval() {
-        return collectionInterval;
-    }
-
     public MetricType getMetricType() {
         return metricType;
-    }
-
-    public Long getForecastingHorizon() {
-        return forecastingHorizon;
-    }
-
-    public void setForecastingHorizon(Long forecastingHorizon) {
-        this.forecastingHorizon = forecastingHorizon;
     }
 
     @Override

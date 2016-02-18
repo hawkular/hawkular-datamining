@@ -33,11 +33,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.hawkular.datamining.api.Constants;
-import org.hawkular.datamining.api.DataMiningEngine;
+import org.hawkular.datamining.api.Subscription;
 import org.hawkular.datamining.api.SubscriptionManager;
+import org.hawkular.datamining.api.base.DataMiningForecaster;
+import org.hawkular.datamining.api.base.DataMiningSubscription;
 import org.hawkular.datamining.api.model.Metric;
-import org.hawkular.datamining.api.model.MetricData;
-import org.hawkular.datamining.cdi.qualifiers.Official;
+import org.hawkular.datamining.forecast.MetricContext;
 
 /**
  * @author Pavol Loffay
@@ -50,10 +51,6 @@ public class RestModels {
     @Inject
     private SubscriptionManager subscriptionManager;
 
-    @Official
-    @Inject
-    private DataMiningEngine<MetricData> dataMiningEngine = null;
-
     @HeaderParam(Constants.TENANT_HEADER_NAME)
     private String tenant;
 
@@ -61,7 +58,7 @@ public class RestModels {
     @GET
     @Path("/models")
     public Response getAll() {
-        Set<Metric> tenantsSubscriptions = subscriptionManager.metricsOfTenant(tenant);
+        Set<? extends MetricContext> tenantsSubscriptions = subscriptionManager.metricsOfTenant(tenant);
 
         return Response.status(Response.Status.OK).entity(tenantsSubscriptions).build();
     }
@@ -69,18 +66,20 @@ public class RestModels {
     @GET
     @Path("/models/{metricId}")
     public Response getOne(@PathParam("metricId") String metricId) {
-        Metric metric = subscriptionManager.metric(tenant, metricId);
+        Subscription subscription = subscriptionManager.subscription(tenant, metricId);
 
-        return Response.status(Response.Status.OK).entity(metric).build();
+        return Response.status(Response.Status.OK).entity(subscription).build();
     }
 
     @POST
     @Path("/models")
     public Response subscribe(Metric.RestBlueprint blueprint) {
 
-        Metric metric = new Metric(blueprint, tenant, null);
-        subscriptionManager.subscribe(metric,
-                new HashSet<>(Arrays.asList(SubscriptionManager.ModelOwner.Metric)));
+        Metric metric = new Metric(blueprint, tenant, null); // todo .toMetric(tenant, feed)
+        DataMiningSubscription subscription = new DataMiningSubscription(new DataMiningForecaster(metric),
+                new HashSet<>(Arrays.asList(Subscription.SubscriptionOwner.Metric)));
+
+        subscriptionManager.subscribe(subscription);
 
         return Response.status(Response.Status.CREATED).build();
     }
@@ -89,7 +88,7 @@ public class RestModels {
     @Path("/models/{id}")
     public Response unSubscribe(@PathParam("id") String metricId) {
 
-        subscriptionManager.unSubscribe(tenant, metricId);
+        subscriptionManager.unSubscribeAll(tenant, metricId);
 
         return Response.status(Response.Status.NO_CONTENT).build();
     }

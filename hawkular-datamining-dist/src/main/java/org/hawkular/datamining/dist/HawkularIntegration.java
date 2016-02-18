@@ -23,33 +23,33 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 
-import org.hawkular.datamining.api.DataMiningEngine;
-import org.hawkular.datamining.api.model.MetricData;
-import org.hawkular.datamining.cdi.qualifiers.Official;
-import org.hawkular.datamining.dist.integration.metrics.listener.MetricDataListener;
-import org.jboss.logging.Logger;
+import org.hawkular.datamining.api.SubscriptionManager;
+import org.hawkular.datamining.dist.integration.Configuration;
+import org.hawkular.datamining.dist.integration.metrics.JMSPredictionSender;
+import org.hawkular.datamining.dist.integration.metrics.MetricDataListener;
 
 /**
  * @author Pavol Loffay
  */
 @Startup
 @Singleton //todo eager?
-@TransactionAttribute(value = TransactionAttributeType.NOT_SUPPORTED) //todo never?
-public class DataMiningStartup {
+@TransactionAttribute(value = TransactionAttributeType.NOT_SUPPORTED)
+public class HawkularIntegration {
 
-    private static final Logger LOG = Logger.getLogger(DataMiningStartup.class);
-
-    @Official
     @Inject
-    private DataMiningEngine<MetricData> dataMiningEngine;
+    private SubscriptionManager subscriptionManager;
 
     private MetricDataListener metricDataListener;
+    private JMSPredictionSender predictionSender;
 
     @PostConstruct
     public void postConstruct() {
 
-        metricDataListener = new MetricDataListener(dataMiningEngine);
+        this.metricDataListener = new MetricDataListener(subscriptionManager);
 
-        LOG.debug("Ejb starting");
+        this.predictionSender = new JMSPredictionSender(Configuration.TOPIC_METRIC_DATA, Configuration.BROKER_URL);
+        subscriptionManager.setPredictionListener(predictionSender);
+
+        Logger.LOGGER.infof("Datamining Hawkular Integration");
     }
 }

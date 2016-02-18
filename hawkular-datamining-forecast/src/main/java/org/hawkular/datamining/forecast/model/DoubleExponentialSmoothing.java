@@ -156,6 +156,11 @@ public class DoubleExponentialSmoothing implements TimeSeriesModel {
         return initAccuracy;
     }
 
+    @Override
+    public String name() {
+        return "Double exponential smoothing";
+    }
+
     private void updateState(DataPoint point) {
         double level_old = level;
         level = levelSmoothing * point.getValue() + (1 - levelSmoothing) * (level + slope);
