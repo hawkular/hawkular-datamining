@@ -1,0 +1,15 @@
+= Hawkular Data mining Rest
+
+Standalone version of Hawkular Data Mining.
+
+== Build & Run
+
+Build produces WEB archive which can be deployed as standalone application without other Hawkular components.
+Dev profile downloads and configures Wildfly server with Hawkular Data Mining standalone app.
+
+[source,shell]
+----
+# profile dev configures
+$ mvn install -Pdev
+$ target/wildfly-*/bin/standalone.sh
+----
