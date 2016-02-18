@@ -17,12 +17,10 @@
 
 package org.hawkular.datamining.api;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.hawkular.datamining.api.base.TenantsSubscriptionsHolder;
-import org.hawkular.datamining.forecast.MetricContext;
 
 /**
  * @author Pavol Loffay
@@ -33,16 +31,12 @@ public interface SubscriptionManager {
 
     boolean subscribes(String tenant, String metricId);
     Subscription subscription(String tenant, String metricId);
+    Set<Subscription> subscriptionsOfTenant(String tenant);
 
     void unSubscribeAll(String tenant, String metricId);
     void unSubscribe(String tenant, String metricId, Subscription.SubscriptionOwner subscriptionOwner);
     void unSubscribe(String tenant, String metricId, Set<Subscription.SubscriptionOwner> subscriptionOwners);
 
-    TenantsSubscriptionsHolder subscriptionsOfTenant(String tenant);
-    Set<? extends MetricContext> metricsOfTenant(String tenant);
-
-    List<Subscription> getAllModels();
     Map<String, TenantsSubscriptionsHolder> getAllSubscriptions();
-
     void setPredictionListener(PredictionListener predictionListener);
 }

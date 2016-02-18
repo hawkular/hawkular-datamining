@@ -38,7 +38,12 @@ import org.hawkular.datamining.api.SubscriptionManager;
 import org.hawkular.datamining.api.base.DataMiningForecaster;
 import org.hawkular.datamining.api.base.DataMiningSubscription;
 import org.hawkular.datamining.api.model.Metric;
-import org.hawkular.datamining.forecast.MetricContext;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 /**
  * @author Pavol Loffay
@@ -46,6 +51,7 @@ import org.hawkular.datamining.forecast.MetricContext;
 @Path("/")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@Api(value = "/models", description = "Time series models CRUD", tags = "Models")
 public class RestModels {
 
     @Inject
@@ -57,14 +63,26 @@ public class RestModels {
 
     @GET
     @Path("/models")
+    @ApiOperation("Get all models for given tenant.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 404, message = "Model for given metric not found", response = ApiError.class),
+            @ApiResponse(code = 500, message = "Server error",response = ApiError.class)
+    })
     public Response getAll() {
-        Set<? extends MetricContext> tenantsSubscriptions = subscriptionManager.metricsOfTenant(tenant);
+        Set<Subscription> tenantsSubscriptions = subscriptionManager.subscriptionsOfTenant(tenant);
 
         return Response.status(Response.Status.OK).entity(tenantsSubscriptions).build();
     }
 
     @GET
     @Path("/models/{metricId}")
+    @ApiOperation("Get model for given metric.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 404, message = "Model for given metric not found", response = ApiError.class),
+            @ApiResponse(code = 500, message = "Server error",response = ApiError.class)
+    })
     public Response getOne(@PathParam("metricId") String metricId) {
         Subscription subscription = subscriptionManager.subscription(tenant, metricId);
 
@@ -73,7 +91,15 @@ public class RestModels {
 
     @POST
     @Path("/models")
-    public Response subscribe(Metric.RestBlueprint blueprint) {
+    @ApiOperation("Enable prediction for given metric.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Success, Prediction successfully enabled"),
+            @ApiResponse(code = 400, message = "Missing or invalid payload", response = ApiError.class),
+            @ApiResponse(code = 409, message = "Model for given metric already enabled",
+                    response = ApiError.class),
+            @ApiResponse(code = 500, message = "Server error",response = ApiError.class)
+    })
+    public Response subscribe(@ApiParam(required = true) Metric.RestBlueprint blueprint) {
 
         Metric metric = new Metric(blueprint, tenant, null); // todo .toMetric(tenant, feed)
         DataMiningSubscription subscription = new DataMiningSubscription(new DataMiningForecaster(metric),
@@ -86,6 +112,13 @@ public class RestModels {
 
     @DELETE
     @Path("/models/{id}")
+    @ApiOperation("Deletes model for given metric.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 204, message = "Success, Model successfully disabled"),
+            @ApiResponse(code = 400, message = "Missing or invalid payload", response = ApiError.class),
+            @ApiResponse(code = 404, message = "Model for given metric not found", response = ApiError.class),
+            @ApiResponse(code = 500, message = "Server error",response = ApiError.class)
+    })
     public Response unSubscribe(@PathParam("id") String metricId) {
 
         subscriptionManager.unSubscribeAll(tenant, metricId);
