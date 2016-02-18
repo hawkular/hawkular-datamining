@@ -41,4 +41,7 @@ public interface Forecaster {
     List<DataPoint> forecast(int nAhead);
 
     TimeSeriesModel model();
+    MetricContext context();
+
+    boolean initialized();
 }

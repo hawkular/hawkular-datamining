@@ -14,34 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.datamining.api.model;
+
+package org.hawkular.datamining.api.json;
+
+import org.hawkular.datamining.forecast.Forecaster;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author Pavol Loffay
  */
-public class MetricType {
+public abstract class SubscriptionMixin {
 
-    private String path;
-    private Long collectionInterval;
-
-
-    public MetricType() {
-    }
-
-    public MetricType(String id, Long collectionInterval) {
-        this.path = id;
-        this.collectionInterval = collectionInterval;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public Long getCollectionInterval() {
-        return collectionInterval;
-    }
-
-    public void setCollectionInterval(Long collectionInterval) {
-        this.collectionInterval = collectionInterval;
-    }
+    @JsonProperty
+    abstract Forecaster forecaster();
 }

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.integration.metrics.sender;
+package org.hawkular.datamining.dist.integration.metrics;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ import org.hawkular.bus.common.ConnectionContextFactory;
 import org.hawkular.bus.common.Endpoint;
 import org.hawkular.bus.common.MessageProcessor;
 import org.hawkular.bus.common.producer.ProducerConnectionContext;
-import org.hawkular.datamining.api.storage.PredictionListener;
+import org.hawkular.datamining.api.PredictionListener;
 import org.hawkular.datamining.dist.Logger;
 import org.hawkular.datamining.forecast.DataPoint;
 

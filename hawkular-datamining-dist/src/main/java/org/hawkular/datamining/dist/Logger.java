@@ -40,7 +40,7 @@ public interface Logger extends BasicLogger {
     void inventoryInitialized(int metrics);
 
     @LogMessage(level = org.jboss.logging.Logger.Level.INFO)
-    @Message(value = "Connected to MetricData Topic successfully connected")
+    @Message(value = "Successfully connected to MetricDataTopic")
     void connectedToMetricDataTopic();
 
     @LogMessage(level = org.jboss.logging.Logger.Level.ERROR)

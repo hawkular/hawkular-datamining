@@ -25,6 +25,7 @@ import java.util.List;
 import org.hawkular.datamining.forecast.AutomaticForecaster;
 import org.hawkular.datamining.forecast.DataPoint;
 import org.hawkular.datamining.forecast.Forecaster;
+import org.hawkular.datamining.forecast.ImmutableMetricContext;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -42,7 +43,7 @@ public class AutomaticForecasterTest {
 
     @Test
     public void testParametersEstimation() {
-        Forecaster forecaster = new AutomaticForecaster();
+        Forecaster forecaster = new AutomaticForecaster(ImmutableMetricContext.getDefault());
 
         forecaster.learn(stationaryAr2Series.subList(0, 50));
 

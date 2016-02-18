@@ -14,22 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.datamining.dist.integration.inventory;
+
+package org.hawkular.datamining.api.base;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.hawkular.inventory.api.model.CanonicalPath;
-import org.hawkular.inventory.api.model.Relationship;
+import org.hawkular.datamining.api.Subscription;
 
 /**
  * @author Pavol Loffay
  */
-public class PredictionRelationshipsCache {
+public class TenantsSubscriptionsHolder {
 
-    private Map<CanonicalPath, Relationship> targetEntityRelationships = new HashMap<>();
+    // <tenant,models>
+    private Map<String, Subscription> subscriptions = new HashMap<>();
 
-    public Map<CanonicalPath, Relationship> relationships() {
-        return targetEntityRelationships;
+    public Map<String, Subscription> getSubscriptions() {
+        return subscriptions;
+    }
+
+    public void setSubscriptions(Map<String, Subscription> subscriptions) {
+        this.subscriptions = subscriptions;
     }
 }

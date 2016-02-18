@@ -14,34 +14,56 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hawkular.datamining.api.model;
+
+package org.hawkular.datamining.forecast;
 
 /**
  * @author Pavol Loffay
  */
-public class MetricType {
+public class ImmutableMetricContext implements MetricContext {
 
-    private String path;
     private Long collectionInterval;
+    private String metricId;
+    private String tenant;
 
 
-    public MetricType() {
-    }
-
-    public MetricType(String id, Long collectionInterval) {
-        this.path = id;
+    public ImmutableMetricContext(String tenant, String metricId, Long collectionInterval) {
+        this.tenant = tenant;
+        this.metricId = metricId;
         this.collectionInterval = collectionInterval;
     }
 
-    public String getPath() {
-        return path;
+    public static ImmutableMetricContext getDefault() {
+        ImmutableMetricContext result = new ImmutableMetricContext("default", "default", 1L);
+
+        return result;
     }
 
+    @Override
+    public String getTenant() {
+        return tenant;
+    }
+
+    @Override
+    public String getMetricId() {
+        return metricId;
+    }
+
+    @Override
     public Long getCollectionInterval() {
         return collectionInterval;
     }
 
+    @Override
     public void setCollectionInterval(Long collectionInterval) {
         this.collectionInterval = collectionInterval;
+    }
+
+    @Override
+    public String toString() {
+        return "ImmutableMetricContext{" +
+                "collectionInterval=" + collectionInterval +
+                ", metricId='" + metricId + '\'' +
+                '}';
     }
 }

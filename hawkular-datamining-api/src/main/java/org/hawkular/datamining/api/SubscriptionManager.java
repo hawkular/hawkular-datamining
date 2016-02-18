@@ -17,53 +17,32 @@
 
 package org.hawkular.datamining.api;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.hawkular.datamining.api.model.Metric;
+import org.hawkular.datamining.api.base.TenantsSubscriptionsHolder;
+import org.hawkular.datamining.forecast.MetricContext;
 
 /**
  * @author Pavol Loffay
  */
 public interface SubscriptionManager {
 
-    void subscribe(Metric metric, Set<ModelOwner> modelOwner);
-
-    void subscribe(String tenant, TenantSubscriptions tenantSubscriptions);
+    void subscribe(Subscription subscription);
 
     boolean subscribes(String tenant, String metricId);
-
-    void unSubscribe(String tenant, String metricId);
-
-    void unSubscribe(String tenant, String metricId, ModelOwner modelOwner);
-
-    void unSubscribe(String tenant, String metricId, Set<ModelOwner> modelOwners);
-
-    Metric metric(String tenant, String metricId);
-
     Subscription subscription(String tenant, String metricId);
 
-    TenantSubscriptions subscriptionsOfTenant(String tenant);
+    void unSubscribeAll(String tenant, String metricId);
+    void unSubscribe(String tenant, String metricId, Subscription.SubscriptionOwner subscriptionOwner);
+    void unSubscribe(String tenant, String metricId, Set<Subscription.SubscriptionOwner> subscriptionOwners);
 
-    Set<Metric> metricsOfTenant(String tenant);
+    TenantsSubscriptionsHolder subscriptionsOfTenant(String tenant);
+    Set<? extends MetricContext> metricsOfTenant(String tenant);
 
     List<Subscription> getAllModels();
+    Map<String, TenantsSubscriptionsHolder> getAllSubscriptions();
 
-    Map<String, TenantSubscriptions> getAllSubscriptions();
-
-    /**
-     * Represents relationship from Tenant to:
-     */
-    enum ModelOwner {
-        Tenant,
-        MetricType,
-        Metric;
-
-        public static Set<ModelOwner> getAllDefined() {
-            return new HashSet<>(Arrays.asList(Tenant, MetricType, Metric));
-        }
-    }
+    void setPredictionListener(PredictionListener predictionListener);
 }

@@ -124,6 +124,11 @@ public class SimpleExponentialSmoothing implements TimeSeriesModel {
         return initAccuracy;
     }
 
+    @Override
+    public String name() {
+        return "Simple exponential smoothing";
+    }
+
     // flat forecast function
     private double calculatePrediction() {
         return level;

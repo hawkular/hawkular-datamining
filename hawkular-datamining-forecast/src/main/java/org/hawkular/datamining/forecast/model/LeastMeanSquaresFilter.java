@@ -94,6 +94,11 @@ public class LeastMeanSquaresFilter implements TimeSeriesModel {
     }
 
     @Override
+    public String name() {
+        return "Least mean squares filter";
+    }
+
+    @Override
     public  DataPoint forecast() {
         double prediction = currentPrediction();
 

@@ -16,29 +16,40 @@
  */
 package org.hawkular.datamining.api;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
-import org.hawkular.datamining.api.model.Metric;
-import org.hawkular.datamining.forecast.Forecaster;
+import org.hawkular.datamining.api.base.DataMiningForecaster;
+import org.hawkular.datamining.forecast.MetricContext;
 
 /**
  * @author Pavol Loffay
  */
 public interface Subscription {
 
-    Metric getMetric();
+    MetricContext getMetric();
 
-    void addSubscriptionOwner(SubscriptionManager.ModelOwner owner);
+    void addSubscriptionOwner(SubscriptionOwner owner);
 
-    void removeSubscriptionOwner(SubscriptionManager.ModelOwner owner);
+    void addAllSubscriptionOwners(Set<SubscriptionOwner> owners);
 
-    void addAllSubscriptionOwners(Set<SubscriptionManager.ModelOwner> owners);
+    void removeSubscriptionOwner(SubscriptionOwner owner);
 
-    Long getForecastingHorizon();
+    Set<SubscriptionOwner> getSubscriptionOwners();
 
-    Long getCollectionInterval();
+    DataMiningForecaster forecaster();
 
-    Set<SubscriptionManager.ModelOwner> getModelOwners();
+    /**
+     * Represents relationship from Tenant to:
+     */
+    enum SubscriptionOwner {
+        Tenant,
+        MetricType,
+        Metric;
 
-    Forecaster forecaster();
+        public static Set<SubscriptionOwner> getAllDefined() {
+            return new HashSet<>(Arrays.asList(Tenant, MetricType, Metric));
+        }
+    }
 }

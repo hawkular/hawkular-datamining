@@ -26,13 +26,14 @@ import java.util.Map;
 import java.util.Set;
 
 import org.hawkular.datamining.api.Logger;
+import org.hawkular.datamining.api.PredictionListener;
 import org.hawkular.datamining.api.Subscription;
 import org.hawkular.datamining.api.SubscriptionManager;
-import org.hawkular.datamining.api.TenantSubscriptions;
+import org.hawkular.datamining.api.exception.SubscriptionAlreadyExistsException;
 import org.hawkular.datamining.api.exception.SubscriptionNotFoundException;
-import org.hawkular.datamining.api.model.Metric;
 import org.hawkular.datamining.api.storage.MetricsClient;
 import org.hawkular.datamining.forecast.DataPoint;
+import org.hawkular.datamining.forecast.MetricContext;
 
 /**
  * @author Pavol Loffay
@@ -40,9 +41,12 @@ import org.hawkular.datamining.forecast.DataPoint;
 public class CacheSubscriptionManager implements SubscriptionManager {
 
     // tenant, metricId, model
-    private final Map<String, TenantSubscriptions> subscriptions;
+    private final Map<String, TenantsSubscriptionsHolder> subscriptions;
 
     private final MetricsClient restMetricsClient;
+
+    private PredictionListener predictionListener;
+
 
     public CacheSubscriptionManager(MetricsClient metricsClient) {
         this.subscriptions = new HashMap<>();
@@ -50,10 +54,10 @@ public class CacheSubscriptionManager implements SubscriptionManager {
     }
 
     @Override
-    public TenantSubscriptions subscriptionsOfTenant(String tenant) {
-        TenantSubscriptions tenantsSubscriptions = subscriptions.get(tenant);
+    public TenantsSubscriptionsHolder subscriptionsOfTenant(String tenant) {
+        TenantsSubscriptionsHolder tenantsSubscriptions = subscriptions.get(tenant);
         if (tenantsSubscriptions == null) {
-            tenantsSubscriptions = new TenantSubscriptions();
+            tenantsSubscriptions = new TenantsSubscriptionsHolder();
             subscriptions.put(tenant, tenantsSubscriptions);
         }
 
@@ -61,12 +65,12 @@ public class CacheSubscriptionManager implements SubscriptionManager {
     }
 
     @Override
-    public Set<Metric> metricsOfTenant(String tenant) {
-        TenantSubscriptions tenantSubscriptions = subscriptionsOfTenant(tenant);
+    public Set<? extends MetricContext> metricsOfTenant(String tenant) {
+        TenantsSubscriptionsHolder tenantSubscriptions = subscriptionsOfTenant(tenant);
 
-        Set<Metric> subscriptions = new HashSet<>();
+        Set<MetricContext> subscriptions = new HashSet<>();
         for (Map.Entry<String, Subscription> entry : tenantSubscriptions.getSubscriptions().entrySet()) {
-            Metric metric = entry.getValue().getMetric();
+            MetricContext metric = entry.getValue().getMetric();
             subscriptions.add(metric);
         }
 
@@ -74,54 +78,51 @@ public class CacheSubscriptionManager implements SubscriptionManager {
     }
 
     @Override
-    public Map<String, TenantSubscriptions> getAllSubscriptions() {
+    public Map<String, TenantsSubscriptionsHolder> getAllSubscriptions() {
         return subscriptions;
     }
 
     @Override
-    public void subscribe(Metric metric, Set<ModelOwner> modelOwner) {
-        TenantSubscriptions tenantSubscriptions = subscriptions.get(metric.getTenant());
+    public void setPredictionListener(PredictionListener predictionListener) {
+        this.predictionListener = predictionListener;
+    }
+
+    @Override
+    public void subscribe(Subscription subscription) {
+        TenantsSubscriptionsHolder tenantSubscriptions = subscriptions.get(subscription.getMetric().getTenant());
         if (tenantSubscriptions == null) {
-            tenantSubscriptions = new TenantSubscriptions();
-            subscriptions.put(metric.getTenant(), tenantSubscriptions);
+            tenantSubscriptions = new TenantsSubscriptionsHolder();
+            subscriptions.put(subscription.getMetric().getTenant(), tenantSubscriptions);
         }
 
-        Subscription subscription = tenantSubscriptions.getSubscriptions().get(metric.getId());
-        if (subscription != null) {
-            subscription.addAllSubscriptionOwners(modelOwner);
-            return;
+        if (tenantSubscriptions.getSubscriptions().get(subscription) != null) {
+            throw new SubscriptionAlreadyExistsException();
         }
-
-        subscription = new TimeSeriesSubscription(metric, tenantSubscriptions, modelOwner);
 
         /**
          * Initialize subscription with old data
          */
-        List<DataPoint> points = restMetricsClient.loadPoints(metric.getId(), metric.getTenant());
+        List<DataPoint> points = restMetricsClient.loadPoints(subscription.getMetric().getMetricId(),
+                subscription.getMetric().getTenant());
         subscription.forecaster().learn(points);
 
-        Logger.LOGGER.subscribing(metric.getId(), metric.getTenant());
-        tenantSubscriptions.getSubscriptions().put(metric.getId(), subscription);
+        Logger.LOGGER.subscribing(subscription.getMetric().getMetricId(), subscription.getMetric().getTenant());
+        tenantSubscriptions.getSubscriptions().put(subscription.getMetric().getMetricId(), subscription);
     }
 
     @Override
-    public void subscribe(String tenant, TenantSubscriptions tenantSubscriptions) {
-        subscriptions.put(tenant, tenantSubscriptions);
+    public void unSubscribeAll(String tenant, String metricId) {
+        unSubscribe(tenant, metricId, Subscription.SubscriptionOwner.getAllDefined());
     }
 
     @Override
-    public void unSubscribe(String tenant, String metricId) {
-        unSubscribe(tenant, metricId, ModelOwner.getAllDefined());
+    public void unSubscribe(String tenant, String metricId, Subscription.SubscriptionOwner subscriptionOwner) {
+        unSubscribe(tenant, metricId, new HashSet<>(Arrays.asList(subscriptionOwner)));
     }
 
     @Override
-    public void unSubscribe(String tenant, String metricId, ModelOwner modelOwner) {
-        unSubscribe(tenant, metricId, new HashSet<>(Arrays.asList(modelOwner)));
-    }
-
-    @Override
-    public void unSubscribe(String tenant, String metricId, Set<ModelOwner> modelOwners) {
-        TenantSubscriptions tenantSubscriptions = subscriptions.get(tenant);
+    public void unSubscribe(String tenant, String metricId, Set<Subscription.SubscriptionOwner> subscriptionOwners) {
+        TenantsSubscriptionsHolder tenantSubscriptions = subscriptions.get(tenant);
         if (tenantSubscriptions == null) {
             throw new SubscriptionNotFoundException(tenant, metricId);
         }
@@ -131,11 +132,11 @@ public class CacheSubscriptionManager implements SubscriptionManager {
             throw new SubscriptionNotFoundException(tenant, metricId);
         }
 
-        for (ModelOwner owner : modelOwners) {
+        for (Subscription.SubscriptionOwner owner : subscriptionOwners) {
             model.removeSubscriptionOwner(owner);
         }
 
-        if (model.getModelOwners().isEmpty()) {
+        if (model.getSubscriptionOwners().isEmpty()) {
             tenantSubscriptions.getSubscriptions().remove(metricId);
         }
 
@@ -144,7 +145,7 @@ public class CacheSubscriptionManager implements SubscriptionManager {
 
     @Override
     public boolean subscribes(String tenant, String metricId) {
-        TenantSubscriptions tenantsModels = subscriptions.get(tenant);
+        TenantsSubscriptionsHolder tenantsModels = subscriptions.get(tenant);
         if (tenantsModels == null) {
             return false;
         }
@@ -153,24 +154,8 @@ public class CacheSubscriptionManager implements SubscriptionManager {
     }
 
     @Override
-    public Metric metric(String tenant, String metricId) {
-        TenantSubscriptions tenantsModels = subscriptions.get(tenant);
-        if (tenantsModels == null) {
-            throw new SubscriptionNotFoundException(tenant, metricId);
-        }
-
-        Subscription model = tenantsModels.getSubscriptions().get(metricId);
-        if (model == null) {
-            throw new SubscriptionNotFoundException(tenant, metricId);
-        }
-
-        Metric metric = model.getMetric();
-        return metric;
-    }
-
-    @Override
     public Subscription subscription(String tenant, String metricId) {
-        TenantSubscriptions tenantsModels = subscriptions.get(tenant);
+        TenantsSubscriptionsHolder tenantsModels = subscriptions.get(tenant);
         if (tenantsModels == null) {
             throw new SubscriptionNotFoundException(tenant, metricId);
         }
@@ -188,7 +173,7 @@ public class CacheSubscriptionManager implements SubscriptionManager {
     public List<Subscription> getAllModels() {
         List<Subscription> result = new ArrayList<>();
 
-        for (Map.Entry<String, TenantSubscriptions> tenantEntry : subscriptions.entrySet()) {
+        for (Map.Entry<String, TenantsSubscriptionsHolder> tenantEntry : subscriptions.entrySet()) {
 
             for (Map.Entry<String, Subscription> modelEntry : tenantEntry.getValue()
                     .getSubscriptions().entrySet()) {
