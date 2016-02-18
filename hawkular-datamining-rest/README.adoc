@@ -2,14 +2,20 @@
 
 Standalone version of Hawkular Data Mining.
 
+Base Url: /hawkular/inventory
+
 == Build & Run
 
-Build produces WEB archive which can be deployed as standalone application without other Hawkular components.
-Dev profile downloads and configures Wildfly server with Hawkular Data Mining standalone app.
+Build produces WEB archive which can be deployed as standalone application without any other Hawkular component.
+Dev profile downloads Wildfly server and deploys Hawkular Data Mining REST module.
 
 [source,shell]
 ----
-# profile dev configures
 $ mvn install -Pdev
 $ target/wildfly-*/bin/standalone.sh
 ----
+
+== Documentation
+
+REST API documentation can be generated with -Pdocgen.
+Output is in /target/generated/rest-datamining.adoc
