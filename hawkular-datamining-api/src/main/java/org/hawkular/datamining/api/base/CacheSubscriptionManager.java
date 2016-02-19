@@ -17,7 +17,6 @@
 
 package org.hawkular.datamining.api.base;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,7 +32,6 @@ import org.hawkular.datamining.api.exception.SubscriptionAlreadyExistsException;
 import org.hawkular.datamining.api.exception.SubscriptionNotFoundException;
 import org.hawkular.datamining.api.storage.MetricsClient;
 import org.hawkular.datamining.forecast.DataPoint;
-import org.hawkular.datamining.forecast.MetricContext;
 
 /**
  * @author Pavol Loffay
@@ -54,25 +52,9 @@ public class CacheSubscriptionManager implements SubscriptionManager {
     }
 
     @Override
-    public TenantsSubscriptionsHolder subscriptionsOfTenant(String tenant) {
-        TenantsSubscriptionsHolder tenantsSubscriptions = subscriptions.get(tenant);
-        if (tenantsSubscriptions == null) {
-            tenantsSubscriptions = new TenantsSubscriptionsHolder();
-            subscriptions.put(tenant, tenantsSubscriptions);
-        }
-
-        return tenantsSubscriptions;
-    }
-
-    @Override
-    public Set<? extends MetricContext> metricsOfTenant(String tenant) {
-        TenantsSubscriptionsHolder tenantSubscriptions = subscriptionsOfTenant(tenant);
-
-        Set<MetricContext> subscriptions = new HashSet<>();
-        for (Map.Entry<String, Subscription> entry : tenantSubscriptions.getSubscriptions().entrySet()) {
-            MetricContext metric = entry.getValue().getMetric();
-            subscriptions.add(metric);
-        }
+    public Set<Subscription> subscriptionsOfTenant(String tenant) {
+        TenantsSubscriptionsHolder tenantsSubscriptionsHolder = subscriptions.get(tenant);
+        HashSet<Subscription> subscriptions = new HashSet<>(tenantsSubscriptionsHolder.getSubscriptions().values());
 
         return subscriptions;
     }
@@ -167,22 +149,5 @@ public class CacheSubscriptionManager implements SubscriptionManager {
         }
 
         return subscription;
-    }
-
-    @Override
-    public List<Subscription> getAllModels() {
-        List<Subscription> result = new ArrayList<>();
-
-        for (Map.Entry<String, TenantsSubscriptionsHolder> tenantEntry : subscriptions.entrySet()) {
-
-            for (Map.Entry<String, Subscription> modelEntry : tenantEntry.getValue()
-                    .getSubscriptions().entrySet()) {
-
-                Subscription model = modelEntry.getValue();
-                result.add(model);
-            }
-        }
-
-        return result;
     }
 }

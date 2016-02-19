@@ -20,3 +20,14 @@ install:
 - du -sh $HOME/.m2/repository
 script:
 - mvn -fae -s .travis.maven.settings.xml clean install -Pitest
+env:
+  global:
+  # for pushing the swagger adoc documentation to the hawkular.github.io
+  secure: Eoi/ErI7YlpKHa3dlbG7Wp5dK8yezI8r0VP0VyZDhkmN3DkNMIxtFn1pzyZbS/5NvybeJI79ngBjghO8uH0m0niyjXwTlmcBKtMMC1+hsJBAgjbDDBWV6MznC6l+7PDl8E1gXXgfy0uQBUP/TPMzF/+qjTQPg6BAfDjrnbFh8Lg=
+after_success:
+- PROJECT_VERSION=`mvn --batch-mode org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -v '\['`
+- if [[ "$PROJECT_VERSION" =~ .*SNAPSHOT ]] && [[ "${TRAVIS_BRANCH}" = "master" ]] && [[ "${TRAVIS_PULL_REQUEST}" = "false" ]];
+  then
+    mvn -s .travis.maven.settings.xml deploy -DskipTests ;
+    ./.travis.swagger.sh ;
+  fi

@@ -68,6 +68,18 @@
       <artifactId>cdi-api</artifactId>
       <scope>provided</scope>
     </dependency>
+
+    <!-- DOC -->
+    <dependency>
+      <groupId>io.swagger</groupId>
+      <artifactId>swagger-annotations</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.swagger</groupId>
+      <artifactId>swagger-core</artifactId>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <profiles>
@@ -148,6 +160,75 @@
                     </transformationSet>
                   </transformationSets>
                 </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>docgen</id>
+      <properties>
+        <restDocDirectory>${project.basedir}/src/main/rest-doc</restDocDirectory>
+        <swaggerDirectory>${project.build.directory}/generated/swagger-ui</swaggerDirectory>
+      </properties>
+      <build>
+        <!-- Document generation from the Swagger annotations on the REST-API. -->
+        <plugins>
+          <plugin>
+            <groupId>com.github.kongchen</groupId>
+            <artifactId>swagger-maven-plugin</artifactId>
+            <configuration>
+              <apiSources>
+                <apiSource>
+                  <springmvc>false</springmvc>
+                  <locations>org.hawkular.datamining.rest</locations>
+                  <basePath>/hawkular/datamining/</basePath>
+                  <info>
+                    <title>Hawkular Data Mining</title>
+                    <version>${project.version}</version>
+                  </info>
+                  <swaggerDirectory>${swaggerDirectory}</swaggerDirectory>
+                </apiSource>
+              </apiSources>
+            </configuration>
+            <executions>
+              <execution>
+                <phase>compile</phase>
+                <goals>
+                  <goal>generate</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.codehaus.gmavenplus</groupId>
+            <artifactId>gmavenplus-plugin</artifactId>
+            <dependencies>
+              <dependency>
+                <groupId>org.codehaus.groovy</groupId>
+                <artifactId>groovy-all</artifactId>
+                <version>${version.org.codehaus.groovy}</version>
+              </dependency>
+            </dependencies>
+            <configuration>
+              <properties>
+                <baseFile>${restDocDirectory}/base.adoc</baseFile>
+                <swaggerFile>${swaggerDirectory}/swagger.json</swaggerFile>
+                <outputFile>${project.build.directory}/generated/rest-datamining.adoc</outputFile>
+              </properties>
+              <scripts>
+                <script>file:///${restDocDirectory}/apidoc.groovy</script>
+              </scripts>
+            </configuration>
+            <executions>
+              <execution>
+                <id>generate-api-doc</id>
+                <phase>compile</phase>
+                <goals>
+                  <goal>execute</goal>
+                </goals>
               </execution>
             </executions>
           </plugin>
