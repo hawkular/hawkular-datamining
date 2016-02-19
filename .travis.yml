@@ -13,6 +13,10 @@ cache:
   - $HOME/.m2
 
 install:
-- mvn -s .travis.maven.settings.xml clean install -Pitest
+- mvn -s .travis.maven.settings.xml -version -B
+# unshallow is needed by license-maven-plugin
+- git fetch origin --unshallow
 - df -h
 - du -sh $HOME/.m2/repository
+script:
+- mvn -fae -s .travis.maven.settings.xml clean install -Pitest
