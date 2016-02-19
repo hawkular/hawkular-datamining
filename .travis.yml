@@ -23,7 +23,7 @@ script:
 env:
   global:
   # for pushing the swagger adoc documentation to the hawkular.github.io
-  secure: "caSbINzkVaFh3kmNeLaUtaw7qhes+SHG7fvyHHQsb34bRqvM7RPiVWL1aY11UsKiee1dkvksd+98fRS1Wy3RByqARpeUCf2mV2xRhTRj1sBGgV+Dmg3pza5GKRao2XqaZP6KM239UdY+4j9LRVH3Bo6xEyvnp/sUHx030F4DjuE="
+  - secure: "caSbINzkVaFh3kmNeLaUtaw7qhes+SHG7fvyHHQsb34bRqvM7RPiVWL1aY11UsKiee1dkvksd+98fRS1Wy3RByqARpeUCf2mV2xRhTRj1sBGgV+Dmg3pza5GKRao2XqaZP6KM239UdY+4j9LRVH3Bo6xEyvnp/sUHx030F4DjuE="
 after_success:
 - PROJECT_VERSION=`mvn --batch-mode org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -v '\['`
 - if [[ "$PROJECT_VERSION" =~ .*SNAPSHOT ]] && [[ "${TRAVIS_BRANCH}" = "master" ]] && [[ "${TRAVIS_PULL_REQUEST}" = "false" ]];
