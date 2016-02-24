@@ -17,6 +17,7 @@
 
 package org.hawkular.datamining.forecast;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -25,7 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.hawkular.datamining.forecast.model.DoubleExponentialSmoothing;
-import org.hawkular.datamining.forecast.model.ModelOptimization;
+import org.hawkular.datamining.forecast.model.ModelOptimizer;
 import org.hawkular.datamining.forecast.model.SimpleExponentialSmoothing;
 import org.hawkular.datamining.forecast.model.TimeSeriesModel;
 
@@ -36,17 +37,19 @@ import com.google.common.collect.EvictingQueue;
  */
 public class AutomaticForecaster implements Forecaster {
 
-    public static final int WINDOW_SIZE = 10;
-    public static final int MIN_SIZE = 20;
+    // recalculation period
+    public static final int WINDOW_SIZE = 50;
 
     private long counter;
     private long lastTimestamp; // in ms
     private final EvictingQueue<DataPoint> window;
 
     private TimeSeriesModel usedModel;
-    private final Set<ModelOptimization> applicableModels;
+    private final Set<ModelOptimizer> applicableModels;
 
     private final MetricContext metricContext;
+
+    private final InformationCriterion ic = InformationCriterion.aicc;
 
     public AutomaticForecaster(MetricContext context) {
         if (context == null ||
@@ -55,8 +58,8 @@ public class AutomaticForecaster implements Forecaster {
         }
 
         this.applicableModels = new HashSet<>(Arrays.asList(
-                new SimpleExponentialSmoothing.Optimizer(),
-                new DoubleExponentialSmoothing.Optimizer()));
+                SimpleExponentialSmoothing.optimizer(),
+                DoubleExponentialSmoothing.optimizer()));
         this.window = EvictingQueue.create(WINDOW_SIZE);
         this.metricContext = context;
     }
@@ -71,23 +74,24 @@ public class AutomaticForecaster implements Forecaster {
 
         sortPoints(dataPoints);
 
-        dataPoints.forEach(dataPoint -> {
-            window.add(dataPoint);
+        // recalculate if model is null or periodically after X points
+        if ((counter + dataPoints.size()) / WINDOW_SIZE > 0 || usedModel == null) {
+            selectBestModel(dataPoints);
+        } else if (usedModel != null) {
+            usedModel.learn(dataPoints);
+        }
 
-            if (++counter % WINDOW_SIZE == 0) {
-                useBestModel();
-                counter = 0;
-            }
+        counter += dataPoints.size();
+        if (counter / WINDOW_SIZE > 0) {
+            counter = (counter + dataPoints.size()) % WINDOW_SIZE;
+        }
 
-            if (usedModel != null) {
-                usedModel.learn(dataPoint);
-            }
-        });
+        window.addAll(dataPoints);
     }
 
     @Override
     public DataPoint forecast() {
-        if (!initialized()) {
+        if (!initialized()) { //todo may be do not throw exception
             throw new IllegalStateException("Model not initialized, window remaining capacity = " +
                     window.remainingCapacity());
         }
@@ -123,23 +127,46 @@ public class AutomaticForecaster implements Forecaster {
         return usedModel != null;
     }
 
-    private TimeSeriesModel useBestModel() {
+    private TimeSeriesModel selectBestModel(List<DataPoint> dataPoints) {
+        final List<DataPoint> initPoints = new ArrayList<>();
+        initPoints.addAll(window);
+        initPoints.addAll(dataPoints);
+
+        if (initPoints.isEmpty()) {
+            return null;
+        }
+
+        Logger.LOGGER.debugf("Estimating best model for: %s, previous: %s", metricContext.getMetricId(), usedModel);
 
         TimeSeriesModel bestModel = null;
-        double bestModelMSE = Double.MAX_VALUE;
+        double bestIC = Double.POSITIVE_INFINITY;
 
-        for (ModelOptimization modelOptimizer : applicableModels) {
-            final List<DataPoint> initPoints = Arrays.asList(window.toArray(new DataPoint[0]));
+        for (ModelOptimizer modelOptimizer : applicableModels) {
 
-            TimeSeriesModel model = modelOptimizer.minimizedMSE(initPoints);
+            TimeSeriesModel model = null;
+            try {
+                model = modelOptimizer.minimizedMSE(initPoints);
+            } catch (IllegalArgumentException ex) {
+                continue;
+            }
 
-            AccuracyStatistics accuracy = model.init(initPoints);
+            AccuracyStatistics accuracy = model.initStatistics();
 
-            if (accuracy.getMse() < bestModelMSE) {
-                bestModelMSE = accuracy.getMse();
+            InformationCriterionHolder icHolder = new InformationCriterionHolder(accuracy.getSse(),
+                    model.numberOfParams(), initPoints.size());
+
+            Logger.LOGGER.debugf("Estimated model: %s, size: %d, MSE: %f, %s",
+                    model.toString(), initPoints.size(), accuracy.getMse(), icHolder);
+
+            double currentIc = icHolder.informationCriterion(ic);
+            if (currentIc < bestIC) {
+                bestIC = currentIc;
                 bestModel = model;
             }
         }
+
+        Logger.LOGGER.debugf("Best model for: %s, is %s", metricContext.getMetricId(),
+                bestModel.getClass().getSimpleName());
 
         this.usedModel = bestModel;
         return bestModel;

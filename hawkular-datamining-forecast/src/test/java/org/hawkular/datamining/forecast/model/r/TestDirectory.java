@@ -15,39 +15,22 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.forecast.model;
+package org.hawkular.datamining.forecast.model.r;
 
-import java.util.List;
-
-import org.hawkular.datamining.forecast.AccuracyStatistics;
-import org.hawkular.datamining.forecast.DataPoint;
+import java.io.File;
 
 /**
  * @author Pavol Loffay
  */
-public interface TimeSeriesModel {
+public class TestDirectory {
 
-    AccuracyStatistics init(List<DataPoint> dataPoints);
-
-    void learn(DataPoint dataPoint);
-
-    void learn(List<DataPoint> dataPoints);
-
-    /**
-     * one step ahead prediction
-     */
-    DataPoint forecast();
-
-    /**
-     * Multi step ahead prediction
-     */
-    List<DataPoint> forecast(int nAhead);
-
-    AccuracyStatistics initStatistics();
-
-    AccuracyStatistics runStatistics();
-
-    String name();
-
-    int numberOfParams();
+    public static String pathPrefix;
+    // supports execution from IDE and CMD
+    static {
+        if (new File(".", "R").exists()) {
+            pathPrefix = "R/testData/";
+        } else {
+            pathPrefix = "../R/testData/";
+        }
+    }
 }

@@ -21,7 +21,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hawkular.datamining.forecast.AccuracyStatistics;
+import org.hawkular.datamining.forecast.AutomaticForecaster;
 import org.hawkular.datamining.forecast.DataPoint;
+import org.hawkular.datamining.forecast.ImmutableMetricContext;
+import org.hawkular.datamining.forecast.model.r.ModelData;
+import org.hawkular.datamining.forecast.model.r.ModelReader;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -33,24 +39,31 @@ import net.sourceforge.openforecast.models.DoubleExponentialSmoothingModel;
 /**
  * @author Pavol Loffay
  */
-public class OpenForecastTest {
+public class OpenForecastTest extends AbstractTest {
 
-    private static List<DataPoint> metricData;
+    private static ModelData rModel;
 
     @BeforeClass
     public static void init() throws IOException {
-        metricData = RTimeSeriesReader.getData("ar2.csv");
+        rModel = ModelReader.readModel("trendStatUpwardLowVar");
     }
 
     @Test
     public void testOpenForecast() throws IOException {
 
-        final List<DataPoint> testData = metricData.subList(0, 50);
+        List<net.sourceforge.openforecast.DataPoint> observations = dataPointsToObservations(rModel.getData());
+        DataSet dataSet = new DataSet("t", 2, observations);
 
-        List<net.sourceforge.openforecast.DataPoint> observations = dataPointsToObservations(testData);
-        DataSet dataSet = new DataSet("t", 1, observations);
-
+        // NPE
+//        ForecastingModel openModel = Forecaster.getBestForecast(dataSet);
         ForecastingModel bestModel = DoubleExponentialSmoothingModel.getBestFitModel(dataSet);
+
+        AutomaticForecaster forecaster = new AutomaticForecaster(new ImmutableMetricContext("",
+                rModel.getName(), 1L));
+        forecaster.learn(rModel.getData());
+        AccuracyStatistics initStatistics = forecaster.model().initStatistics();
+
+        Assert.assertTrue(initStatistics.getMse() < bestModel.getMSE());
     }
 
     public List<net.sourceforge.openforecast.DataPoint> dataPointsToObservations(List<DataPoint> dataPoints) {

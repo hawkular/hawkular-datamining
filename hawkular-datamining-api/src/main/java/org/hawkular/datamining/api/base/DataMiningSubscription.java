@@ -30,7 +30,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class DataMiningSubscription implements Subscription {
 
-    private final MetricContext metric;
     private final Set<SubscriptionOwner> subscriptionOwners = new HashSet<>();
 
     @JsonProperty
@@ -43,13 +42,12 @@ public class DataMiningSubscription implements Subscription {
         }
 
         this.forecaster = forecaster;
-        this.metric = forecaster.context();
         this.subscriptionOwners.addAll(subscriptionOwner);
     }
 
     @Override
     public MetricContext getMetric() {
-        return metric;
+        return forecaster.context();
     }
 
     @Override
@@ -83,12 +81,13 @@ public class DataMiningSubscription implements Subscription {
 
         DataMiningSubscription that = (DataMiningSubscription) o;
 
-        return !(metric != null ? !metric.getMetricId().equals(that.metric.getMetricId()) :
-                that.metric.getMetricId() != null);
+        return !(forecaster().context() != null ?
+                !forecaster().context().getMetricId().equals(that.forecaster().context().getMetricId()) :
+                that.forecaster().context().getMetricId() != null);
     }
 
     @Override
     public int hashCode() {
-        return metric.getMetricId() != null ? metric.getMetricId().hashCode() : 0;
+        return forecaster().context().getMetricId() != null ? forecaster().context().getMetricId().hashCode() : 0;
     }
 }

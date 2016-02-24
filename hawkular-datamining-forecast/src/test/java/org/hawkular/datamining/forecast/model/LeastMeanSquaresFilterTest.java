@@ -23,12 +23,13 @@ import java.io.IOException;
 import java.util.List;
 
 import org.hawkular.datamining.forecast.DataPoint;
+import org.hawkular.datamining.forecast.model.r.CSVTimeSeriesReader;
 import org.junit.Test;
 
 /**
  * @author Pavol Loffay
  */
-public class LeastMeanSquaresFilterTest {
+public class LeastMeanSquaresFilterTest extends AbstractTest {
 
     /**
      * Test for AR(2) process = 1.75 0.8745
@@ -46,7 +47,7 @@ public class LeastMeanSquaresFilterTest {
     @Test
     public void testSeries() throws IOException {
 
-        List<DataPoint> dataPoints = RTimeSeriesReader.getData("ar2.csv");
+        List<DataPoint> dataPoints = CSVTimeSeriesReader.getData("ar2.csv");
 
         double learningRate = 0.005;
         double[] initWeights = new double[] {3, -1};

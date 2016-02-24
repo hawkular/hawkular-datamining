@@ -22,11 +22,13 @@ package org.hawkular.datamining.forecast;
  */
 public class AccuracyStatistics {
 
+    private final double sse;
     private final double mse;
     private final double mae;
 
 
-    public AccuracyStatistics(double mse, double mae) {
+    public AccuracyStatistics(double sse, double mse, double mae) {
+        this.sse = sse;
         this.mse = mse;
         this.mae = mae;
     }
@@ -37,5 +39,39 @@ public class AccuracyStatistics {
 
     public double getMae() {
         return mae;
+    }
+
+    public double getSse() {
+        return sse;
+    }
+
+    public double getRmse() {
+        return Math.sqrt(mse);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AccuracyStatistics)) return false;
+
+        AccuracyStatistics that = (AccuracyStatistics) o;
+
+        if (Double.compare(that.sse, sse) != 0) return false;
+        if (Double.compare(that.mse, mse) != 0) return false;
+        return Double.compare(that.mae, mae) == 0;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        temp = Double.doubleToLongBits(sse);
+        result = (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(mse);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(mae);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
     }
 }

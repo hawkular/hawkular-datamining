@@ -89,13 +89,23 @@ public class LeastMeanSquaresFilter implements TimeSeriesModel {
     }
 
     @Override
-    public AccuracyStatistics statistics() {
+    public AccuracyStatistics initStatistics() {
+        return null;
+    }
+
+    @Override
+    public AccuracyStatistics runStatistics() {
         return null;
     }
 
     @Override
     public String name() {
         return "Least mean squares filter";
+    }
+
+    @Override
+    public int numberOfParams() {
+        return 0;
     }
 
     @Override
