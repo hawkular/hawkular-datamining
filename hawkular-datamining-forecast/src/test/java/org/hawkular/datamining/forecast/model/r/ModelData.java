@@ -38,6 +38,10 @@ public class ModelData {
     private Double level;
     private Double trend;
 
+    private Double alpha;
+    private Double beta;
+    private Double gamma;
+
 
     public ModelData(Class<?> model, String name, Double level, Double trend, Double mse, Double aic, Double bic,
                      Double aicc) {
@@ -92,6 +96,30 @@ public class ModelData {
 
     public Double getAicc() {
         return aicc;
+    }
+
+    public Double getAlpha() {
+        return alpha;
+    }
+
+    public void setAlpha(Double alpha) {
+        this.alpha = alpha;
+    }
+
+    public Double getBeta() {
+        return beta;
+    }
+
+    public void setBeta(Double beta) {
+        this.beta = beta;
+    }
+
+    public Double getGamma() {
+        return gamma;
+    }
+
+    public void setGamma(Double gamma) {
+        this.gamma = gamma;
     }
 
     @Override

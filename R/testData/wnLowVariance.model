@@ -5,5 +5,6 @@ model: ETS(A,N,N)
  aicc: 2862.21266150952 
  alpha: 0.000100002089313426 
  beta: NA 
+ gamma: NA 
  l: 0.443382850329446 
  b: NA 

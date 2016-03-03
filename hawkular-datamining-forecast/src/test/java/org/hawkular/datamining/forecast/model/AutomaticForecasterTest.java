@@ -54,7 +54,7 @@ public class AutomaticForecasterTest extends AbstractTest {
         ACCURACY_HIGH = 1.03;
         tests.forEach(test -> {
             try {
-                ModelData rModel = ModelReader.readModel(test);
+                ModelData rModel = ModelReader.read(test);
 
                 Forecaster forecaster = new AutomaticForecaster(new ImmutableMetricContext("", rModel.getName(), 1L));
                 forecaster.learn(rModel.getData());
@@ -82,7 +82,7 @@ public class AutomaticForecasterTest extends AbstractTest {
 
         tests.forEach(test -> {
             try {
-                ModelData rModel = ModelReader.readModel(test);
+                ModelData rModel = ModelReader.read(test);
 
                 int runs = 5;
                 while (runs-- > 0) {
@@ -106,7 +106,7 @@ public class AutomaticForecasterTest extends AbstractTest {
 
     @Test
     public void testContinualModelSelectionSimpleEx() throws IOException {
-        ModelData rModel = ModelReader.readModel("wnLowVariance");
+        ModelData rModel = ModelReader.read("wnLowVariance");
 
         Forecaster forecaster =
                 new AutomaticForecaster(new ImmutableMetricContext("", rModel.getName(), 1L));
@@ -121,7 +121,7 @@ public class AutomaticForecasterTest extends AbstractTest {
 
     @Test
     public void testContinualModelSelectionDoubleEx() throws IOException {
-        ModelData rModel = ModelReader.readModel("trendStatUpwardLowVar");
+        ModelData rModel = ModelReader.read("trendStatUpwardLowVar");
 
         Forecaster forecaster =
                 new AutomaticForecaster(new ImmutableMetricContext("", rModel.getName(), 1L));
@@ -151,7 +151,7 @@ public class AutomaticForecasterTest extends AbstractTest {
             Assert.fail();
         }
 
-        ModelData rModel = ModelReader.readModel("trendStatUpwardLowVar");
+        ModelData rModel = ModelReader.read("trendStatUpwardLowVar");
 
         rModel.getData().forEach(dataPoint -> forecaster.learn(dataPoint));
     }

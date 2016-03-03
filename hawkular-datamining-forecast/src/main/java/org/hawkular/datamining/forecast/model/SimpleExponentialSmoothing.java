@@ -186,7 +186,8 @@ public class SimpleExponentialSmoothing implements TimeSeriesModel {
 
         private double[] result;
 
-        public double[] getResult() {
+        @Override
+        public double[] result() {
             return result;
         }
 

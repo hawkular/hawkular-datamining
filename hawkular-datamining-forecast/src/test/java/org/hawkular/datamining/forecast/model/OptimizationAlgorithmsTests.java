@@ -45,7 +45,7 @@ public class OptimizationAlgorithmsTests extends AbstractTest {
 
     @Test
     public void testOptimizers() throws IOException {
-        ModelData rModel = ModelReader.readModel("trendStatUpwardLowVar");
+        ModelData rModel = ModelReader.read("trendStatUpwardLowVar");
 
         int maxEval = 100000;
         int maxIter = 100000;

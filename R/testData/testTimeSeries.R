@@ -3,6 +3,9 @@
 # example: source('/home/pavol/projects/hawkular/hawkular-datamining/R/testData/testTimeSeries.R')
 # setwd('/home/pavol/projects/hawkular/hawkular-datamining/R/testData')
 
+# austourists
+library(fpp) 
+
 script.dir <- dirname(sys.frame(1)$ofile)
 setwd(script.dir)
 source('testTimeSeriesGenerators.R')
@@ -21,20 +24,25 @@ trendStatUpwardHighVar <- trendStationary(wnHighVariance, intercept=0, slope=60.
 trendStatDownwardLowVar <- trendStationary(wnLowVariance, intercept=0, slope=-3.337)
 trendStatDownwardHighVar <- trendStationary(wnHighVariance, intercept=0, slope=-60.667)
 
+# seasonal
+sineLowVarShort <- sine(periods=20, seasons=3, amplytude=18, sigma=4, error='uniform')
+sineLowVarMedium <- sine(periods=20, seasons=5, amplytude=18, sigma=4, error='uniform')
+sineLowVarLong <- sine(periods=20, seasons=20, amplytude=18, sigma=4, error='uniform')
+
 # random walk
 rw <- randomWalk(LENGTH)
 
 # time series export to CSV file
 timeSeriesList <- list(addName(wnLowVariance), addName(wnHighVariance),
   addName(trendStatUpwardLowVar), addName(trendStatUpwardHighVar),
-  addName(trendStatDownwardLowVar), addName(trendStatDownwardHighVar))
+  addName(trendStatDownwardLowVar), addName(trendStatDownwardHighVar),
+  addName(sineLowVarShort, frequency=20),
+  addName(sineLowVarLong, frequency=20),
+  addName(austourists, frequency=4),
+  addName(sineLowVarMedium, frequency=20))
 
 timeSeriesList <- fitModels(timeSeriesList)
 
 
 # export to files
 export(timeSeriesList)
-
-
-
-

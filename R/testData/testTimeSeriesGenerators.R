@@ -5,7 +5,7 @@ LENGTH <- 200
 # mean 0, variance sigma^2
 whiteNoise <- function(l=LENGTH, mean=0, sigma=1) {
   set.seed(1)
-  y <- rnorm(LENGTH, mean=mean, sd=sigma)
+  y <- rnorm(l, mean=mean, sd=sigma)
 }
 
 # trend is a function of the time
@@ -16,5 +16,18 @@ trendStationary <- function(y=whiteNoise(), intercept=0, slope=1) {
 
 randomWalk <- function(l=LENGTH) {
   set.seed(1)
-  x <- cumsum(sample(c(-1, 1), l, TRUE))
+  y <- cumsum(sample(c(-1, 1), l, TRUE))
+}
+
+sine <- function(periods=LENGTH, seasons=1, amplytude=1, error=c('gaussian', 'uniform'), sigma=1) {
+
+  errorType = match.arg(error)
+  if (errorType == 'uniform') { 
+    error <- runif(periods*seasons, min=(-sigma*0.5), max=(sigma*0.5))
+  } else {
+    error <- rnorm(periods*seasons, mean=0, sigma=1)
+  }
+
+  t <- seq(0, 4*pi,, periods*seasons)
+  y <- amplytude*sin(seasons*t) + error
 }
