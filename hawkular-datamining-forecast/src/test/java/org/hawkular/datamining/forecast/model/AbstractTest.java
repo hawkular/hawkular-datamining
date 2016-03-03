@@ -17,37 +17,17 @@
 
 package org.hawkular.datamining.forecast.model;
 
-import java.util.List;
+import org.slf4j.LoggerFactory;
 
-import org.hawkular.datamining.forecast.AccuracyStatistics;
-import org.hawkular.datamining.forecast.DataPoint;
+import ch.qos.logback.classic.Logger;
 
 /**
  * @author Pavol Loffay
  */
-public interface TimeSeriesModel {
+public class AbstractTest {
 
-    AccuracyStatistics init(List<DataPoint> dataPoints);
-
-    void learn(DataPoint dataPoint);
-
-    void learn(List<DataPoint> dataPoints);
-
-    /**
-     * one step ahead prediction
-     */
-    DataPoint forecast();
-
-    /**
-     * Multi step ahead prediction
-     */
-    List<DataPoint> forecast(int nAhead);
-
-    AccuracyStatistics initStatistics();
-
-    AccuracyStatistics runStatistics();
-
-    String name();
-
-    int numberOfParams();
+    public AbstractTest() {
+        Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        root.setLevel(ch.qos.logback.classic.Level.TRACE);
+    }
 }

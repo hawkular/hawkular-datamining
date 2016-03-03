@@ -17,38 +17,142 @@
 
 package org.hawkular.datamining.forecast.model;
 
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.hawkular.datamining.forecast.AutomaticForecaster;
 import org.hawkular.datamining.forecast.DataPoint;
 import org.hawkular.datamining.forecast.Forecaster;
 import org.hawkular.datamining.forecast.ImmutableMetricContext;
-import org.junit.BeforeClass;
+import org.hawkular.datamining.forecast.model.r.ModelData;
+import org.hawkular.datamining.forecast.model.r.ModelReader;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
  * @author Pavol Loffay
  */
-public class AutomaticForecasterTest {
+public class AutomaticForecasterTest extends AbstractTest {
 
-    private static List<DataPoint> stationaryAr2Series;
+    // in % - MSE of the model is within x % to model estimated by R ets()
+    private double ACCURACY_LOW = 0.75;
+    private double ACCURACY_HIGH = 1.05;
 
-    @BeforeClass
-    public static void init() throws IOException {
-        stationaryAr2Series = RTimeSeriesReader.getData("wnLowVariance.csv");
+    private List<String> tests = Arrays.asList("wnLowVariance", "wnHighVariance",
+            "trendStatUpwardLowVar", "trendStatUpwardHighVar",
+            "trendStatDownwardLowVar", "trendStatDownwardHighVar");
+
+    @Test
+    public void testModelSelection() {
+
+        ACCURACY_LOW = 0.95;
+        ACCURACY_HIGH = 1.03;
+        tests.forEach(test -> {
+            try {
+                ModelData rModel = ModelReader.readModel(test);
+
+                Forecaster forecaster = new AutomaticForecaster(new ImmutableMetricContext("", rModel.getName(), 1L));
+                forecaster.learn(rModel.getData());
+
+                Assert.assertTrue("Model should be always selected", forecaster.model() != null);
+
+                // mse should be in some range (better than R's fit)
+                assertThat(forecaster.model().initStatistics().getMse()).withFailMessage("rModel: %s", rModel)
+                        .isBetween(rModel.getMse()*ACCURACY_LOW, rModel.getMse()*ACCURACY_HIGH);
+
+                // model should be "same" with R's estimation
+//                Assert.assertEquals(test + ", extected: " + rModel.getModel() + ", MSE=" + rModel.getMse(),
+//                        rModel.getModel(), forecaster.model().getClass());
+
+            } catch (IOException e) {
+                Assert.fail();
+            }
+        });
     }
 
     @Test
-    public void testParametersEstimation() {
-        Forecaster forecaster = new AutomaticForecaster(ImmutableMetricContext.getDefault());
+    public void testVariableDataLength() {
+        ACCURACY_LOW = 0.75;
+        ACCURACY_HIGH = 1.03;
 
-        forecaster.learn(stationaryAr2Series.subList(0, 50));
+        tests.forEach(test -> {
+            try {
+                ModelData rModel = ModelReader.readModel(test);
 
-        TimeSeriesModel model = forecaster.model();
+                int runs = 5;
+                while (runs-- > 0) {
+                    int dataSize = ThreadLocalRandom.current().nextInt(AutomaticForecaster.WINDOW_SIZE + 50,
+                            rModel.getData().size() + 1);
+                    System.out.format("%s random sample size (0, %d)\n", rModel.getName(), dataSize);
 
-        assertTrue(model instanceof SimpleExponentialSmoothing);
+                    Forecaster forecaster =
+                            new AutomaticForecaster(new ImmutableMetricContext("", rModel.getName(), 1L));
+                    List<DataPoint> dataSubSet = rModel.getData().subList(0, dataSize);
+                    forecaster.learn(dataSubSet);
+
+                    assertThat(forecaster.model().initStatistics().getMse()).withFailMessage("rModel: %s", rModel)
+                            .isBetween(rModel.getMse()*ACCURACY_LOW,rModel.getMse()*ACCURACY_HIGH);
+                }
+            } catch (IOException e) {
+                Assert.fail("IOException, test file is probably missing");
+            }
+        });
+    }
+
+    @Test
+    public void testContinualModelSelectionSimpleEx() throws IOException {
+        ModelData rModel = ModelReader.readModel("wnLowVariance");
+
+        Forecaster forecaster =
+                new AutomaticForecaster(new ImmutableMetricContext("", rModel.getName(), 1L));
+
+        rModel.getData().forEach(dataPoint -> {
+            forecaster.learn(dataPoint);
+
+            Assert.assertEquals("extected: " + rModel.getModel() + ", MSE=" + rModel.getMse(),
+                    rModel.getModel(), forecaster.model().getClass());
+        });
+    }
+
+    @Test
+    public void testContinualModelSelectionDoubleEx() throws IOException {
+        ModelData rModel = ModelReader.readModel("trendStatUpwardLowVar");
+
+        Forecaster forecaster =
+                new AutomaticForecaster(new ImmutableMetricContext("", rModel.getName(), 1L));
+
+        int counter = 0;
+        for (DataPoint dataPoint: rModel.getData()) {
+            forecaster.learn(dataPoint);
+
+            if (counter++ < 51) {
+                continue;
+            }
+
+            Assert.assertEquals("extected: " + rModel.getModel() + ", MSE=" + rModel.getMse(),
+                    rModel.getModel(), forecaster.model().getClass());
+        }
+    }
+
+    @Test
+    public void testEmptyDataSet() throws IOException {
+
+        Forecaster forecaster =
+                new AutomaticForecaster(new ImmutableMetricContext("", "empty", 1L));
+
+        try {
+            forecaster.learn(Collections.emptyList());
+        } catch (Throwable ex) {
+            Assert.fail();
+        }
+
+        ModelData rModel = ModelReader.readModel("trendStatUpwardLowVar");
+
+        rModel.getData().forEach(dataPoint -> forecaster.learn(dataPoint));
     }
 }

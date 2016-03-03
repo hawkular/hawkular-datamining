@@ -24,7 +24,7 @@ import org.hawkular.datamining.forecast.DataPoint;
 /**
  * @author Pavol Loffay
  */
-public interface ModelOptimization {
+public interface ModelOptimizer {
 
     TimeSeriesModel minimizedMSE(List<DataPoint> dataPoints);
 }

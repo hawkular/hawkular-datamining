@@ -31,7 +31,7 @@ exportModel <- function(ts) {
   fileName <- fileName(name, '.model')
   
   # write to file 
-  write.table(model, file=fileName)
+  cat(model, file=fileName)
     
   cat(paste('Model ', name, ', exported to ', fileName, '\n'))
   print(model)

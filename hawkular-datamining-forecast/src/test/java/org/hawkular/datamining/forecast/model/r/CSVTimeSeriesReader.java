@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.forecast.model;
+package org.hawkular.datamining.forecast.model.r;
 
 import java.io.File;
 import java.io.FileReader;
@@ -31,21 +31,12 @@ import org.hawkular.datamining.forecast.DataPoint;
 /**
  * @author Pavol Loffay
  */
-public class RTimeSeriesReader {
+public class CSVTimeSeriesReader {
 
-    public static String pathPrefix;
-    // supports execution from IDE and CMD
-    static {
-        if (new File(".", "R").exists()) {
-            pathPrefix = "R/testData/";
-        } else {
-            pathPrefix = "../R/testData/";
-        }
-    }
 
     public static List<DataPoint> getData(String fileName) throws IOException {
 
-        fileName = pathPrefix + fileName;
+        fileName = TestDirectory.pathPrefix + fileName;
         File fileToRead = new File(fileName);
         Reader in = new FileReader(fileToRead);
 

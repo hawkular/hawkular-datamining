@@ -18,6 +18,7 @@
 package org.hawkular.datamining.api.base;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -54,6 +55,9 @@ public class CacheSubscriptionManager implements SubscriptionManager {
     @Override
     public Set<Subscription> subscriptionsOfTenant(String tenant) {
         TenantsSubscriptionsHolder tenantsSubscriptionsHolder = subscriptions.get(tenant);
+        if (tenantsSubscriptionsHolder == null) {
+            return Collections.emptySet();
+        }
         HashSet<Subscription> subscriptions = new HashSet<>(tenantsSubscriptionsHolder.getSubscriptions().values());
 
         return subscriptions;
