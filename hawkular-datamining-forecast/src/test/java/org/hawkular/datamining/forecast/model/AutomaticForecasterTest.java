@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.hawkular.datamining.forecast.AccuracyStatistics;
 import org.hawkular.datamining.forecast.AutomaticForecaster;
 import org.hawkular.datamining.forecast.DataPoint;
 import org.hawkular.datamining.forecast.Forecaster;
@@ -50,7 +51,7 @@ public class AutomaticForecasterTest extends AbstractTest {
     @Test
     public void testModelSelection() {
 
-        ACCURACY_LOW = 0.95;
+        ACCURACY_LOW = 0.65;
         ACCURACY_HIGH = 1.03;
         tests.forEach(test -> {
             try {
@@ -61,8 +62,11 @@ public class AutomaticForecasterTest extends AbstractTest {
 
                 Assert.assertTrue("Model should be always selected", forecaster.model() != null);
 
+                AccuracyStatistics initStatistics = forecaster.model().initStatistics();
+                System.out.println(initStatistics);
+
                 // mse should be in some range (better than R's fit)
-                assertThat(forecaster.model().initStatistics().getMse()).withFailMessage("rModel: %s", rModel)
+                assertThat(initStatistics.getMse()).withFailMessage("rModel: %s", rModel)
                         .isBetween(rModel.getMse()*ACCURACY_LOW, rModel.getMse()*ACCURACY_HIGH);
 
                 // model should be "same" with R's estimation
@@ -77,8 +81,8 @@ public class AutomaticForecasterTest extends AbstractTest {
 
     @Test
     public void testVariableDataLength() {
-        ACCURACY_LOW = 0.75;
-        ACCURACY_HIGH = 1.03;
+        double ACCURACY_LOW = 0.65;
+        double ACCURACY_HIGH = 1.10;
 
         tests.forEach(test -> {
             try {

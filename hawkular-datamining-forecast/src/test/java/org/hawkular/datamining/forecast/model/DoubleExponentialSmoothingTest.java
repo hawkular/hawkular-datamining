@@ -17,6 +17,8 @@
 
 package org.hawkular.datamining.forecast.model;
 
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+
 import java.io.IOException;
 import java.util.Collections;
 
@@ -87,5 +89,35 @@ public class DoubleExponentialSmoothingTest extends AbstractTest {
         } catch (Throwable ex) {
             Assert.fail();
         }
+    }
+
+    @Test
+    public void testTrend() throws IOException {
+        double ACCURACY_LOW = 0.95;
+        double ACCURACY_HIGH = 1.05;
+        ModelData rModel = ModelReader.read("trendStatUpwardLowVar");
+
+        DoubleExponentialSmoothing.Optimizer optimizer = DoubleExponentialSmoothing.optimizer();
+        TimeSeriesModel model = optimizer.minimizedMSE(rModel.getData());
+        AccuracyStatistics initStatistics = model.initStatistics();
+
+        assertThat(initStatistics.getMse()).withFailMessage("rModel: %s\nMy: %s\n%s", rModel,
+                model, initStatistics)
+                .isBetween(rModel.getMse()*ACCURACY_LOW,rModel.getMse()*ACCURACY_HIGH);
+    }
+
+    @Test
+    public void testStationary() throws IOException {
+        double ACCURACY_LOW = 0.95;
+        double ACCURACY_HIGH = 1.05;
+        ModelData rModel = ModelReader.read("wnHighVariance");
+
+        DoubleExponentialSmoothing.Optimizer optimizer = DoubleExponentialSmoothing.optimizer();
+        TimeSeriesModel model = optimizer.minimizedMSE(rModel.getData());
+        AccuracyStatistics initStatistics = model.initStatistics();
+
+        assertThat(initStatistics.getMse()).withFailMessage("rModel: %s\nMy: %s\n%s", rModel,
+                model, initStatistics)
+                .isBetween(rModel.getMse()*ACCURACY_LOW,rModel.getMse()*ACCURACY_HIGH);
     }
 }

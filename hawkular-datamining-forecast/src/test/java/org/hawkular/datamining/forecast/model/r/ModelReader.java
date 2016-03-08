@@ -96,6 +96,6 @@ public class ModelReader {
             str = m.group(2);
         }
 
-        return str != null ? Double.parseDouble(str) : null;
+        return str != null && !str.isEmpty() ? Double.parseDouble(str) : null;
     }
 }

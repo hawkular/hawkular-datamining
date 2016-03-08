@@ -31,7 +31,7 @@ str(flat0)
 
 lms <- function(x) {
   alfa <- 0.000000000000000000000000001
-  L <- length(x) * 0.8
+  L <- smoothingLength(x) * 0.8
   N <- 2
   # rows, columns
   w = matrix(0, N, L)

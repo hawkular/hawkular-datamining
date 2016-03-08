@@ -4,7 +4,7 @@ LENGTH <- 200
 
 # mean 0, variance sigma^2
 whiteNoise <- function(l=LENGTH, mean=0, sigma=1) {
-  set.seed(1)
+  set.seed(123)
   y <- rnorm(l, mean=mean, sd=sigma)
 }
 
@@ -19,7 +19,7 @@ randomWalk <- function(l=LENGTH) {
   y <- cumsum(sample(c(-1, 1), l, TRUE))
 }
 
-sine <- function(periods=LENGTH, seasons=1, amplytude=1, error=c('gaussian', 'uniform'), sigma=1) {
+sine <- function(periods=LENGTH, seasons=1, amplitude=1, error=c('gaussian', 'uniform'), sigma=1) {
 
   errorType = match.arg(error)
   if (errorType == 'uniform') { 
@@ -29,5 +29,5 @@ sine <- function(periods=LENGTH, seasons=1, amplytude=1, error=c('gaussian', 'un
   }
 
   t <- seq(0, 4*pi,, periods*seasons)
-  y <- amplytude*sin(seasons*t) + error
+  y <- amplitude*sin(seasons*t) + error
 }

@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.math3.analysis.MultivariateFunction;
+import org.apache.commons.math3.exception.MathIllegalStateException;
 import org.apache.commons.math3.optim.InitialGuess;
 import org.apache.commons.math3.optim.MaxEval;
 import org.apache.commons.math3.optim.MaxIter;
@@ -31,9 +32,11 @@ import org.apache.commons.math3.optim.nonlinear.scalar.MultivariateFunctionMappi
 import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
+import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.hawkular.datamining.forecast.AccuracyStatistics;
 import org.hawkular.datamining.forecast.DataPoint;
 import org.hawkular.datamining.forecast.Logger;
+import org.hawkular.datamining.forecast.SeasonalDecomposition;
 
 import com.google.common.collect.EvictingQueue;
 
@@ -46,52 +49,83 @@ public class TripleExponentialSmoothing implements TimeSeriesModel {
     public static final double DEFAULT_TREND_SMOOTHING = 0.1;
     public static final double DEFAULT_SEASONAL_SMOOTHING = 0.1;
 
+    public static final double MIN_LEVEL_SMOOTHING = 0.0001;
+    public static final double MIN_TREND_SMOOTHING = 0.0001;
+    public static final double MIN_SEASONAL_SMOOTHING = 0.0001;
+    public static final double MAX_LEVEL_SMOOTHING = 0.9999;
+    public static final double MAX_TREND_SMOOTHING = 0.9999;
+    public static final double MAX_SEASONAL_SMOOTHING = 0.9999;
+
     private final double levelSmoothing;
     private final double trendSmoothing;
     private final double seasonalSmoothing;
 
-    private double level;
-    private double slope;
-    private double[] periods;
+    private final int periods;
     private int currentPeriod;
+    private State initState;
 
     private long counter;
     private double sse;
     private double absSum;
     private AccuracyStatistics initAccuracy;
-    private AccuracyStatistics runAccuracy;
-    private EvictingQueue<DataPoint> window;
+    private final EvictingQueue<DataPoint> window;
+
+
+    public static class State {
+        public State(double level, double slope, double[] periods) {
+            this.level = level;
+            this.slope = slope;
+            this.periods = Arrays.copyOf(periods, periods.length);
+        }
+
+        private double level;
+        private double slope;
+        private double[] periods;
+    }
 
     public TripleExponentialSmoothing(int periods) {
         this(periods, DEFAULT_LEVEL_SMOOTHING, DEFAULT_TREND_SMOOTHING, DEFAULT_SEASONAL_SMOOTHING);
     }
 
+    public TripleExponentialSmoothing(double levelSmoothing, double trendSmoothing,
+                                      double seasonalSmoothing, State initState) {
+        this(initState.periods.length, levelSmoothing, trendSmoothing, seasonalSmoothing);
+
+        this.initState = initState;
+    }
+
     public TripleExponentialSmoothing(int periods, double levelSmoothing, double trendSmoothing,
                                       double seasonalSmoothing) {
 
-        if (levelSmoothing < 0.0 || levelSmoothing > 1.0) {
-            throw new IllegalArgumentException("Level parameter should be in interval 0-1");
+        if (levelSmoothing < MIN_LEVEL_SMOOTHING || levelSmoothing > MAX_LEVEL_SMOOTHING) {
+            throw new IllegalArgumentException("Level smoothing should be in interval 0-1");
         }
-        if (trendSmoothing < 0.0 || trendSmoothing > 1.0) {
-            throw new IllegalArgumentException("Trend parameter should be in 0-1");
+        if (trendSmoothing < MIN_TREND_SMOOTHING || trendSmoothing > MAX_TREND_SMOOTHING) {
+            throw new IllegalArgumentException("Trend smoothing should be in 0-1");
         }
-        if (seasonalSmoothing < 0.0 || seasonalSmoothing > 1.0) {
-            throw new IllegalArgumentException("Trend parameter should be in 0-1");
+        if (seasonalSmoothing < MIN_SEASONAL_SMOOTHING || seasonalSmoothing > MAX_SEASONAL_SMOOTHING) {
+            throw new IllegalArgumentException("Seasonal smoothing should be in 0-1");
         }
 
-        this.periods = new double[periods];
+        this.periods = periods;
+
         this.levelSmoothing = levelSmoothing;
         this.trendSmoothing = trendSmoothing;
         this.seasonalSmoothing = seasonalSmoothing;
+//        this.trendSmoothing = trendSmoothing/levelSmoothing;
+//        this.seasonalSmoothing = seasonalSmoothing/(1-levelSmoothing);
         this.window = EvictingQueue.create(periods * 2);
     }
 
     @Override
     public AccuracyStatistics init(List<DataPoint> dataPoints) {
 
-        initState(dataPoints);
+        if (initState == null) {
+            initState(dataPoints);
+        }
+
         learn(dataPoints);
-        initAccuracy = new AccuracyStatistics(sse ,sse/(double)dataPoints.size(), absSum/(double)dataPoints.size());
+        initAccuracy = new AccuracyStatistics(sse, sse/(double)dataPoints.size(), absSum/(double)dataPoints.size());
         sse = 0d;
         absSum = 0d;
         counter = 0L;
@@ -102,134 +136,95 @@ public class TripleExponentialSmoothing implements TimeSeriesModel {
     @Override
     public void learn(DataPoint dataPoint) {
 
+        window.add(dataPoint);
+
         additiveUpdate(dataPoint);
+
         currentPeriod = periodIndex(dataPoint.getTimestamp());
-    }
-
-    private void additiveUpdate(DataPoint point) {
-        double error = point.getValue() - forecast().getValue();
-        sse += error * error;
-        absSum += Math.abs(error);
-        counter++;
-
-        int currentPeriod = periodIndex(point.getTimestamp());
-        double oldLevel = level;
-        double oldSlope = slope;
-        level = levelSmoothing*(point.getValue() - periods[currentPeriod]) + (1 - levelSmoothing)*(level +  slope);
-        slope = trendSmoothing*(level - oldLevel) + (1-trendSmoothing)*slope;
-        periods[currentPeriod] = seasonalSmoothing*(point.getValue() - oldLevel - oldSlope) +
-                (1 - seasonalSmoothing)*periods[currentPeriod];
-    }
-
-    private void multiplicativeUpdate(DataPoint point) {
-
-        double error = point.getValue() - forecast().getValue();
-        sse += error * error;
-        absSum += Math.abs(error);
-        counter++;
-
-        int currentPeriod = periodIndex(point.getTimestamp());
-        double oldLevel = level;
-        double oldSlope = slope;
-
-        // multiplicative
-        level = (levelSmoothing*point.getValue())/ periods[currentPeriod] + (1 - levelSmoothing)*(level + slope);
-        slope = trendSmoothing*(level - oldLevel) + (1 - trendSmoothing)*slope;
-        periods[currentPeriod] = (seasonalSmoothing*point.getValue())/(oldLevel + oldSlope) +
-                (1 - seasonalSmoothing)*periods[currentPeriod];
-
     }
 
     @Override
     public void learn(List<DataPoint> dataPoints) {
+
+        if (initState == null && window.remainingCapacity() - dataPoints.size() < 1) {
+            List<DataPoint> initData = new ArrayList<>(window);
+            initData.addAll(dataPoints);
+            initState(initData);
+        }
+
         dataPoints.forEach(dataPoint -> {
             learn(dataPoint);
         });
     }
 
     private int periodIndex(long timestamp) {
-        return (int) (timestamp % periods.length);
+        return (int) (timestamp % periods);
     }
 
-    private long forecastIndex(long nAhead) {
-        return (nAhead - 1) % periods.length + 1;
+    private void additiveUpdate(DataPoint point) {
+        double error = point.getValue() - forecast().getValue();
+        sse += error*error;
+        absSum += Math.abs(error);
+        counter++;
+
+        double oldLevel = initState.level;
+        double oldSlope = initState.slope;
+        int periodToCount = currentPeriod = periodIndex(point.getTimestamp());
+
+        initState.level = levelSmoothing*(point.getValue() - initState.periods[periodToCount]) +
+                (1 - levelSmoothing)*(initState.level + initState.slope);
+        initState.slope = trendSmoothing*(initState.level - oldLevel) + (1 - trendSmoothing)*initState.slope;
+        initState.periods[periodToCount] = seasonalSmoothing*(point.getValue() - oldLevel - oldSlope) +
+                (1 - seasonalSmoothing)*initState.periods[periodToCount];
     }
 
-    private void initState(List<DataPoint> dataPoints) {
-        // initialize trend, level, season
-
-        level = 0;
-        slope = 0;
-        periods = new double[periods.length];
-
-        int completeSeasons = dataPoints.size() / periods.length;
-        if (completeSeasons < 2) {
+    private State initState(List<DataPoint> dataPoints) {
+        if (dataPoints.size()/periods < 2) {
             throw new IllegalArgumentException("At least two complete seasons are required");
         }
 
-        // level - average of the first season
-        for (int period = 0; period < periods.length; period++) {
-            level += dataPoints.get(period).getValue();
+        SeasonalDecomposition decomposition = new SeasonalDecomposition(dataPoints, periods);
+        double[] periods = decomposition.decompose();
+
+        // do regression on seasonally adjusted data points
+        List<DataPoint> seasonal = decomposition.getSeasonal();
+        SimpleRegression regression = new SimpleRegression();
+        for (int i = 0; i < dataPoints.size(); i++) {
+            regression.addData(i, dataPoints.get(i).getValue() - seasonal.get(i).getValue());
         }
-        level /= periods.length;
+        double level = regression.predict(0);
+        double slope = regression.getSlope();
 
-        // slope
-        for (int period = 0; period < periods.length; period++) {
-            slope += (dataPoints.get(periods.length + period).getValue() - dataPoints.get(period).getValue()) /
-                    (double) periods.length;
-        }
-        slope /= periods.length;
 
-        // level and trend - linear regression
-//        SimpleRegression regression = new SimpleRegression();
-//        dataPoints.forEach(dataPoint -> regression.addData(dataPoint.getTimestamp(), dataPoint.getValue()));
-//        level = regression.predict(dataPoints.get(0).getTimestamp());
-//        slope = regression.getSlope();
-
-        // periods
-        for (int period = 0; period < periods.length; period++) {
-            periods[period] = dataPoints.get(period).getValue() - level;
+        currentPeriod = periodIndex(dataPoints.get(0).getTimestamp() - 1);
+        if (currentPeriod < 0) {
+            currentPeriod += this.periods;
         }
 
-//         seasons averages
-//        http://www.itl.nist.gov/div898/handbook/pmc/section4/pmc435.htm
-//        sine long failed to pass
-//        double[] seasonsAverages = new double[completeSeasons];
-//        for (int season = 0; season < completeSeasons; season++) {
-//            for (int period = 0; period < periods.length; period++) {
-//                seasonsAverages[season] += dataPoints.get(season + period).getValue();
-//            }
-//            seasonsAverages[season] /= (double)periods.length;
-//        }
-        // sum of averages through seasons
-//        for (int period = 0; period < periods.length; period++) {
-//            for (int season = 0; season < completeSeasons; season++) {
-//                periods[period] += dataPoints.get(period + (periods.length*season)).getValue() /
-//                        seasonsAverages[season];
-//            }
-//            periods[period] /= completeSeasons;
-//        }
+        initState = new State(level, slope, periods);
+        return initState;
     }
 
     @Override
     public DataPoint forecast() {
-        double forecast = level + 1*slope + periods[(currentPeriod + 1) % periods.length];
-        return new DataPoint(forecast, 0L);
+        double forecast = initState.level + initState.slope + forecastSeason(1);
+        return new DataPoint(forecast, 1L);
     }
 
     @Override
     public List<DataPoint> forecast(int nAhead) {
-
-
         List<DataPoint> result = new ArrayList<>(nAhead);
 
-        for (long i = 0; i < nAhead; i++) {
-            double forecast = (level + i * slope) * forecastIndex(i);
+        for (long i = 1; i <= nAhead; i++) {
+            double forecast = initState.level + i*initState.slope + forecastSeason(i);
             result.add(new DataPoint(forecast, i));
         }
 
-        throw new IllegalArgumentException();
-//        return result;
+        return result;
+    }
+
+    private double forecastSeason(long nAhead) {
+        return  initState.periods[((int) ((currentPeriod + nAhead) % periods))];
     }
 
     @Override
@@ -239,7 +234,7 @@ public class TripleExponentialSmoothing implements TimeSeriesModel {
 
     @Override
     public AccuracyStatistics runStatistics() {
-        return runAccuracy;
+        return new AccuracyStatistics(sse, sse/(double) counter, absSum/(double)counter);
     }
 
     @Override
@@ -249,11 +244,11 @@ public class TripleExponentialSmoothing implements TimeSeriesModel {
 
     @Override
     public int numberOfParams() {
-        return 6;
+        return 5 + periods;
     }
 
-    public static Optimizer optimizer() {
-        return new Optimizer();
+    public static Optimizer optimizer(int periods) {
+        return new Optimizer(periods);
     }
 
     @Override
@@ -262,77 +257,158 @@ public class TripleExponentialSmoothing implements TimeSeriesModel {
                 "levelSmoothing=" + levelSmoothing +
                 ", trendSmoothing=" + trendSmoothing +
                 ", seasonalSmoothing=" + seasonalSmoothing +
-                ", level=" + level +
-                ", slope=" + slope +
-                ", periods=" + Arrays.toString(periods) +
+                ", level=" + initState.level +
+                ", slope=" + initState.slope +
+                ", periods=" + Arrays.toString(initState.periods) +
                 ", currentPeriod=" + currentPeriod +
                 '}';
     }
 
     public static class Optimizer implements ModelOptimizer {
+        private static final int MAX_ITER = 10000;
+        private static final int MAX_EVAL = 10000;
 
         private double[] result;
+        private State initState;
+        private final int periods;
+
+
+        public Optimizer(int periods) {
+            this.periods = periods;
+        }
 
         @Override
         public double[] result() {
             return result;
         }
 
-        private int seasons;
-        public Optimizer setSeasons(int seasons) {
-            this.seasons = seasons;
-            return this;
-        }
-
         @Override
         public TimeSeriesModel minimizedMSE(List<DataPoint> dataPoints) {
+            TripleExponentialSmoothing tripleExponentialSmoothing = new TripleExponentialSmoothing(periods);
+            initState = tripleExponentialSmoothing.initState(dataPoints);
 
-            MultivariateFunctionMappingAdapter constFunction = costFunction(dataPoints);
-
-            int maxIter = 1000;
-            int maxEval = 1000;
+            int periodsToOptimize = periods;
 
             // Nelder-Mead Simplex
-            SimplexOptimizer nelderSimplexOptimizer = new SimplexOptimizer(0.0001, 0.0001);
-            PointValuePair nelderResult = nelderSimplexOptimizer.optimize(
-                    GoalType.MINIMIZE, new MaxIter(maxIter), new MaxEval(maxEval),
-                    new InitialGuess(new double[]{DEFAULT_LEVEL_SMOOTHING,
-                            DEFAULT_TREND_SMOOTHING, DEFAULT_SEASONAL_SMOOTHING}),
-                    new ObjectiveFunction(constFunction),
-                    new NelderMeadSimplex(3));
+            try {
+                double[] initialGuess = initialGuess(initState, periodsToOptimize);
+                MultivariateFunctionMappingAdapter costFunction = costFunction(dataPoints, periodsToOptimize);
+                result = optimize(initialGuess, costFunction);
+            } catch (MathIllegalStateException ex) {
+                // optimize without seasons
+                Logger.LOGGER.errorf("Triple exponential smoothing optimizer failed to optimize periods");
+                periodsToOptimize = 0;
+                double[] initialGuess = initialGuess(initState, periodsToOptimize);
+                MultivariateFunctionMappingAdapter costFunction = costFunction(dataPoints, periodsToOptimize);
+                result = optimize(initialGuess, costFunction);
+            }
 
-            result = constFunction.unboundedToBounded(nelderResult.getPoint());
             Logger.LOGGER.debugf("Optimizer best alpha: %.5f, beta %.5f, gamma %.5f", this.result[0], this.result[1],
                     this.result[2]);
 
-            TripleExponentialSmoothing bestModel = new TripleExponentialSmoothing(seasons,
-                    result[0], result[1], result[2]);
+            TripleExponentialSmoothing bestModel = model(result, periodsToOptimize);
             bestModel.init(dataPoints);
 
             return bestModel;
         }
 
-        private MultivariateFunctionMappingAdapter costFunction(final List<DataPoint> dataPoints) {
+        private MultivariateFunctionMappingAdapter costFunction(final List<DataPoint> dataPoints,
+                                                                final int periodsToOptimize) {
             // func for minimization
             MultivariateFunction multivariateFunction = point -> {
 
-                double alpha = point[0];
-                double beta = point[1];
-                double gamma = point[2];
+                if (point[1] >= point[0]) {
+                    return Double.POSITIVE_INFINITY;
+                }
 
-                TripleExponentialSmoothing tripleExponentialSmoothing = new TripleExponentialSmoothing(seasons,
-                        alpha, beta, gamma);
+                TripleExponentialSmoothing tripleExponentialSmoothing = model(point, periodsToOptimize);
                 AccuracyStatistics accuracyStatistics = tripleExponentialSmoothing.init(dataPoints);
 
+//                Logger.LOGGER.debugf("periods %s", Arrays.toString(initState.periods));
                 Logger.LOGGER.tracef("MSE = %s, alpha=%f, beta=%f, gamma=%f",  accuracyStatistics.getMse(),
-                        alpha, beta, gamma);
+                        point[0], point[1], point[2]);
                 return accuracyStatistics.getMse();
             };
+
+            double[][] minMax = parametersMinMax(periodsToOptimize);
             MultivariateFunctionMappingAdapter multivariateFunctionMappingAdapter =
-                    new MultivariateFunctionMappingAdapter(multivariateFunction,
-                            new double[]{0.0001, 0.0001, 0.0001}, new double[]{0.9999, 0.9999, 0.9999});
+                    new MultivariateFunctionMappingAdapter(multivariateFunction, minMax[0], minMax[1]);
 
             return multivariateFunctionMappingAdapter;
+        }
+
+        private double[] initialGuess(State state, int periodsToOptimize) {
+            double[] initialGuess = new double[5 + periodsToOptimize];
+            initialGuess[0] = DEFAULT_LEVEL_SMOOTHING;
+            initialGuess[1] = DEFAULT_TREND_SMOOTHING;
+            initialGuess[2] = DEFAULT_SEASONAL_SMOOTHING;
+            initialGuess[3] = state.level;
+            initialGuess[4] = state.slope;
+
+            for (int i = 5; i < 5 + periodsToOptimize; i++) {
+                initialGuess[i] = state.periods[i - 5];
+            }
+
+            return initialGuess;
+        }
+
+        private double[][] parametersMinMax(int periodsToOptimize) {
+            double[] min = new double[5 + periodsToOptimize];
+            double[] max = new double[5 + periodsToOptimize];
+            min[0] = 0.0001;
+            min[1] = 0.0001;
+            min[2] = 0.0001;
+            min[3] = Double.NEGATIVE_INFINITY;
+            min[4] = Double.NEGATIVE_INFINITY;
+
+            max[0] = 0.9999;
+            max[1] = 0.9999;
+            max[2] = 0.9999;
+            max[3] = Double.POSITIVE_INFINITY;
+            max[4] = Double.POSITIVE_INFINITY;
+
+            for (int i = 5; i < 5 + periodsToOptimize; i++) {
+                min[i] = Double.NEGATIVE_INFINITY;
+                max[i] = Double.POSITIVE_INFINITY;
+            }
+
+            return new double[][]{min, max};
+        }
+
+        private TripleExponentialSmoothing model(double[] point, int periodsToOptimize) {
+
+            double alpha = point[0];
+            double beta = point[1];
+            double gamma = point[2];
+
+            double level = point[3];
+            double slope = point[4];
+
+            double[] periods = new double[this.periods];
+            for (int i = 0; i < this.periods; i++) {
+                if (i < periodsToOptimize) {
+                    periods[i] = point[5 + i];
+                } else {
+                    periods[i] = initState.periods[i];
+                }
+            }
+
+            State state = new State(level, slope, periods);
+
+            TripleExponentialSmoothing model = new TripleExponentialSmoothing(alpha, beta, gamma, state);
+            return model;
+        }
+
+        private double[] optimize(double[] initialGuess, MultivariateFunctionMappingAdapter costFunction) {
+
+            SimplexOptimizer optimizer = new SimplexOptimizer(0.0001, 0.0001);
+            PointValuePair unBoundedResult = optimizer.optimize(
+                    GoalType.MINIMIZE, new MaxIter(MAX_ITER), new MaxEval(MAX_EVAL),
+                    new InitialGuess(initialGuess),
+                    new ObjectiveFunction(costFunction),
+                    new NelderMeadSimplex(initialGuess.length));
+
+            return costFunction.unboundedToBounded(unBoundedResult.getPoint());
         }
     }
 }

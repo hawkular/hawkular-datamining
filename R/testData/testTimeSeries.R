@@ -25,12 +25,14 @@ trendStatDownwardLowVar <- trendStationary(wnLowVariance, intercept=0, slope=-3.
 trendStatDownwardHighVar <- trendStationary(wnHighVariance, intercept=0, slope=-60.667)
 
 # seasonal
-sineLowVarShort <- sine(periods=20, seasons=3, amplytude=18, sigma=4, error='uniform')
-sineLowVarMedium <- sine(periods=20, seasons=5, amplytude=18, sigma=4, error='uniform')
-sineLowVarLong <- sine(periods=20, seasons=20, amplytude=18, sigma=4, error='uniform')
+sineLowVarShort <- sine(periods=20, seasons=3, amplitude=18, sigma=4, error='uniform')
+sineLowVarMedium <- sine(periods=20, seasons=5, amplitude=18, sigma=4, error='uniform')
+sineLowVarLong <- sine(periods=20, seasons=20, amplitude=18, sigma=4, error='uniform')
+# seasonal trend  
+sineTrendLowVar <- trendStationary(sineLowVarMedium, intercept=2.773, slope=0.73376)
 
 # random walk
-rw <- randomWalk(LENGTH)
+randomWalk <- randomWalk(1000)
 
 # time series export to CSV file
 timeSeriesList <- list(addName(wnLowVariance), addName(wnHighVariance),
@@ -38,8 +40,10 @@ timeSeriesList <- list(addName(wnLowVariance), addName(wnHighVariance),
   addName(trendStatDownwardLowVar), addName(trendStatDownwardHighVar),
   addName(sineLowVarShort, frequency=20),
   addName(sineLowVarLong, frequency=20),
+  addName(sineLowVarMedium, frequency=20),
+  addName(sineTrendLowVar, frequency=20),
   addName(austourists, frequency=4),
-  addName(sineLowVarMedium, frequency=20))
+  addName(randomWalk))
 
 timeSeriesList <- fitModels(timeSeriesList)
 

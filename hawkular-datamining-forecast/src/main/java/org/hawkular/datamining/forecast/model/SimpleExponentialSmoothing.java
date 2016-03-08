@@ -113,7 +113,7 @@ public class SimpleExponentialSmoothing implements TimeSeriesModel {
     @Override
     public DataPoint forecast() {
         double prediction = calculatePrediction();
-        return new DataPoint(prediction, 0L);
+        return new DataPoint(prediction, 1L);
     }
 
     @Override
@@ -121,8 +121,8 @@ public class SimpleExponentialSmoothing implements TimeSeriesModel {
         double prediction = calculatePrediction();
 
         List<DataPoint> dataPoints = new ArrayList<>(nAhead);
-        for (int i = 0; i < nAhead; i++) {
-            dataPoints.add(new DataPoint(prediction, (long)i));
+        for (long i = 1; i <= nAhead; i++) {
+            dataPoints.add(new DataPoint(prediction, i));
         }
 
         return dataPoints;

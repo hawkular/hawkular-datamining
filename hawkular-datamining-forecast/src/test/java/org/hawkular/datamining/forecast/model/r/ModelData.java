@@ -124,15 +124,18 @@ public class ModelData {
 
     @Override
     public String toString() {
-        return "RModel{" +
-                "name='" + name + '\'' +
+        return "ModelData{" +
+                "model=" + model +
                 ", mse=" + mse +
-                ", bic=" + bic +
                 ", aic=" + aic +
+                ", bic=" + bic +
                 ", aicc=" + aicc +
-                ", trend=" + trend +
                 ", level=" + level +
-                ", model=" + model +
+                ", trend=" + trend +
+                ", alpha=" + alpha +
+                ", beta=" + beta +
+                ", gamma=" + gamma +
+                ", name='" + name + '\'' +
                 '}';
     }
 }
