@@ -29,7 +29,7 @@ public class ModelReaderTest {
 
     @Test
     public void testAttributes() throws IOException {
-        ModelData modelData = ModelReader.read("sineLowVar");
+        ModelData modelData = ModelReader.read("sineLowVarMedium");
 
         Assert.assertNotNull(modelData.getModel());
         Assert.assertNotNull(modelData.getMse());
@@ -38,5 +38,6 @@ public class ModelReaderTest {
         Assert.assertNotNull(modelData.getAic());
         Assert.assertNotNull(modelData.getAicc());
         Assert.assertNotNull(modelData.getBic());
+        Assert.assertNotNull(modelData.getPeriods());
     }
 }

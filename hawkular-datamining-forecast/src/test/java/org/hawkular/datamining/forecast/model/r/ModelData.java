@@ -42,9 +42,11 @@ public class ModelData {
     private Double beta;
     private Double gamma;
 
+    private int periods;
+
 
     public ModelData(Class<?> model, String name, Double level, Double trend, Double mse, Double aic, Double bic,
-                     Double aicc) {
+                     Double aicc, int periods) {
         this.model = model;
         this.name = name;
 
@@ -55,6 +57,8 @@ public class ModelData {
         this.aic = aic;
         this.bic = bic;
         this.aicc = aicc;
+
+        this.periods = periods;
     }
 
 
@@ -120,6 +124,10 @@ public class ModelData {
 
     public void setGamma(Double gamma) {
         this.gamma = gamma;
+    }
+
+    public int getPeriods() {
+        return periods;
     }
 
     @Override

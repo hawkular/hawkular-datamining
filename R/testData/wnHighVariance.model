@@ -8,3 +8,4 @@ model: ETS(A,N,N)
  gamma: NA 
  l: -84.9092067353583 
  b: NA 
+ periods: 1 

@@ -43,6 +43,7 @@ public class ModelReader {
     private static final Pattern ALPHA_PATTERN = Pattern.compile("(alpha: )(-?\\d*\\.?\\d*)");
     private static final Pattern BETA_PATTERN = Pattern.compile("(beta: )(-?\\d*\\.?\\d*)");
     private static final Pattern GAMMA_PATTERN = Pattern.compile("(gamma: )(-?\\d*\\.?\\d*)");
+    private static final Pattern PERIODS_PATTERN = Pattern.compile("(periods: )(\\d*\\.?\\d*)");
 
 
     /**
@@ -56,17 +57,19 @@ public class ModelReader {
 
         List<DataPoint> data = CSVTimeSeriesReader.getData(fileName + ".csv");
         Class<?> model = parseModel(content);
-        Double mse = patternParse(content, MSE_PATTERN);
-        Double aic = patternParse(content, AIC_PATTERN);
-        Double bic = patternParse(content, BIC_PATTERN);
-        Double aicc = patternParse(content, AICC_PATTERN);
-        Double trend = patternParse(content, TREND_PATTERN);
-        Double level = patternParse(content, LEVEL_PATTERN);
-        Double alpha = patternParse(content, ALPHA_PATTERN);
-        Double beta = patternParse(content, BETA_PATTERN);
-        Double gamma = patternParse(content, GAMMA_PATTERN);
+        Double mse = patternParseToDouble(content, MSE_PATTERN);
+        Double aic = patternParseToDouble(content, AIC_PATTERN);
+        Double bic = patternParseToDouble(content, BIC_PATTERN);
+        Double aicc = patternParseToDouble(content, AICC_PATTERN);
+        Double trend = patternParseToDouble(content, TREND_PATTERN);
+        Double level = patternParseToDouble(content, LEVEL_PATTERN);
+        Double alpha = patternParseToDouble(content, ALPHA_PATTERN);
+        Double beta = patternParseToDouble(content, BETA_PATTERN);
+        Double gamma = patternParseToDouble(content, GAMMA_PATTERN);
 
-        ModelData result = new ModelData(model, fileName, level, trend, mse, aic, bic, aicc);
+        Integer periods = patternParseToInteger(content, PERIODS_PATTERN);
+
+        ModelData result = new ModelData(model, fileName, level, trend, mse, aic, bic, aicc, periods);
         result.setData(data);
         result.setAlpha(alpha);
         result.setBeta(beta);
@@ -89,7 +92,7 @@ public class ModelReader {
         return model;
     }
 
-    private static Double patternParse(final String fileContent, Pattern regex) {
+    private static Double patternParseToDouble(final String fileContent, Pattern regex) {
         Matcher m = regex.matcher(fileContent);
         String str = null;
         if (m.find()) {
@@ -97,5 +100,15 @@ public class ModelReader {
         }
 
         return str != null && !str.isEmpty() ? Double.parseDouble(str) : null;
+    }
+
+    private static Integer patternParseToInteger(final String fileContent, Pattern regex) {
+        Matcher m = regex.matcher(fileContent);
+        String str = null;
+        if (m.find()) {
+            str = m.group(2);
+        }
+
+        return str != null && !str.isEmpty() ? Integer.parseInt(str) : null;
     }
 }

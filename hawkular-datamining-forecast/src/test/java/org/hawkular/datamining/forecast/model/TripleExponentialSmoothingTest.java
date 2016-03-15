@@ -55,7 +55,7 @@ public class TripleExponentialSmoothingTest extends AbstractTest {
 
         ModelData rModel = ModelReader.read("sineLowVarLong");
 
-        TripleExponentialSmoothing.Optimizer optimizer = TripleExponentialSmoothing.optimizer(20);
+        TripleExponentialSmoothing.Optimizer optimizer = TripleExponentialSmoothing.optimizer(rModel.getPeriods());
 
         try {
             TimeSeriesModel model = optimizer.minimizedMSE(rModel.getData().subList(0, minimalPoints));
@@ -76,7 +76,7 @@ public class TripleExponentialSmoothingTest extends AbstractTest {
     public void testBatchInitAndLearnStatistics() throws IOException {
         ModelData rModel = ModelReader.read("sineLowVarLong");
 
-        TripleExponentialSmoothing.Optimizer optimizer = TripleExponentialSmoothing.optimizer(20);
+        TripleExponentialSmoothing.Optimizer optimizer = TripleExponentialSmoothing.optimizer(rModel.getPeriods());
         TimeSeriesModel modelInit = optimizer.minimizedMSE(rModel.getData());
 
         TripleExponentialSmoothing.State state =
@@ -95,9 +95,9 @@ public class TripleExponentialSmoothingTest extends AbstractTest {
 
     @Test
     public void testInit() throws IOException {
-        ModelData rModel = ModelReader.read("sineLowVar");
+       ModelData rModel = ModelReader.read("sineLowVarMedium");
 
-        TripleExponentialSmoothing tripleExponentialSmoothing = new TripleExponentialSmoothing(20);
+        TripleExponentialSmoothing tripleExponentialSmoothing = new TripleExponentialSmoothing(rModel.getPeriods());
 
         AccuracyStatistics initStat = tripleExponentialSmoothing.init(rModel.getData());
         Assert.assertNotNull(initStat);
@@ -107,7 +107,8 @@ public class TripleExponentialSmoothingTest extends AbstractTest {
     public void testSineLowVarMedium() throws IOException {
         ModelData rModel = ModelReader.read("sineLowVarMedium");
 
-        TimeSeriesModel seasonalModel = TripleExponentialSmoothing.optimizer(20).minimizedMSE(rModel.getData());
+        TimeSeriesModel seasonalModel = TripleExponentialSmoothing.optimizer(rModel.getPeriods())
+                .minimizedMSE(rModel.getData());
         AccuracyStatistics seasonalStat = seasonalModel.initStatistics();
         System.out.println(seasonalStat);
 
@@ -126,7 +127,8 @@ public class TripleExponentialSmoothingTest extends AbstractTest {
 
         ModelData rModel = ModelReader.read("sineLowVarLong");
 
-        TimeSeriesModel seasonalModel = TripleExponentialSmoothing.optimizer(20).minimizedMSE(rModel.getData());
+        TimeSeriesModel seasonalModel = TripleExponentialSmoothing.optimizer(rModel.getPeriods())
+                .minimizedMSE(rModel.getData());
         AccuracyStatistics seasonalStat = seasonalModel.initStatistics();
         System.out.println(seasonalStat);
 
@@ -138,7 +140,8 @@ public class TripleExponentialSmoothingTest extends AbstractTest {
     public void testSineLowVarTrend() throws IOException {
         ModelData rModel = ModelReader.read("sineTrendLowVar");
 
-        TimeSeriesModel seasonalModel = TripleExponentialSmoothing.optimizer(20).minimizedMSE(rModel.getData());
+        TimeSeriesModel seasonalModel = TripleExponentialSmoothing.optimizer(rModel.getPeriods())
+                .minimizedMSE(rModel.getData());
         AccuracyStatistics initStatistics = seasonalModel.initStatistics();
         System.out.println(initStatistics);
 
@@ -151,7 +154,8 @@ public class TripleExponentialSmoothingTest extends AbstractTest {
     public void testAustourists() throws IOException {
         ModelData rModel = ModelReader.read("austourists");
 
-        TimeSeriesModel seasonalModel = TripleExponentialSmoothing.optimizer(4).minimizedMSE(rModel.getData());
+        TimeSeriesModel seasonalModel = TripleExponentialSmoothing.optimizer(rModel.getPeriods())
+                .minimizedMSE(rModel.getData());
         AccuracyStatistics seasonalStat = seasonalModel.initStatistics();
         System.out.println(seasonalStat);
 
@@ -164,7 +168,8 @@ public class TripleExponentialSmoothingTest extends AbstractTest {
     public void testPrediction() throws IOException {
         ModelData rModel = ModelReader.read("austourists");
 
-        TimeSeriesModel seasonalModel = TripleExponentialSmoothing.optimizer(4).minimizedMSE(rModel.getData());
+        TimeSeriesModel seasonalModel = TripleExponentialSmoothing.optimizer(rModel.getPeriods())
+                .minimizedMSE(rModel.getData());
         AccuracyStatistics seasonalStat = seasonalModel.initStatistics();
         System.out.println(seasonalStat);
 

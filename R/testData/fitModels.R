@@ -25,7 +25,8 @@ fitModels <- function(timeSeries) {
                            'beta:', toString(model$par['beta']), '\n',
                            'gamma:', toString(model$par['gamma']), '\n',
                            'l:', toString(model$par['l']), '\n',
-                           'b:', toString(model$par['b']), '\n')
+                           'b:', toString(model$par['b']), '\n',
+                           'periods:', toString(frequency(series)), '\n')
     
     attr(timeSeries[[i]], 'model') <- modelMetaData
   }
