@@ -35,7 +35,7 @@ public class SimpleExponentialSmoothingTest extends AbstractTest {
     public void testMinimalPoints() throws IOException {
         int minimalPoints = 0;
 
-        ModelData rModel = ModelReader.readModel("trendStatUpwardLowVar");
+        ModelData rModel = ModelReader.read("trendStatUpwardLowVar");
 
         SimpleExponentialSmoothing.Optimizer optimizer = SimpleExponentialSmoothing.optimizer();
 
@@ -49,12 +49,12 @@ public class SimpleExponentialSmoothingTest extends AbstractTest {
 
     @Test
     public void testBatchInitAndLearn() throws IOException {
-        ModelData rModel = ModelReader.readModel("wnLowVariance");
+        ModelData rModel = ModelReader.read("wnLowVariance");
 
         SimpleExponentialSmoothing.Optimizer optimizer = SimpleExponentialSmoothing.optimizer();
         TimeSeriesModel modelInit = optimizer.minimizedMSE(rModel.getData());
 
-        TimeSeriesModel modelLearn = new SimpleExponentialSmoothing(optimizer.getResult()[0]);
+        TimeSeriesModel modelLearn = new SimpleExponentialSmoothing(optimizer.result()[0]);
         modelLearn.learn(rModel.getData());
 
         AccuracyStatistics batchInitStatistics = modelInit.initStatistics();
@@ -65,12 +65,12 @@ public class SimpleExponentialSmoothingTest extends AbstractTest {
 
     @Test
     public void testContinuousLearning() throws IOException {
-        ModelData rModel = ModelReader.readModel("wnLowVariance");
+        ModelData rModel = ModelReader.read("wnLowVariance");
 
         SimpleExponentialSmoothing.Optimizer optimizer = SimpleExponentialSmoothing.optimizer();
         TimeSeriesModel modelInit = optimizer.minimizedMSE(rModel.getData());
 
-        TimeSeriesModel modelLearnContinuous = new SimpleExponentialSmoothing(optimizer.getResult()[0]);
+        TimeSeriesModel modelLearnContinuous = new SimpleExponentialSmoothing(optimizer.result()[0]);
         rModel.getData().forEach(dataPoint -> modelLearnContinuous.learn(dataPoint));
 
         AccuracyStatistics batchInitStatistics = modelInit.initStatistics();

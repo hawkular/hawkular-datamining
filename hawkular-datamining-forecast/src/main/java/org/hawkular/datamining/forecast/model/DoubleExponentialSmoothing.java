@@ -118,9 +118,9 @@ public class DoubleExponentialSmoothing implements TimeSeriesModel {
         absSum += abs(error);
         counter++;
 
-        double level_old = level;
+        double oldLevel = level;
         level = levelSmoothing*dataPoint.getValue() + (1 - levelSmoothing)*(level + slope);
-        slope = trendSmoothing*(level - level_old) + (1 - trendSmoothing)*(slope);
+        slope = trendSmoothing*(level - oldLevel) + (1 - trendSmoothing)*(slope);
     }
 
     @Override
@@ -139,14 +139,14 @@ public class DoubleExponentialSmoothing implements TimeSeriesModel {
     @Override
     public DataPoint forecast() {
         double prediction = calculatePrediction(1);
-        return new DataPoint(prediction, 0L); //TODO should be or 1?
+        return new DataPoint(prediction, 1L);
     }
 
     @Override
     public List<DataPoint> forecast(int nAhead) {
 
         List<DataPoint> result = new ArrayList<>(nAhead);
-        for (int i = 0; i < nAhead; i++) {
+        for (int i = 1; i <= nAhead; i++) {
             double prediction = calculatePrediction(i);
             DataPoint predictedPoint = new DataPoint(prediction,(long) i);
 
@@ -224,7 +224,8 @@ public class DoubleExponentialSmoothing implements TimeSeriesModel {
 
         private double[] result;
 
-        public double[] getResult() {
+        @Override
+        public double[] result() {
             return result;
         }
 

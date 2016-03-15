@@ -17,6 +17,8 @@
 
 package org.hawkular.datamining.forecast.model;
 
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+
 import java.io.IOException;
 import java.util.Collections;
 
@@ -35,7 +37,7 @@ public class DoubleExponentialSmoothingTest extends AbstractTest {
     public void testMinimalPoints() throws IOException {
         int minimalPoints = 2;
 
-        ModelData rModel = ModelReader.readModel("trendStatUpwardLowVar");
+        ModelData rModel = ModelReader.read("trendStatUpwardLowVar");
 
         DoubleExponentialSmoothing.Optimizer optimizer = DoubleExponentialSmoothing.optimizer();
 
@@ -49,12 +51,12 @@ public class DoubleExponentialSmoothingTest extends AbstractTest {
 
     @Test
     public void testBatchInitAndLearn() throws IOException {
-        ModelData rModel = ModelReader.readModel("wnLowVariance");
+        ModelData rModel = ModelReader.read("wnLowVariance");
 
         DoubleExponentialSmoothing.Optimizer optimizer = DoubleExponentialSmoothing.optimizer();
         TimeSeriesModel modelInit = optimizer.minimizedMSE(rModel.getData());
 
-        TimeSeriesModel modelLearn = new DoubleExponentialSmoothing(optimizer.getResult()[0], optimizer.getResult()[1]);
+        TimeSeriesModel modelLearn = new DoubleExponentialSmoothing(optimizer.result()[0], optimizer.result()[1]);
         modelLearn.learn(rModel.getData());
 
         AccuracyStatistics batchInitStatistics = modelInit.initStatistics();
@@ -65,13 +67,13 @@ public class DoubleExponentialSmoothingTest extends AbstractTest {
 
     @Test
     public void testContinuousLearning() throws IOException {
-        ModelData rModel = ModelReader.readModel("trendStatUpwardLowVar");
+        ModelData rModel = ModelReader.read("trendStatUpwardLowVar");
 
         DoubleExponentialSmoothing.Optimizer optimizer = DoubleExponentialSmoothing.optimizer();
         TimeSeriesModel modelInit = optimizer.minimizedMSE(rModel.getData());
 
-        TimeSeriesModel modelLearnContinuous = new DoubleExponentialSmoothing(optimizer.getResult()[0],
-                optimizer.getResult()[1]);
+        TimeSeriesModel modelLearnContinuous = new DoubleExponentialSmoothing(optimizer.result()[0],
+                optimizer.result()[1]);
         rModel.getData().forEach(dataPoint -> modelLearnContinuous.learn(dataPoint));
 
         AccuracyStatistics batchInitStatistics = modelInit.initStatistics();
@@ -87,5 +89,35 @@ public class DoubleExponentialSmoothingTest extends AbstractTest {
         } catch (Throwable ex) {
             Assert.fail();
         }
+    }
+
+    @Test
+    public void testTrend() throws IOException {
+        double ACCURACY_LOW = 0.95;
+        double ACCURACY_HIGH = 1.05;
+        ModelData rModel = ModelReader.read("trendStatUpwardLowVar");
+
+        DoubleExponentialSmoothing.Optimizer optimizer = DoubleExponentialSmoothing.optimizer();
+        TimeSeriesModel model = optimizer.minimizedMSE(rModel.getData());
+        AccuracyStatistics initStatistics = model.initStatistics();
+
+        assertThat(initStatistics.getMse()).withFailMessage("rModel: %s\nMy: %s\n%s", rModel,
+                model, initStatistics)
+                .isBetween(rModel.getMse()*ACCURACY_LOW,rModel.getMse()*ACCURACY_HIGH);
+    }
+
+    @Test
+    public void testStationary() throws IOException {
+        double ACCURACY_LOW = 0.95;
+        double ACCURACY_HIGH = 1.05;
+        ModelData rModel = ModelReader.read("wnHighVariance");
+
+        DoubleExponentialSmoothing.Optimizer optimizer = DoubleExponentialSmoothing.optimizer();
+        TimeSeriesModel model = optimizer.minimizedMSE(rModel.getData());
+        AccuracyStatistics initStatistics = model.initStatistics();
+
+        assertThat(initStatistics.getMse()).withFailMessage("rModel: %s\nMy: %s\n%s", rModel,
+                model, initStatistics)
+                .isBetween(rModel.getMse()*ACCURACY_LOW,rModel.getMse()*ACCURACY_HIGH);
     }
 }

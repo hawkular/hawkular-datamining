@@ -74,4 +74,13 @@ public class AccuracyStatistics {
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "AccuracyStatistics{" +
+                "sse=" + sse +
+                ", mse=" + mse +
+                ", mae=" + mae +
+                '}';
+    }
 }

@@ -51,13 +51,13 @@ exportChart <- function(ts) {
   cat(paste('Chart ', name, ', exported to ', fileName, '\n'))
 }
 
-addName <- function(ts) {
+addName <- function(ts, frequency=1) {
 
   name <- deparse(substitute(ts))
   
   result <- name
   attr(result, 'name') <- name
-  attr(result, 'ts') <- ts
+  attr(result, 'ts') <- ts(ts, frequency=frequency)
   
   result 
 }

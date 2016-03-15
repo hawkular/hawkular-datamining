@@ -150,13 +150,13 @@ public class AutomaticForecaster implements Forecaster {
                 continue;
             }
 
-            AccuracyStatistics accuracy = model.initStatistics();
+            AccuracyStatistics initStatistics = model.initStatistics();
 
-            InformationCriterionHolder icHolder = new InformationCriterionHolder(accuracy.getSse(),
+            InformationCriterionHolder icHolder = new InformationCriterionHolder(initStatistics.getSse(),
                     model.numberOfParams(), initPoints.size());
 
-            Logger.LOGGER.debugf("Estimated model: %s, size: %d, MSE: %f, %s",
-                    model.toString(), initPoints.size(), accuracy.getMse(), icHolder);
+            Logger.LOGGER.debugf("Estimated model: %s, data size: %d,init MSE: %f, %s",
+                    model.toString(), initPoints.size(), initStatistics.getMse(), icHolder);
 
             double currentIc = icHolder.informationCriterion(ic);
             if (currentIc < bestIC) {
@@ -165,8 +165,8 @@ public class AutomaticForecaster implements Forecaster {
             }
         }
 
-        Logger.LOGGER.debugf("Best model for: %s, is %s", metricContext.getMetricId(),
-                bestModel.getClass().getSimpleName());
+        Logger.LOGGER.debugf("Best model for: %s, is %s, %s", metricContext.getMetricId(),
+                bestModel.getClass().getSimpleName(), bestModel.initStatistics());
 
         this.usedModel = bestModel;
         return bestModel;

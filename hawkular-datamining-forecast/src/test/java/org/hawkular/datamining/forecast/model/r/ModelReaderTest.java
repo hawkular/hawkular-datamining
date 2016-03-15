@@ -15,18 +15,29 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.forecast.model;
+package org.hawkular.datamining.forecast.model.r;
 
-import java.util.List;
+import java.io.IOException;
 
-import org.hawkular.datamining.forecast.DataPoint;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * @author Pavol Loffay
  */
-public interface ModelOptimizer {
+public class ModelReaderTest {
 
-    TimeSeriesModel minimizedMSE(List<DataPoint> dataPoints);
+    @Test
+    public void testAttributes() throws IOException {
+        ModelData modelData = ModelReader.read("sineLowVarMedium");
 
-    double[] result();
+        Assert.assertNotNull(modelData.getModel());
+        Assert.assertNotNull(modelData.getMse());
+        Assert.assertNotNull(modelData.getLevel());
+        Assert.assertNotNull(modelData.getTrend());
+        Assert.assertNotNull(modelData.getAic());
+        Assert.assertNotNull(modelData.getAicc());
+        Assert.assertNotNull(modelData.getBic());
+        Assert.assertNotNull(modelData.getPeriods());
+    }
 }

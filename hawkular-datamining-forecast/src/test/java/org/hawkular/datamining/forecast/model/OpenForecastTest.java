@@ -45,7 +45,7 @@ public class OpenForecastTest extends AbstractTest {
 
     @BeforeClass
     public static void init() throws IOException {
-        rModel = ModelReader.readModel("trendStatUpwardLowVar");
+        rModel = ModelReader.read("trendStatUpwardLowVar");
     }
 
     @Test
