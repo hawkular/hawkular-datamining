@@ -19,7 +19,7 @@ package org.hawkular.datamining.api.json;
 
 import org.hawkular.datamining.api.Subscription;
 import org.hawkular.datamining.forecast.Forecaster;
-import org.hawkular.datamining.forecast.model.TimeSeriesModel;
+import org.hawkular.datamining.forecast.models.TimeSeriesModel;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

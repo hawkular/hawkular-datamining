@@ -25,10 +25,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.hawkular.datamining.forecast.model.DoubleExponentialSmoothing;
-import org.hawkular.datamining.forecast.model.ModelOptimizer;
-import org.hawkular.datamining.forecast.model.SimpleExponentialSmoothing;
-import org.hawkular.datamining.forecast.model.TimeSeriesModel;
+import org.hawkular.datamining.forecast.models.DoubleExponentialSmoothing;
+import org.hawkular.datamining.forecast.models.ModelOptimizer;
+import org.hawkular.datamining.forecast.models.SimpleExponentialSmoothing;
+import org.hawkular.datamining.forecast.models.TimeSeriesModel;
+import org.hawkular.datamining.forecast.models.TripleExponentialSmoothing;
+import org.hawkular.datamining.forecast.stats.AccuracyStatistics;
+import org.hawkular.datamining.forecast.stats.InformationCriterion;
+import org.hawkular.datamining.forecast.stats.InformationCriterionHolder;
 
 import com.google.common.collect.EvictingQueue;
 
@@ -49,7 +53,7 @@ public class AutomaticForecaster implements Forecaster {
 
     private final MetricContext metricContext;
 
-    private final InformationCriterion ic = InformationCriterion.aicc;
+    private final InformationCriterion ic = InformationCriterion.AICc;
 
     public AutomaticForecaster(MetricContext context) {
         if (context == null ||
@@ -59,7 +63,8 @@ public class AutomaticForecaster implements Forecaster {
 
         this.applicableModels = new HashSet<>(Arrays.asList(
                 SimpleExponentialSmoothing.optimizer(),
-                DoubleExponentialSmoothing.optimizer()));
+                DoubleExponentialSmoothing.optimizer(),
+                TripleExponentialSmoothing.optimizer()));
         this.window = EvictingQueue.create(WINDOW_SIZE);
         this.metricContext = context;
     }
@@ -96,7 +101,7 @@ public class AutomaticForecaster implements Forecaster {
                     window.remainingCapacity());
         }
         DataPoint point = usedModel.forecast();
-        return new DataPoint(point.getValue(), lastTimestamp + metricContext.getCollectionInterval());
+        return new DataPoint(point.getValue(), lastTimestamp + metricContext.getCollectionInterval()*1000);
     }
 
     @Override
@@ -108,7 +113,7 @@ public class AutomaticForecaster implements Forecaster {
         List<DataPoint> points = usedModel.forecast(nAhead);
 
         return points.stream().map(dataPoint -> new DataPoint(dataPoint.getValue(),
-                lastTimestamp + dataPoint.getTimestamp() * metricContext.getCollectionInterval()))
+                lastTimestamp + dataPoint.getTimestamp()*metricContext.getCollectionInterval()*1000))
                 .collect(Collectors.toList());
     }
 
