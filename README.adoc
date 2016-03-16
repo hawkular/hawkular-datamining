@@ -70,7 +70,7 @@ of good results will be merged into monitoring system Hawkular. This requires
 that module will be distributed under Apache Licence 2.0.
 
 == Description in Czech
-==== Predikce události v metrických datech za pomoci analýzy časových řad
+==== Predikce událostí v metrických datech za pomoci analýzy časových řad
 Student za pomoci analýzy časových řad vyvine modul, který na základě příchozích
 a historických dat umožní včasnou detekci blížících se událostí. Tyto události
 jsou předem definovány jako takzvané výstrahy (alerts), většinou jako konjunkce
