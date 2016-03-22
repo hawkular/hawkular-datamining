@@ -28,6 +28,6 @@ sine <- function(periods=LENGTH, seasons=1, amplitude=1, error=c('gaussian', 'un
     error <- rnorm(periods*seasons, mean=0, sigma=1)
   }
 
-  t <- seq(0, 4*pi,, periods*seasons)
+  t <- seq(0, 2*pi,, periods*seasons)
   y <- amplitude*sin(seasons*t) + error
 }

@@ -1,0 +1,155 @@
+/*
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
+ * and other contributors as indicated by the @author tags.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.hawkular.datamining.forecast.models;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.hawkular.datamining.forecast.DataPoint;
+import org.hawkular.datamining.forecast.stats.AccuracyStatistics;
+
+/**
+ * @author Pavol Loffay
+ */
+public class LeastMeanSquaresFilter implements TimeSeriesModel {
+
+    private final double alphaLearningRate;
+    private final int filterLength;
+    private double[] weights;
+    private double[] oldPoints;
+
+    private int initialized = 0;
+
+    public LeastMeanSquaresFilter(double alphaLearningRate, double[] weights) {
+        this.alphaLearningRate = alphaLearningRate;
+        this.weights = Arrays.copyOf(weights, weights.length);
+        this.filterLength = weights.length;
+
+        this.oldPoints = new double[filterLength];
+    }
+
+    private LeastMeanSquaresFilter(double alphaLearningRate, double[] weights, double[] oldPoints) {
+        this(alphaLearningRate, weights);
+
+        if (oldPoints.length != filterLength) {
+            throw new IllegalArgumentException("Old points length differs from filter length.");
+        }
+        this.oldPoints = Arrays.copyOf(oldPoints, oldPoints.length);
+    }
+
+    public double[] getWeights() {
+        return Arrays.copyOf(weights, weights.length);
+    }
+
+    @Override
+    public void learn(DataPoint dataPoint) {
+        process(Arrays.asList(dataPoint));
+    }
+
+    @Override
+    public void learn(List<DataPoint> dataPoints) {
+        process(dataPoints);
+    }
+
+    @Override
+    public List<DataPoint> forecast(int nAhead) {
+        LeastMeanSquaresFilter lmsPredict = new LeastMeanSquaresFilter(this.alphaLearningRate, this.weights,
+                this.oldPoints);
+
+        List<DataPoint> result = new ArrayList<>(nAhead);
+        for (int i = 0; i < nAhead; i++) {
+            DataPoint predictedPoint = lmsPredict.forecast();
+            result.add(predictedPoint);
+
+            lmsPredict.process(Arrays.asList(predictedPoint));
+        }
+
+        return result;
+    }
+
+    @Override
+    public AccuracyStatistics init(List<DataPoint> dataPoints) {
+        return null;
+    }
+
+    @Override
+    public AccuracyStatistics initStatistics() {
+        return null;
+    }
+
+    @Override
+    public AccuracyStatistics runStatistics() {
+        return null;
+    }
+
+    @Override
+    public String name() {
+        return "Least mean squares filter";
+    }
+
+    @Override
+    public int numberOfParams() {
+        return 0;
+    }
+
+    @Override
+    public  DataPoint forecast() {
+        double prediction = currentPrediction();
+
+        return new DataPoint(prediction, 1L);
+    }
+
+    private void process(List<DataPoint> dataPoints) {
+
+        for (DataPoint dataPoint: dataPoints) {
+            if (initialized++ <= filterLength) {
+                updateFilterPoints(dataPoint.getValue());
+                continue;
+            }
+
+            double currentPrediction = currentPrediction();
+            double error = (dataPoint.getValue() - (currentPrediction));
+
+            // update weights
+            for (int i = 0; i < filterLength; i++) {
+                weights[i] = weights[i] - (alphaLearningRate * error * oldPoints[i]);
+//                weights[i] = weights[i] - (error * oldPoints[i]) / (oldPoints[i] * oldPoints[i]); //normalized
+            }
+
+            updateFilterPoints(dataPoint.getValue());
+        }
+    }
+
+    private double currentPrediction() {
+        double oldPrediction = 0;
+        for (int i = 0; i < filterLength; i++) {
+            oldPrediction  += (-weights[i]) * oldPoints[i];
+        }
+
+        return oldPrediction;
+    }
+
+    private void updateFilterPoints(double point) {
+        for(int i = filterLength - 1; i > 0; i--) {
+            oldPoints[i] = oldPoints[i - 1];
+        }
+
+        oldPoints[0] = point;
+    }
+}
