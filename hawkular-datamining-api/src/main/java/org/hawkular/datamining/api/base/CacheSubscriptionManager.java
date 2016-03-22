@@ -92,6 +92,11 @@ public class CacheSubscriptionManager implements SubscriptionManager {
                 subscription.getMetric().getTenant());
         subscription.forecaster().learn(points);
 
+        /**
+         * Set prediction listener
+         */
+        subscription.forecaster().setPredictionListener(predictionListener);
+
         Logger.LOGGER.subscribing(subscription.getMetric().getMetricId(), subscription.getMetric().getTenant());
         tenantSubscriptions.getSubscriptions().put(subscription.getMetric().getMetricId(), subscription);
     }

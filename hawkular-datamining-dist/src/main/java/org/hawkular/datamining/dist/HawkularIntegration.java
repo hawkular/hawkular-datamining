@@ -25,8 +25,8 @@ import javax.inject.Inject;
 
 import org.hawkular.datamining.api.SubscriptionManager;
 import org.hawkular.datamining.dist.integration.Configuration;
+import org.hawkular.datamining.dist.integration.metrics.JMSMetricDataListener;
 import org.hawkular.datamining.dist.integration.metrics.JMSPredictionSender;
-import org.hawkular.datamining.dist.integration.metrics.MetricDataListener;
 
 /**
  * @author Pavol Loffay
@@ -39,16 +39,14 @@ public class HawkularIntegration {
     @Inject
     private SubscriptionManager subscriptionManager;
 
-    private MetricDataListener metricDataListener;
-    private JMSPredictionSender predictionSender;
 
     @PostConstruct
     public void postConstruct() {
 
-        this.metricDataListener = new MetricDataListener(subscriptionManager);
+        new JMSMetricDataListener(subscriptionManager);
 
-        this.predictionSender = new JMSPredictionSender(Configuration.TOPIC_METRIC_DATA, Configuration.BROKER_URL);
-        subscriptionManager.setPredictionListener(predictionSender);
+        JMSPredictionSender jmsPredictionSender = new JMSPredictionSender(Configuration.TOPIC_METRIC_DATA);
+        subscriptionManager.setPredictionListener(jmsPredictionSender);
 
         Logger.LOGGER.infof("Datamining Hawkular Integration");
     }

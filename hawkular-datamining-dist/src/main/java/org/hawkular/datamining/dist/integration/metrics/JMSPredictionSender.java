@@ -40,14 +40,12 @@ import org.hawkular.datamining.forecast.DataPoint;
 public class JMSPredictionSender implements PredictionListener {
 
     private final String topicName;
-    private final String brokerUrl;
     private final MessageProcessor messageProcessor;
 
     private ConnectionFactory connectionFactory;
 
-    public JMSPredictionSender(String topicName, String brokerUrl) {
+    public JMSPredictionSender(String topicName) {
         this.topicName = topicName;
-        this.brokerUrl = brokerUrl;
 
         this.messageProcessor = new MessageProcessor();
 
