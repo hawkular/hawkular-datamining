@@ -57,7 +57,7 @@ import org.hawkular.inventory.bus.api.RelationshipEvent;
  */
 @Eager
 @ApplicationScoped
-public class InventoryChangesListener extends InventoryEventMessageListener {
+public class JMSInventoryChangesListener extends InventoryEventMessageListener {
 
     @Inject
     private SubscriptionManager subscriptionManager;

@@ -36,12 +36,12 @@ import org.hawkular.datamining.forecast.DataPoint;
 /**
  * @author Pavol Loffay
  */
-public class MetricDataListener extends BasicMessageListener<MetricDataMessage> {
+public class JMSMetricDataListener extends BasicMessageListener<MetricDataMessage> {
 
     private final SubscriptionManager subscriptionManager;
 
 
-    public MetricDataListener(SubscriptionManager subscriptionManager) {
+    public JMSMetricDataListener(SubscriptionManager subscriptionManager) {
         this.subscriptionManager = subscriptionManager;
 
         try {
