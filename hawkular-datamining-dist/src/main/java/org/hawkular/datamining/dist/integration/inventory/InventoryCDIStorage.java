@@ -19,7 +19,9 @@ package org.hawkular.datamining.dist.integration.inventory;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -106,11 +108,6 @@ public class InventoryCDIStorage implements InventoryStorage {
     @Override
     public Set<Relationship> predictionRelationships(CanonicalPath... targetEntity) {
 
-//        Query query = Query.path().with(With.paths(targetEntity)).with(SwitchElementType.incomingRelationships(),
-//                        RelationWith.name(InventoryConfiguration.PREDICTION_RELATIONSHIP)).get();
-
-//        Page<Relationship> page = inventory.execute(query, Relationship.class, Pager.unlimited(Order.unspecified()));
-
         Set<Relationship> result = new HashSet<>();
         for (CanonicalPath target: targetEntity) {
             Relationship relationship  = predictionRelationships.relationships().get(target);
@@ -196,5 +193,16 @@ public class InventoryCDIStorage implements InventoryStorage {
         metrics.addAll(metricsUnderTenant);
 
         return metrics;
+    }
+
+
+    private static class PredictionRelationships {
+
+        // <targetEntity, relationship>
+        private Map<CanonicalPath, Relationship> targetEntityRelationships = new ConcurrentHashMap<>();
+
+        public Map<CanonicalPath, Relationship> relationships() {
+            return targetEntityRelationships;
+        }
     }
 }

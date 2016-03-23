@@ -121,7 +121,7 @@ public class RestModels {
     })
     public Response unSubscribe(@PathParam("id") String metricId) {
 
-        subscriptionManager.unSubscribeAll(tenant, metricId);
+        subscriptionManager.unsubscribeAll(tenant, metricId);
 
         return Response.status(Response.Status.NO_CONTENT).build();
     }

@@ -17,10 +17,7 @@
 
 package org.hawkular.datamining.api;
 
-import java.util.Map;
 import java.util.Set;
-
-import org.hawkular.datamining.api.base.TenantsSubscriptionsHolder;
 
 /**
  * SubscriptionManager provides access to all subscriptions in Data Mining.
@@ -31,14 +28,13 @@ public interface SubscriptionManager {
 
     void subscribe(Subscription subscription);
 
-    boolean subscribes(String tenant, String metricId);
+    boolean isSubscribed(String tenant, String metricId);
     Subscription subscription(String tenant, String metricId);
     Set<Subscription> subscriptionsOfTenant(String tenant);
 
-    void unSubscribeAll(String tenant, String metricId);
-    void unSubscribe(String tenant, String metricId, Subscription.SubscriptionOwner subscriptionOwner);
-    void unSubscribe(String tenant, String metricId, Set<Subscription.SubscriptionOwner> subscriptionOwners);
+    void unsubscribeAll(String tenant, String metricId);
+    void unsubscribe(String tenant, String metricId, Subscription.SubscriptionOwner subscriptionOwner);
+    void unsubscribe(String tenant, String metricId, Set<Subscription.SubscriptionOwner> subscriptionOwners);
 
-    Map<String, TenantsSubscriptionsHolder> getAllSubscriptions();
     void setPredictionListener(PredictionListener predictionListener);
 }
