@@ -67,7 +67,7 @@ public class AugmentedDickeyFullerTest {
         this.maxLag = maxLag;
         this.type = type;
 
-        calculate();
+        calculateStatistics();
     }
 
     public double pValue() {
@@ -82,23 +82,23 @@ public class AugmentedDickeyFullerTest {
         return adfStat;
     }
 
-    private void calculate() {
-        double[] differences = TimeSeriesDifferencing.differencesAtLag(x, maxLag);
+    private void calculateStatistics() {
+        double[] differences = TimeSeriesDifferencing.differencesAtLag(x, 1);
 
         double[] dependedVariable = Arrays.copyOfRange(differences, maxLag, differences.length);
-        double[][] explanatory = explanatoryVariables(differences);
+        double[][] explanatoryVariables = explanatoryVariables(differences);
 
         // OLS model
         OLSMultipleLinearRegression olsMultipleLinearRegression = new OLSMultipleLinearRegression();
         olsMultipleLinearRegression.setNoIntercept(type == Type.NoInterceptNoTimeTrend);
-        olsMultipleLinearRegression.newSampleData(dependedVariable, explanatory);
+        olsMultipleLinearRegression.newSampleData(dependedVariable, explanatoryVariables);
 
         double[] parameters = olsMultipleLinearRegression.estimateRegressionParameters();
         double[] standardErrors = olsMultipleLinearRegression.estimateRegressionParametersStandardErrors();
 
-        // first parameter is intercept, second xt
-        int laggedXIndex = (type == Type.NoInterceptNoTimeTrend) ? 0 : 1;
-        adfStat = parameters[laggedXIndex]/standardErrors[laggedXIndex];
+        // first parameter is intercept, second gamma*(lagged xt)
+        int gammaIndex = (type == Type.NoInterceptNoTimeTrend) ? 0 : 1;
+        adfStat = parameters[gammaIndex]/standardErrors[gammaIndex];
     }
 
     private double[][] explanatoryVariables(double[] differences) {
