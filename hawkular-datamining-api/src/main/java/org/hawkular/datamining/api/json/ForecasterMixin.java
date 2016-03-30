@@ -27,5 +27,5 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public abstract class ForecasterMixin {
 
     @JsonProperty
-    public abstract TimeSeriesModel usedModel();
+    public abstract TimeSeriesModel model();
 }

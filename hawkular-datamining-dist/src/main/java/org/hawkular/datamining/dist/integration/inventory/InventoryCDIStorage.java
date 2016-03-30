@@ -72,7 +72,6 @@ public class InventoryCDIStorage implements InventoryStorage {
             CanonicalPath metricTypeCp = metric.getType().getPath();
             CanonicalPath metricCp = metric.getPath();
 
-            org.hawkular.datamining.api.model.Metric dataMMetric = InventoryUtil.convertMetric(metric);
 
             Set<Subscription.SubscriptionOwner> subscriptionOwners = new HashSet<>();
             CanonicalPath forecastingHorizonCp = null;
@@ -89,11 +88,14 @@ public class InventoryCDIStorage implements InventoryStorage {
                 forecastingHorizonCp = metricCp;
             }
 
-            Long forecastingHorizon = InventoryUtil.parseForecastingHorizon(predictionRelationships.relationships()
-                    .get(forecastingHorizonCp));
+            final Long forecastingHorizon = InventoryUtil.parseForecastingHorizon(
+                    predictionRelationships.relationships().get(forecastingHorizonCp));
+
+            org.hawkular.datamining.api.model.Metric dataMMetric = InventoryUtil.convertMetric(metric,
+                    forecastingHorizon);
 
             final Subscription subscription = new DataMiningSubscription(
-                    new DataMiningForecaster(dataMMetric, forecastingHorizon), subscriptionOwners);
+                    new DataMiningForecaster(dataMMetric), subscriptionOwners);
 
             subscriptionManager.subscribe(subscription);
         });

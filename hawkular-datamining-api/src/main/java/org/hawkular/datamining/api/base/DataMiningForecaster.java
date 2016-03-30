@@ -20,9 +20,9 @@ package org.hawkular.datamining.api.base;
 import java.util.List;
 
 import org.hawkular.datamining.api.PredictionListener;
+import org.hawkular.datamining.api.model.Metric;
 import org.hawkular.datamining.forecast.AutomaticForecaster;
 import org.hawkular.datamining.forecast.DataPoint;
-import org.hawkular.datamining.forecast.MetricContext;
 
 /**
  * Forecaster which on each learning invocation automatically sends predicted points to listener (JMS, HTTP...)
@@ -31,25 +31,16 @@ import org.hawkular.datamining.forecast.MetricContext;
  */
 public class DataMiningForecaster extends AutomaticForecaster {
 
-    private Long forecastingHorizon;
     private PredictionListener predictionListener;
 
 
     /**
      * @param context metric meta data
      */
-    public DataMiningForecaster(MetricContext context) {
-        this(context, null);
+    public DataMiningForecaster(Metric context) {
+        super(context);
     }
 
-    /**
-     * @param context metric meta data
-     * @param forecastingHorizon forecasting horizon in seconds
-     */
-    public DataMiningForecaster(MetricContext context, Long forecastingHorizon) {
-        super(context);
-        this.forecastingHorizon = forecastingHorizon;
-    }
 
     @Override
     public void learn(DataPoint dataPoint) {
@@ -65,23 +56,19 @@ public class DataMiningForecaster extends AutomaticForecaster {
         automaticPrediction();
     }
 
+    @Override
+    public Metric context() {
+        return (Metric) super.context();
+    }
+
     public void setPredictionListener(PredictionListener predictionListener) {
         this.predictionListener = predictionListener;
     }
 
-    public Long getForecastingHorizon() {
-        return forecastingHorizon;
-    }
-
-    /**
-     * @param forecastingHorizon forecasting horizon in seconds
-     */
-    public void setForecastingHorizon(Long forecastingHorizon) {
-        this.forecastingHorizon = forecastingHorizon;
-    }
-
     private void automaticPrediction() {
         if (initialized()) {
+            final Long forecastingHorizon = context().getForecastingHorizon();
+
             if (predictionListener != null && forecastingHorizon != null) {
                 int nAhead = (int) (forecastingHorizon / context().getCollectionInterval()) + 1;
                 List<DataPoint> prediction = forecast(nAhead);

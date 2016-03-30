@@ -17,6 +17,7 @@
 
 package org.hawkular.datamining.api.json;
 
+import org.hawkular.datamining.api.model.Metric;
 import org.hawkular.datamining.forecast.Forecaster;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -28,4 +29,7 @@ public abstract class SubscriptionMixin {
 
     @JsonProperty
     abstract Forecaster forecaster();
+
+    @JsonProperty
+    abstract Metric context();
 }

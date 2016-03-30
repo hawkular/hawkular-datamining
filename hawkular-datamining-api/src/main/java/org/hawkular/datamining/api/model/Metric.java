@@ -28,25 +28,30 @@ public class Metric implements MetricContext {
     private final String feed;
     private final String tenant;
 
-    // collectionInterval in seconds
     private Long collectionInterval;
+    private Long forecastingHorizon;
 
     private MetricType metricType;
 
 
-    public Metric(String tenant, String feed, String id, Long collectionInterval, MetricType metricType) {
+    public Metric(String tenant, String feed, String id, Long collectionInterval, Long forecastingHorizon,
+                  MetricType metricType) {
+
         this.tenant = tenant;
         this.feed = feed;
         this.id = id;
         this.collectionInterval = collectionInterval;
+        this.forecastingHorizon = forecastingHorizon;
         this.metricType = metricType;
     }
 
     public Metric(Metric that) {
         this.tenant = that.getTenant();
-        this.id = that.getMetricId();
         this.feed = that.getFeed();
+        this.id = that.getMetricId();
         this.collectionInterval = that.getCollectionInterval();
+        this.forecastingHorizon = that.forecastingHorizon;
+        this.metricType = that.metricType;
     }
 
     public Metric(RestBlueprint restBlueprint, String tenant, String feed) {
@@ -88,6 +93,20 @@ public class Metric implements MetricContext {
 
     public MetricType getMetricType() {
         return metricType;
+    }
+
+    /**
+     * @return prediction interval in seconds
+     */
+    public Long getForecastingHorizon() {
+        return forecastingHorizon;
+    }
+
+    /**
+     * @param forecastingHorizon in seconds
+     */
+    public void setForecastingHorizon(Long forecastingHorizon) {
+        this.forecastingHorizon = forecastingHorizon;
     }
 
     @Override
