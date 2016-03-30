@@ -20,13 +20,22 @@ package org.hawkular.datamining.forecast.stats;
 import static java.lang.Math.log;
 
 /**
+ *
+ *
  * @author Pavol Loffay
  */
 public class InformationCriterionHolder {
+
     private final double aic;
     private final double aicc;
     private final double bic;
 
+
+    /**
+     * @param sse sum of squared error, calculated on training sample
+     * @param params number of parameters of the model
+     * @param sampleSize size of training sample
+     */
     public InformationCriterionHolder(double sse, double params, int sampleSize) {
 
         double lik = sampleSize * log(sse);

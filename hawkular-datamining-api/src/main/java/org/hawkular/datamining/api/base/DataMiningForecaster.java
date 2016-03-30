@@ -25,6 +25,8 @@ import org.hawkular.datamining.forecast.DataPoint;
 import org.hawkular.datamining.forecast.MetricContext;
 
 /**
+ * Forecaster which on each learning invocation automatically sends predicted points to listener (JMS, HTTP...)
+ *
  * @author Pavol Loffay
  */
 public class DataMiningForecaster extends AutomaticForecaster {
@@ -33,10 +35,17 @@ public class DataMiningForecaster extends AutomaticForecaster {
     private PredictionListener predictionListener;
 
 
+    /**
+     * @param context metric meta data
+     */
     public DataMiningForecaster(MetricContext context) {
         this(context, null);
     }
 
+    /**
+     * @param context metric meta data
+     * @param forecastingHorizon forecasting horizon in seconds
+     */
     public DataMiningForecaster(MetricContext context, Long forecastingHorizon) {
         super(context);
         this.forecastingHorizon = forecastingHorizon;
@@ -64,6 +73,9 @@ public class DataMiningForecaster extends AutomaticForecaster {
         return forecastingHorizon;
     }
 
+    /**
+     * @param forecastingHorizon forecasting horizon in seconds
+     */
     public void setForecastingHorizon(Long forecastingHorizon) {
         this.forecastingHorizon = forecastingHorizon;
     }

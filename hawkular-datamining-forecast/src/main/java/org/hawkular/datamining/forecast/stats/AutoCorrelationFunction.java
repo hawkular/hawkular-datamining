@@ -21,7 +21,6 @@ import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.apache.commons.math3.stat.descriptive.moment.Variance;
 
 /**
- *
  * ACF - autocorrelation function
  *
  * @author Pavol Loffay

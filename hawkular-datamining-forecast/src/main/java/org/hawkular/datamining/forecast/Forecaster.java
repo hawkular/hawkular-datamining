@@ -26,22 +26,40 @@ import org.hawkular.datamining.forecast.models.TimeSeriesModel;
  */
 public interface Forecaster {
 
+    /**
+     * @see TimeSeriesModel#learn(DataPoint)
+     */
     void learn(DataPoint dataPoint);
 
+    /**
+     * @see TimeSeriesModel#learn(List)
+     */
     void learn(List<DataPoint> dataPoints);
 
     /**
-     * one step ahead prediction
+     * @see TimeSeriesModel#forecast()
      */
     DataPoint forecast();
 
     /**
-     * Multi step ahead prediction
+     * @see TimeSeriesModel#forecast(int)
      */
     List<DataPoint> forecast(int nAhead);
 
+    /**
+     * @return currently used model
+     */
     TimeSeriesModel model();
+
+    /**
+     *
+     * @return information about metric
+     */
     MetricContext context();
 
+    /**
+     *
+     * @return
+     */
     boolean initialized();
 }

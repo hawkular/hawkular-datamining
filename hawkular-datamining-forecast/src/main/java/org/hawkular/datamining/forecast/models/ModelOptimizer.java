@@ -22,11 +22,21 @@ import java.util.List;
 import org.hawkular.datamining.forecast.DataPoint;
 
 /**
+ * Finds best model for given data set. Time series model in general contains parameters which optimal values can be
+ * chosen to get model which best fits the data.
+ *
  * @author Pavol Loffay
  */
 public interface ModelOptimizer {
 
-    TimeSeriesModel minimizedMSE(List<DataPoint> dataPoints);
+    /**
+     * @param trainData training data set
+     * @return best model for given data set. Model is already learned up to last timestamp in trainData
+     */
+    TimeSeriesModel minimizedMSE(List<DataPoint> trainData);
 
+    /**
+     * @return optimized parameters of the model. Length of array depends on a model being optimized.
+     */
     double[] result();
 }

@@ -22,11 +22,23 @@ package org.hawkular.datamining.forecast;
  */
 public interface MetricContext {
 
+    /**
+     * @return collection interval in seconds
+     */
     Long getCollectionInterval();
 
+    /**
+     * @param collectionInterval collection interval in seconds
+     */
     void setCollectionInterval(Long collectionInterval);
 
+    /**
+     * @return id of metric
+     */
     String getMetricId();
 
+    /**
+     * @return id of tenant (user) who owns the metric
+     */
     String getTenant();
 }

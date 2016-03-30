@@ -23,31 +23,64 @@ import org.hawkular.datamining.forecast.DataPoint;
 import org.hawkular.datamining.forecast.stats.AccuracyStatistics;
 
 /**
+ * Basic interface for time series model
+ *
+ * <p>
+ * All learn methods collects one step ahead prediction error {@link TimeSeriesModel#runStatistics()}.
+ *
  * @author Pavol Loffay
  */
 public interface TimeSeriesModel {
 
-    AccuracyStatistics init(List<DataPoint> dataPoints);
-
-    void learn(DataPoint dataPoint);
-
-    void learn(List<DataPoint> dataPoints);
+    /**
+     * Initialize model and return statistics - error of one step ahead prediction
+     * @param learnData points to learn
+     * @return statistics for learnData
+     */
+    AccuracyStatistics init(List<DataPoint> learnData);
 
     /**
-     * one step ahead prediction
+     *  Learn one point
+     * @param learnData point to learn
+     */
+    void learn(DataPoint learnData);
+
+    /**
+     * Learn multiple points
+     * @param learnData points to learn
+     */
+    void learn(List<DataPoint> learnData);
+
+    /**
+     * One step ahead prediction
+     * @return predicted point
      */
     DataPoint forecast();
 
     /**
      * Multi step ahead prediction
+     * @param nAhead number of steps for forecasting
+     * @return predicted points
      */
     List<DataPoint> forecast(int nAhead);
 
+    /**
+     * @return initial statistics calculated when calling {@link #initStatistics()}
+     */
     AccuracyStatistics initStatistics();
 
+    /**
+     * @return statistics calculated on learning data
+     */
     AccuracyStatistics runStatistics();
 
+    /**
+     * @return name of the implemented model
+     */
     String name();
 
+    /**
+     * @return  number of parameters of the model, seasonal models include seasonal indices
+     */
     int numberOfParams();
 }

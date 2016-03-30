@@ -26,6 +26,10 @@ import org.hawkular.datamining.forecast.DataPoint;
  */
 public class Utils {
 
+    /**
+     * Converts list of data points to array of values
+     * @return array of values
+     */
     public static double[] toArray(List<DataPoint> data) {
         double[] result = new double[data.size()];
 

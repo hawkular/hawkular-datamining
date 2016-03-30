@@ -48,6 +48,6 @@ public class HawkularIntegration {
         JMSPredictionSender jmsPredictionSender = new JMSPredictionSender(Configuration.TOPIC_METRIC_DATA);
         subscriptionManager.setPredictionListener(jmsPredictionSender);
 
-        Logger.LOGGER.infof("Datamining Hawkular Integration");
+        Logger.LOGGER.infof("Datamining Hawkular Integration successful");
     }
 }

@@ -38,6 +38,21 @@ import org.hawkular.datamining.forecast.Logger;
 import org.hawkular.datamining.forecast.stats.AccuracyStatistics;
 
 /**
+ * Simple exponential smoothing
+ * Works well for stationary data when there is no trend in data. For trending data forecasts produce high MSE due to
+ * flat forecast function.
+ *
+ * <p>
+ * When smoothing parameters are smaller more weights are added to the observations from distant past - it makes it
+ * model more robust.
+ *
+ * <p>
+ * Equations:
+ * <ul>
+ *  <li> level<sub>t</sub> = alpha*y<sub>t</sub> + (1-alpha)level<sub>t-1</sub> </li>
+ *  <li> forecast<sub>t+h</sub> = level<sub>t</sub> </li>
+ * </ul>
+ *
  * @author Pavol Loffay
  */
 public class SimpleExponentialSmoothing implements TimeSeriesModel {

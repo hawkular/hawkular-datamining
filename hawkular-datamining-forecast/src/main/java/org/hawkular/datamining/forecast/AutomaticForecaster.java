@@ -37,6 +37,8 @@ import org.hawkular.datamining.forecast.stats.InformationCriterionHolder;
 import com.google.common.collect.EvictingQueue;
 
 /**
+ * Selects the best model for given data set.
+ *
  * @author Pavol Loffay
  */
 public class AutomaticForecaster implements Forecaster {

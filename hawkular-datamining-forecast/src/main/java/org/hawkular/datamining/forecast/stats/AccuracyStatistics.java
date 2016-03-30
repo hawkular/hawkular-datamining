@@ -18,6 +18,8 @@
 package org.hawkular.datamining.forecast.stats;
 
 /**
+ * Holds statistics of the model
+ *
  * @author Pavol Loffay
  */
 public class AccuracyStatistics {
@@ -33,18 +35,30 @@ public class AccuracyStatistics {
         this.mae = mae;
     }
 
+    /**
+     * @return mean squared error
+     */
     public double getMse() {
         return mse;
     }
 
+    /**
+     * @return mean absolute error
+     */
     public double getMae() {
         return mae;
     }
 
+    /**
+     * @return sum of squared error
+     */
     public double getSse() {
         return sse;
     }
 
+    /**
+     * @return root mean squared error
+     */
     public double getRmse() {
         return Math.sqrt(mse);
     }

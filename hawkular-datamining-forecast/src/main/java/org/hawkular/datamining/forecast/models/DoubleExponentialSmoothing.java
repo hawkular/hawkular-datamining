@@ -42,6 +42,21 @@ import org.hawkular.datamining.forecast.stats.AccuracyStatistics;
 import com.google.common.collect.EvictingQueue;
 
 /**
+ * Double exponential smoothing (Holt's linear trend model)
+ * Works well when data exhibits increasing or decreasing trend pattern.
+ *
+ * <p>
+ * When smoothing parameters are smaller more weights are added to the observations from distant past - it makes it
+ * model more robust.
+ *
+ * <p>
+ * Equations:
+ * <ul>
+ *  <li> level<sub>t</sub> = alpha*y<sub>t</sub> + (1-alpha)*(level<sub>t-1</sub>+trend<sub>t-1</sub>) </li>
+ *  <li> trend<sub>t</sub> = beta*(level<sub>t</sub>-level<sub>t-1</sub>) + (1-beta)*trend<sub>t-1</sub> </li>
+ *  <li> forecast<sub>t+h</sub> = level<sub>t</sub> + h*trend<sub>t</sub> </li>
+ * </ul>
+ *
  * @author Pavol Loffay
  */
 public class DoubleExponentialSmoothing implements TimeSeriesModel {
@@ -71,9 +86,7 @@ public class DoubleExponentialSmoothing implements TimeSeriesModel {
         this(DEFAULT_LEVEL_SMOOTHING, DEFAULT_TREND_SMOOTHING);
     }
 
-    /**
-     * Double exponential smoothing - additive variant
-     */
+
     public DoubleExponentialSmoothing(double levelSmoothing, double trendSmoothing) {
         if (levelSmoothing < MIN_LEVEL_TREND_SMOOTHING || levelSmoothing > MAX_LEVEL_TREND_SMOOTHING) {
             throw new IllegalArgumentException("Level parameter should be in interval 0-1");

@@ -65,7 +65,7 @@ public class DataMiningSubscription implements Subscription {
     }
 
     @Override
-    public void addAllSubscriptionOwners(Set<SubscriptionOwner> owners) {
+    public void addSubscriptionOwners(Set<SubscriptionOwner> owners) {
         this.subscriptionOwners.addAll(owners);
     }
 

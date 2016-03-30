@@ -22,6 +22,8 @@ import org.hawkular.datamining.api.model.BucketPoint;
 import org.hawkular.datamining.forecast.DataPoint;
 
 /**
+ * Provide access to metrics storage.
+ *
  * @author Pavol Loffay
  */
 public interface MetricsClient {

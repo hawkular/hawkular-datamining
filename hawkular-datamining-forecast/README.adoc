@@ -12,7 +12,7 @@ All variants of exponential smoothing contains optimizer which selects best smoo
 Optimizers minimizes mean square error of one step ahead forecasts using non linear optimization algorithm
 (Nelder-Mead simplex).
 
-AutomaticForecaster can be used for best model selecting. It selects best based on Akaike information criterion (AIC
+AutomaticForecaster can be used for the best model selecting. It selects best based on Akaike information criterion (AIC
 and AICc) or Bayesian information criterion (BIC). If the time series changes AutomaticForecaster can select
 different model than previously selected, therefore it can be used on arbitrary time series stream data.
 

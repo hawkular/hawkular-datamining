@@ -20,6 +20,8 @@ package org.hawkular.datamining.forecast;
 import java.io.Serializable;
 
 /**
+ * Represents point at specific time
+ *
  * @author Pavol Loffay
  */
 public class DataPoint implements Serializable, Comparable<DataPoint> {
