@@ -23,8 +23,6 @@ import java.util.Set;
 import org.hawkular.datamining.api.Subscription;
 import org.hawkular.datamining.forecast.MetricContext;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 /**
  * @author Pavol Loffay
  */
@@ -32,7 +30,6 @@ public class DataMiningSubscription implements Subscription {
 
     private final Set<SubscriptionOwner> subscriptionOwners = new HashSet<>();
 
-    @JsonProperty
     private final DataMiningForecaster forecaster;
 
 

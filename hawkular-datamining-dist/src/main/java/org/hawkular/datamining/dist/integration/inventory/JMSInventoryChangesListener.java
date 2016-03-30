@@ -128,40 +128,43 @@ public class JMSInventoryChangesListener extends InventoryEventMessageListener {
 
                 if (target.getSegment().getElementType().equals(Metric.class)) {
 
-                    Metric metric = inventoryStorage.metric(target);
-                    if (subscriptionManager.subscribes(metric.getPath().ids().getTenantId(), metric.getId())) {
+                    Metric invMetric = inventoryStorage.metric(target);
+                    if (subscriptionManager.subscribes(invMetric.getPath().ids().getTenantId(), invMetric.getId())) {
                         Subscription subscription =
-                                subscriptionManager.subscription(metric.getPath().ids().getTenantId(), metric.getId());
+                                subscriptionManager.subscription(invMetric.getPath().ids().getTenantId(),
+                                        invMetric.getId());
 
                         subscription.addSubscriptionOwner(Subscription.SubscriptionOwner.Metric);
-                        subscription.forecaster().setForecastingHorizon(forecastingHorizon);
+                        subscription.forecaster().context().setForecastingHorizon(forecastingHorizon);
                     } else {
                         org.hawkular.datamining.api.model.Metric dataminingMetric =
-                                InventoryUtil.convertMetric(metric);
+                                InventoryUtil.convertMetric(invMetric, forecastingHorizon);
 
                         final Subscription subscription = new DataMiningSubscription(
-                                new DataMiningForecaster(dataminingMetric, forecastingHorizon),
+                                new DataMiningForecaster(dataminingMetric),
                                 new HashSet<>(Arrays.asList(Subscription.SubscriptionOwner.Metric)));
                         subscriptionManager.subscribe(subscription);
                     }
                 } else if (target.getSegment().getElementType().equals(MetricType.class)) {
-                    // get all metrics of that type
-                    Set<Metric> metrics = inventoryStorage.metricsOfType(target);
+                    // get all invMetrics of that type
+                    Set<Metric> invMetrics = inventoryStorage.metricsOfType(target);
 
-                    metrics.forEach(metric1 -> {
-                        if (subscriptionManager.subscribes(metric1.getPath().ids().getTenantId(), metric1.getId())) {
+                    invMetrics.forEach(invMetric -> {
+                        if (subscriptionManager.subscribes(invMetric.getPath().ids().getTenantId(),
+                                invMetric.getId())) {
+
                             Subscription subscription = subscriptionManager
-                                    .subscription(metric1.getPath().ids().getTenantId(), metric1.getId());
+                                    .subscription(invMetric.getPath().ids().getTenantId(), invMetric.getId());
                             if (!subscription.getSubscriptionOwners().contains(Subscription.SubscriptionOwner.Metric)) {
-                                subscription.forecaster().setForecastingHorizon(forecastingHorizon);
+                                subscription.forecaster().context().setForecastingHorizon(forecastingHorizon);
                             }
                             subscription.addSubscriptionOwner(Subscription.SubscriptionOwner.MetricType);
                         } else {
                             // convert and subscribe
                             org.hawkular.datamining.api.model.Metric dataminingMetric =
-                                    InventoryUtil.convertMetric(metric1);
+                                    InventoryUtil.convertMetric(invMetric, forecastingHorizon);
                             final Subscription subscription = new DataMiningSubscription(
-                                    new DataMiningForecaster(dataminingMetric, forecastingHorizon),
+                                    new DataMiningForecaster(dataminingMetric),
                                     new HashSet<>(Arrays.asList(Subscription.SubscriptionOwner.MetricType)));
                             subscriptionManager.subscribe(subscription);
                         }
@@ -171,22 +174,24 @@ public class JMSInventoryChangesListener extends InventoryEventMessageListener {
                     CanonicalPath tenant = relationship.getTarget();
                     Set<Metric> metricsUnderTenant = inventoryStorage.metricsUnderTenant(tenant);
 
-                    metricsUnderTenant.forEach(metric1 -> {
-                        if (subscriptionManager.subscribes(metric1.getPath().ids().getTenantId(), metric1.getId())) {
+                    metricsUnderTenant.forEach(invMetric -> {
+                        if (subscriptionManager.subscribes(invMetric.getPath().ids().getTenantId(),
+                                invMetric.getId())) {
+
                             Subscription subscription = subscriptionManager
-                                    .subscription(metric1.getPath().ids().getTenantId(), metric1.getId());
+                                    .subscription(invMetric.getPath().ids().getTenantId(), invMetric.getId());
                             if (!subscription.getSubscriptionOwners().containsAll(Arrays.asList(
                                     Subscription.SubscriptionOwner.Metric,
                                     Subscription.SubscriptionOwner.MetricType))) {
-                                subscription.forecaster().setForecastingHorizon(forecastingHorizon);
+                                subscription.forecaster().context().setForecastingHorizon(forecastingHorizon);
                             }
 
                             subscription.addSubscriptionOwner(Subscription.SubscriptionOwner.Tenant);
                         } else {
                             org.hawkular.datamining.api.model.Metric dataminingMetric =
-                                    InventoryUtil.convertMetric(metric1);
+                                    InventoryUtil.convertMetric(invMetric, forecastingHorizon);
                             final Subscription subscription = new DataMiningSubscription(
-                                    new DataMiningForecaster(dataminingMetric, forecastingHorizon),
+                                    new DataMiningForecaster(dataminingMetric),
                                     new HashSet<>(Arrays.asList(Subscription.SubscriptionOwner.Tenant)));
                             subscriptionManager.subscribe(subscription);
                         }
@@ -211,15 +216,15 @@ public class JMSInventoryChangesListener extends InventoryEventMessageListener {
                     owner = Subscription.SubscriptionOwner.Tenant;
                 }
 
-                metricsToRemove.forEach(metric -> {
+                metricsToRemove.forEach(invMetric -> {
                     Set<Relationship> relationships = inventoryStorage
-                            .predictionRelationships(metric.getPath(), metric.getType().getPath(),
-                                    metric.getPath().getRoot());
+                            .predictionRelationships(invMetric.getPath(), invMetric.getType().getPath(),
+                                    invMetric.getPath().getRoot());
                     Long horizon = InventoryUtil.closestForecastingHorizon(relationships);
 
-                    subscriptionManager.subscription(metric.getPath().ids().getTenantId(), metric.getId())
-                            .forecaster().setForecastingHorizon(horizon);
-                    subscriptionManager.unSubscribe(metric.getPath().ids().getTenantId(), metric.getId(), owner);
+                    subscriptionManager.subscription(invMetric.getPath().ids().getTenantId(), invMetric.getId())
+                            .forecaster().context().setForecastingHorizon(horizon);
+                    subscriptionManager.unSubscribe(invMetric.getPath().ids().getTenantId(), invMetric.getId(), owner);
                 });
                 break;
             }
@@ -238,12 +243,15 @@ public class JMSInventoryChangesListener extends InventoryEventMessageListener {
 
         switch (action) {
             case CREATED: {
+                final Long forecastingHorizon = InventoryUtil.closestForecastingHorizon(predictionRelationships);
+
                 org.hawkular.datamining.api.model.Metric dataminingMetric =
-                        InventoryUtil.convertMetric(metric);
+                        InventoryUtil.convertMetric(metric, forecastingHorizon);
+
                 final Subscription subscription = new DataMiningSubscription(
-                        new DataMiningForecaster(dataminingMetric,
-                                InventoryUtil.closestForecastingHorizon(predictionRelationships)),
+                        new DataMiningForecaster(dataminingMetric),
                         InventoryUtil.predictionRelationshipsToOwners(predictionRelationships));
+
                 subscriptionManager.subscribe(subscription);
             }
             break;

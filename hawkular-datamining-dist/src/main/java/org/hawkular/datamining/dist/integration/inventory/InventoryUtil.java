@@ -37,11 +37,12 @@ public class InventoryUtil {
                 type.getCollectionInterval());
     }
 
-    public static org.hawkular.datamining.api.model.Metric convertMetric(Metric metric) {
+    public static org.hawkular.datamining.api.model.Metric convertMetric(Metric metric, Long forecastingHorizon) {
         org.hawkular.datamining.api.model.MetricType type = convertMetricType(metric.getType());
 
         return new org.hawkular.datamining.api.model.Metric(metric.getPath().ids().getTenantId(),
-                metric.getPath().ids().getFeedId(), metric.getId(), metric.getCollectionInterval(), type);
+                metric.getPath().ids().getFeedId(), metric.getId(), metric.getCollectionInterval(),
+                forecastingHorizon, type);
     }
 
     public static Long parseForecastingHorizon(Relationship relationship) {

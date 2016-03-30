@@ -23,7 +23,8 @@ import java.io.StringWriter;
 import org.hawkular.datamining.api.base.DataMiningForecaster;
 import org.hawkular.datamining.api.base.DataMiningSubscription;
 import org.hawkular.datamining.api.json.ObjectMapperConfig;
-import org.hawkular.datamining.forecast.ImmutableMetricContext;
+import org.hawkular.datamining.api.model.Metric;
+import org.hawkular.datamining.api.model.MetricType;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -46,7 +47,9 @@ public class SerializationTest {
     @Test
     public void testSubscription() throws IOException {
 
-        DataMiningForecaster forecaster = new DataMiningForecaster(ImmutableMetricContext.getDefault());
+        DataMiningForecaster forecaster = new DataMiningForecaster(new Metric("tenant", "feed", "foo", 1L, 2L, new
+                MetricType("fooType", 2L)));
+
         Subscription subscription = new DataMiningSubscription(forecaster,
                 Subscription.SubscriptionOwner.getAllDefined());
 

@@ -17,8 +17,8 @@
 
 package org.hawkular.datamining.api.json;
 
-import org.hawkular.datamining.api.Subscription;
-import org.hawkular.datamining.forecast.Forecaster;
+import org.hawkular.datamining.api.base.DataMiningSubscription;
+import org.hawkular.datamining.forecast.AutomaticForecaster;
 import org.hawkular.datamining.forecast.models.TimeSeriesModel;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,8 +29,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ObjectMapperConfig {
 
     public static void config(ObjectMapper objectMapper) {
-        objectMapper.addMixIn(Forecaster.class, ForecasterMixin.class);
-        objectMapper.addMixIn(Subscription.class, SubscriptionMixin.class);
+        objectMapper.addMixIn(AutomaticForecaster.class, ForecasterMixin.class);
+        objectMapper.addMixIn(DataMiningSubscription.class, SubscriptionMixin.class);
         objectMapper.addMixIn(TimeSeriesModel.class, TimeSeriesMixin.class);
     }
 }
