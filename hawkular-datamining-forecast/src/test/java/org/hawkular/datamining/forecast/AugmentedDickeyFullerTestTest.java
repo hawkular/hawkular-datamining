@@ -29,6 +29,13 @@ import org.junit.Test;
 
 /**
  * @author Pavol Loffay
+ *
+ * Values in the tests are compared to the results from R's adfTest() function
+ *
+ * library(fUnitRoots)
+ * library(fpp)
+ * adfTest(austourists, lags=1, type='c')
+ *
  */
 public class AugmentedDickeyFullerTestTest extends AbstractTest {
 
@@ -42,11 +49,36 @@ public class AugmentedDickeyFullerTestTest extends AbstractTest {
         double statistics = augmentedDickeyFullerTest.statistics();
         double pValue = augmentedDickeyFullerTest.pValue();
 
-        System.out.println(AugmentedDickeyFullerTest.Type.InterceptTimeTrend.name() + "=" + statistics + ", pValue="
-                + pValue);
-
         Assert.assertEquals(-7.4083, statistics, 0.001);
         Assert.assertTrue(pValue <= 0.01);
+    }
+
+    @Test
+    public void testAustourists4Lags() throws IOException {
+        ModelData rModel = ModelReader.read("austourists");
+        double[] x = Utils.toArray(rModel.getData());
+
+        AugmentedDickeyFullerTest augmentedDickeyFullerTest = new AugmentedDickeyFullerTest(x, 4,
+                AugmentedDickeyFullerTest.Type.InterceptTimeTrend);
+        double statistics = augmentedDickeyFullerTest.statistics();
+        double pValue = augmentedDickeyFullerTest.pValue();
+
+        Assert.assertEquals(-1.8381, statistics, 0.001);
+        Assert.assertEquals(0.6388, pValue, 0.05);
+    }
+
+    @Test
+    public void testAustourists4LagsInterceptNoTimeTrend() throws IOException {
+        ModelData rModel = ModelReader.read("austourists");
+        double[] x = Utils.toArray(rModel.getData());
+
+        AugmentedDickeyFullerTest augmentedDickeyFullerTest = new AugmentedDickeyFullerTest(x, 4,
+                AugmentedDickeyFullerTest.Type.InterceptNoTimeTrend);
+        double statistics = augmentedDickeyFullerTest.statistics();
+        double pValue = augmentedDickeyFullerTest.pValue();
+
+        Assert.assertEquals(-0.0625, statistics, 0.001);
+        Assert.assertEquals(0.9451, pValue, 0.02);
     }
 
     @Test
