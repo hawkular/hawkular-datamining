@@ -23,6 +23,8 @@ import java.util.List;
 import org.hawkular.datamining.forecast.DataPoint;
 
 /**
+ * Simple moving average model, often used for trend estimating
+ *
  * @author Pavol Loffay
  */
 public class SimpleMovingAverage {

@@ -23,6 +23,8 @@ import java.util.Set;
 import org.hawkular.datamining.api.base.TenantsSubscriptionsHolder;
 
 /**
+ * SubscriptionManager provides access to all subscriptions in Data Mining.
+ *
  * @author Pavol Loffay
  */
 public interface SubscriptionManager {

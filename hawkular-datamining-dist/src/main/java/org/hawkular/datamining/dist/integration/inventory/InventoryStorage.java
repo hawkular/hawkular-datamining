@@ -23,6 +23,8 @@ import org.hawkular.inventory.api.model.Metric;
 import org.hawkular.inventory.api.model.Relationship;
 
 /**
+ * Interface for accessing inventory data
+ *
  * @author Pavol Loffay
  */
 public interface InventoryStorage {

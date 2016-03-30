@@ -42,7 +42,7 @@ import org.hawkular.datamining.forecast.utils.AutomaticPeriodIdentification;
 import com.google.common.collect.EvictingQueue;
 
 /**
- * Additive triple exponential smoothing model
+ * Triple exponential smoothing model also known as Holt-Winters model. This model implements additive variant.
  *
  * @author Pavol Loffay
  */

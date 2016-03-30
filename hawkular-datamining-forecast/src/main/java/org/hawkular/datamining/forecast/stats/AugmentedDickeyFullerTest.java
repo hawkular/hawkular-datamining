@@ -28,22 +28,49 @@ import org.hawkular.datamining.forecast.utils.TimeSeriesLag;
 
 /**
  * Augmented Dickey-Fuller test
+ * <p>
  * Null hypothesis H0: Time series contains unit root (is non stationary)
+ *
+ * <p>
  * Implemented variants:
- *      c - with constant (should be used for testing trend stationary)
- *      ct - with constant ant time trend
- *      nc - no constant
+ * <ul>
+ *  <li> c - with constant (should be used for testing trend stationary)</li>
+ *  <li> ct - with constant ant time trend </li>
+ *  <li> nc - no constant </li>
+ * </ul>
  *
- * yDiff = alpha + beta*t + gamma*yLag + sum(deltaLagT*yLagDiff)
+ * <p>
+ * Equations for ADF test
+ * <ul>
+ *   <li> yDiff = alpha + beta*t + gamma*yLag + sum(deltaLagT*yLagDiff) </li>
+ *   <li> dfStatistics = gammaHat/standardError(gammaHat) </li>
+ * </ul>
  *
- * dfStatistics = gammaHat/standardError(gammaHat)
- *
+ * <p>
  * Statistical tables adapted from:
- * https://github.com/statsmodels/statsmodels/blob/master/statsmodels/tsa/stattools.py
+ * <a href="https://github.com/statsmodels/statsmodels/blob/master/statsmodels/tsa/stattools.py">Python statsmodels</a>
  *
  * @author Pavol Loffay
  */
 public class AugmentedDickeyFullerTest {
+
+    /**
+     * ADF test variants
+     */
+    public enum Type {
+        /**
+         * nc (no constant)
+         */
+        NoInterceptNoTimeTrend,
+        /**
+         * c (constant)
+         */
+        InterceptNoTimeTrend,
+        /**
+         * ct (constant trend)
+         */
+        InterceptTimeTrend
+    }
 
     private final double[] x;
     private final int maxLag;
@@ -54,7 +81,8 @@ public class AugmentedDickeyFullerTest {
 
 
     /**
-     * Default constructor for testing trend stationary time series. Type is set to InterceptNoTimeTrend (in R 'c')
+     * Default constructor for testing trend stationary time series. Type is set to InterceptNoTimeTrend (in R 'c' -
+     * constant)
      * @param x
      * @param maxLag
      */
@@ -145,17 +173,6 @@ public class AugmentedDickeyFullerTest {
         return result;
     }
 
-    /**
-     * ADF test variants
-     */
-    public enum Type {
-        // nc (no constant)
-        NoInterceptNoTimeTrend,
-        // c (constant)
-        InterceptNoTimeTrend,
-        // ct (constant trend)
-        InterceptTimeTrend
-    }
 
     /**
      * Returns MacKinnon's approximate p-value for the given test statistic.

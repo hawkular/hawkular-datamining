@@ -18,6 +18,8 @@
 package org.hawkular.datamining.forecast.utils;
 
 /**
+ * Compute a lagged version of a time series
+ *
  * @author Pavol Loffay
  */
 public class TimeSeriesLag {

@@ -21,8 +21,17 @@ package org.hawkular.datamining.forecast.stats;
  * @author Pavol Loffay
  */
 public enum InformationCriterion {
+    /**
+     * Akaike information criterion
+     */
     AIC,
+    /**
+     * AIC with a correction for finite sample sizes
+     */
     AICc,
+    /**
+     * Bayesian information criterion
+     */
     BIC,
 }
 

@@ -23,6 +23,9 @@ import org.hawkular.datamining.forecast.DataPoint;
 
 
 /**
+ * Interface used in {@link org.hawkular.datamining.api.base.DataMiningForecaster} for sending automatic prediction on
+ * each learning invocation.
+ *
  * @author Pavol Loffay
  */
 public interface PredictionListener {

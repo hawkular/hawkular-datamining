@@ -22,12 +22,21 @@ import java.util.Arrays;
 /**
  * Time series differencing
  *
+ * <p>
  * first order difference: y[t] = y[t] - y[t-1]
+ *
+ * <p>
+ * In R is this function implemented in diff function
  *
  * @author Pavol Loffay
  */
 public class TimeSeriesDifferencing {
 
+    /**
+     * @param x time series
+     * @param differences order of differences
+     * @return differenced time series
+     */
     public static double[] differencesAtLag(double[] x, int differences) {
 
         if (differences < 1) {

@@ -27,6 +27,11 @@ import org.hawkular.datamining.forecast.DataPoint;
 import com.google.common.collect.EvictingQueue;
 
 /**
+ * Weighted moving average model, variant of Moving average model. In difference to simple
+ * moving averages different weight can be assigned for each point in the window.
+ *
+ * In R this model is implemented in filter() function from stats package.
+ *
  * @author Pavol Loffay
  */
 public class WeightedMovingAverage {

@@ -24,19 +24,25 @@ import org.hawkular.datamining.api.base.DataMiningForecaster;
 import org.hawkular.datamining.forecast.MetricContext;
 
 /**
+ * Metric can subscribe for functionality offered by Data Mining module. Currently is only time series prediction
+ * available (through {@link #forecaster()})
+ *
  * @author Pavol Loffay
  */
 public interface Subscription {
 
+    /**
+     * @return associated metric with subscription
+     */
     MetricContext getMetric();
+
+    Set<SubscriptionOwner> getSubscriptionOwners();
 
     void addSubscriptionOwner(SubscriptionOwner owner);
 
-    void addAllSubscriptionOwners(Set<SubscriptionOwner> owners);
+    void addSubscriptionOwners(Set<SubscriptionOwner> owners);
 
     void removeSubscriptionOwner(SubscriptionOwner owner);
-
-    Set<SubscriptionOwner> getSubscriptionOwners();
 
     DataMiningForecaster forecaster();
 
