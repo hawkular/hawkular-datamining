@@ -33,8 +33,8 @@ import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.MultiDirectionalS
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.hawkular.datamining.forecast.AbstractTest;
-import org.hawkular.datamining.forecast.models.r.ModelData;
-import org.hawkular.datamining.forecast.models.r.ModelReader;
+import org.hawkular.datamining.forecast.ModelData;
+import org.hawkular.datamining.forecast.ModelReader;
 import org.junit.Assert;
 import org.junit.Test;
 

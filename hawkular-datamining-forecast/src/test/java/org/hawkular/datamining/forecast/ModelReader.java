@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.forecast.models.r;
+package org.hawkular.datamining.forecast;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.hawkular.datamining.forecast.DataPoint;
 import org.hawkular.datamining.forecast.models.DoubleExponentialSmoothing;
 import org.hawkular.datamining.forecast.models.SimpleExponentialSmoothing;
 import org.hawkular.datamining.forecast.models.TripleExponentialSmoothing;

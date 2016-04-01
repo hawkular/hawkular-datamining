@@ -1,7 +1,7 @@
 # Script generates test time series data in csv format
 # to run this script execute command from R console source(pathToThisFile.R)
-# example: source('/home/pavol/projects/hawkular/hawkular-datamining/R/testData/testTimeSeries.R')
-# setwd('/home/pavol/projects/hawkular/hawkular-datamining/R/testData')
+# example: source('/home/pavol/projects/hawkular/hawkular-datamining/R/tests/testTimeSeries.R')
+# setwd('/home/pavol/projects/hawkular/hawkular-datamining/R/tests')
 
 # austourists
 library(fpp) 

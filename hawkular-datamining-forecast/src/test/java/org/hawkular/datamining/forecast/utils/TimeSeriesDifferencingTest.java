@@ -15,9 +15,8 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.forecast;
+package org.hawkular.datamining.forecast.utils;
 
-import org.hawkular.datamining.forecast.utils.TimeSeriesDifferencing;
 import org.junit.Assert;
 import org.junit.Test;
 

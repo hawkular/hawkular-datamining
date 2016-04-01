@@ -1,5 +1,7 @@
 # Helper functions for exporting data to CSV
 
+DIRECTORY <- 'data/'
+
 export <- function(timeSeries) {
   
   for (ts in timeSeries) {
@@ -63,6 +65,6 @@ addName <- function(ts, frequency=1) {
 }
 
 fileName <- function(name='whiteNoise', extension='.csv') {
-    fileName <- paste(name, extension)
+    fileName <- paste(DIRECTORY, name, extension)
     fileName <- gsub('[[:blank:]]', '', fileName)
 }

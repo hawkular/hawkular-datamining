@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.forecast;
+package org.hawkular.datamining.forecast.utils;
 
 import java.io.IOException;
 
@@ -23,10 +23,9 @@ import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.transform.DftNormalization;
 import org.apache.commons.math3.transform.FastFourierTransformer;
 import org.apache.commons.math3.transform.TransformType;
-import org.hawkular.datamining.forecast.models.r.ModelData;
-import org.hawkular.datamining.forecast.models.r.ModelReader;
-import org.hawkular.datamining.forecast.utils.AutomaticPeriodIdentification;
-import org.hawkular.datamining.forecast.utils.Utils;
+import org.hawkular.datamining.forecast.AbstractTest;
+import org.hawkular.datamining.forecast.ModelData;
+import org.hawkular.datamining.forecast.ModelReader;
 import org.junit.Assert;
 import org.junit.Test;
 
