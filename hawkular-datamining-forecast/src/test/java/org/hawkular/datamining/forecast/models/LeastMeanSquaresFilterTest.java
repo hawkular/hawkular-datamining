@@ -23,8 +23,8 @@ import java.io.IOException;
 import java.util.List;
 
 import org.hawkular.datamining.forecast.AbstractTest;
-import org.hawkular.datamining.forecast.DataPoint;
 import org.hawkular.datamining.forecast.CSVTimeSeriesReader;
+import org.hawkular.datamining.forecast.DataPoint;
 import org.junit.Test;
 
 /**

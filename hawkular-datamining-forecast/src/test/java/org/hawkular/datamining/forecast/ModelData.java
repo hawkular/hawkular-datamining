@@ -19,8 +19,6 @@ package org.hawkular.datamining.forecast;
 
 import java.util.List;
 
-import org.hawkular.datamining.forecast.DataPoint;
-
 /**
  * @author Pavol Loffay
  */
