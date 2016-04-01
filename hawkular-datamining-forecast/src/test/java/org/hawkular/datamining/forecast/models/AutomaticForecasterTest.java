@@ -29,8 +29,8 @@ import org.hawkular.datamining.forecast.AutomaticForecaster;
 import org.hawkular.datamining.forecast.DataPoint;
 import org.hawkular.datamining.forecast.Forecaster;
 import org.hawkular.datamining.forecast.ImmutableMetricContext;
-import org.hawkular.datamining.forecast.models.r.ModelData;
-import org.hawkular.datamining.forecast.models.r.ModelReader;
+import org.hawkular.datamining.forecast.ModelData;
+import org.hawkular.datamining.forecast.ModelReader;
 import org.hawkular.datamining.forecast.stats.AccuracyStatistics;
 import org.junit.Assert;
 import org.junit.Test;
@@ -178,4 +178,6 @@ public class AutomaticForecasterTest extends AbstractTest {
 
         rModel.getData().forEach(dataPoint -> forecaster.learn(dataPoint));
     }
+
+
 }

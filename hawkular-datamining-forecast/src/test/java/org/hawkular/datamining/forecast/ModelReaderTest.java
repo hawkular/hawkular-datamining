@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.forecast.models.r;
+package org.hawkular.datamining.forecast;
 
 import java.io.IOException;
 

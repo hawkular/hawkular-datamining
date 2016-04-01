@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.forecast.models.r;
+package org.hawkular.datamining.forecast;
 
 import java.io.File;
 import java.io.FileReader;
@@ -26,7 +26,6 @@ import java.util.List;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
-import org.hawkular.datamining.forecast.DataPoint;
 
 /**
  * @author Pavol Loffay

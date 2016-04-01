@@ -26,8 +26,8 @@ import java.util.List;
 
 import org.hawkular.datamining.forecast.AbstractTest;
 import org.hawkular.datamining.forecast.DataPoint;
-import org.hawkular.datamining.forecast.models.r.ModelData;
-import org.hawkular.datamining.forecast.models.r.ModelReader;
+import org.hawkular.datamining.forecast.ModelData;
+import org.hawkular.datamining.forecast.ModelReader;
 import org.hawkular.datamining.forecast.stats.AccuracyStatistics;
 import org.junit.Assert;
 import org.junit.Test;

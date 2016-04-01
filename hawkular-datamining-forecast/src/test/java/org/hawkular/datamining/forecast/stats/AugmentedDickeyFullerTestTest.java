@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.forecast;
+package org.hawkular.datamining.forecast.stats;
 
 import java.io.IOException;
 
-import org.hawkular.datamining.forecast.models.r.ModelData;
-import org.hawkular.datamining.forecast.models.r.ModelReader;
-import org.hawkular.datamining.forecast.stats.AugmentedDickeyFullerTest;
+import org.hawkular.datamining.forecast.AbstractTest;
+import org.hawkular.datamining.forecast.ModelData;
+import org.hawkular.datamining.forecast.ModelReader;
 import org.hawkular.datamining.forecast.utils.Utils;
 import org.junit.Assert;
 import org.junit.Test;

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.forecast.models.r;
+package org.hawkular.datamining.forecast;
 
 import java.io.File;
 
@@ -27,10 +27,12 @@ public class TestDirectory {
     public static String pathPrefix;
     // supports execution from IDE and CMD
     static {
+        String base = "R/tests/data/";
+
         if (new File(".", "R").exists()) {
-            pathPrefix = "R/testData/";
+            pathPrefix = base;
         } else {
-            pathPrefix = "../R/testData/";
+            pathPrefix = "../" + base;
         }
     }
 }
