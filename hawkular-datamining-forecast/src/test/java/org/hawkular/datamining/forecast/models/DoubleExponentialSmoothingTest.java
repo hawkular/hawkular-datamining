@@ -73,12 +73,13 @@ public class DoubleExponentialSmoothingTest extends AbstractTest {
         DoubleExponentialSmoothing.Optimizer optimizer = DoubleExponentialSmoothing.optimizer();
         TimeSeriesModel modelInit = optimizer.minimizedMSE(rModel.getData());
 
-        TimeSeriesModel modelLearnContinuous = new DoubleExponentialSmoothing(optimizer.result()[0],
-                optimizer.result()[1]);
-        rModel.getData().forEach(dataPoint -> modelLearnContinuous.learn(dataPoint));
+        TimeSeriesModel continuousModel = new ContinuousModel(
+                new DoubleExponentialSmoothing(optimizer.result()[0], optimizer.result()[1]));
+
+        rModel.getData().forEach(dataPoint -> continuousModel.learn(dataPoint));
 
         AccuracyStatistics batchInitStatistics = modelInit.initStatistics();
-        AccuracyStatistics continuousLearnStatistics = modelLearnContinuous.runStatistics();
+        AccuracyStatistics continuousLearnStatistics = continuousModel.runStatistics();
 
         Assert.assertTrue(continuousLearnStatistics.getMse() > batchInitStatistics.getMse());
     }

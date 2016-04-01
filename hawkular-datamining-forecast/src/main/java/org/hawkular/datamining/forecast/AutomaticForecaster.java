@@ -63,6 +63,11 @@ public class AutomaticForecaster implements Forecaster {
     }
 
     public AutomaticForecaster(MetricContext context, ConceptDriftStrategy conceptDriftStrategy,
+                               InformationCriterion informationCriterion) {
+        this(context, conceptDriftStrategy, informationCriterion, 50);
+    }
+
+    public AutomaticForecaster(MetricContext context, ConceptDriftStrategy conceptDriftStrategy,
                                InformationCriterion icForModelSelecting, int windowSize) {
         if (context == null ||
                 context.getCollectionInterval() == null || context.getCollectionInterval() <= 0) {
@@ -192,18 +197,18 @@ public class AutomaticForecaster implements Forecaster {
 
             if (windowSize < periods*3) {
                 windowSize = periods*3;
-                EvictingQueue<DataPoint> newWindow = EvictingQueue.create(periods * 3);
+                EvictingQueue<DataPoint> newWindow = EvictingQueue.create(periods*3);
                 newWindow.addAll(window);
                 window = newWindow;
             }
         }
 
-        usedModel = bestModel;
-        counter = 0;
-
         if (conceptDriftStrategy instanceof ErrorChangeStrategy) {
             ((ErrorChangeStrategy) conceptDriftStrategy).setError(bestModel.initStatistics());
         }
+
+        usedModel = bestModel;
+        counter = 0;
 
         Logger.LOGGER.debugf("Best model for: %s, is %s, %s", metricContext.getMetricId(),
                 bestModel.getClass().getSimpleName(), bestModel.initStatistics());

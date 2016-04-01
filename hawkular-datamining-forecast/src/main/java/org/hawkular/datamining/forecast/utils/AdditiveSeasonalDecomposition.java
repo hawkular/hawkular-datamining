@@ -61,7 +61,10 @@ public class AdditiveSeasonalDecomposition implements TimeSeriesDecomposition {
             detrended.add(new DataPoint(value, original.get(i).getTimestamp()));
         }
 
-        // seasonal
+        /**
+         * Seasonal
+         * averages of each season of detrended series
+         */
         int completeSeasons = original.size() / periods;
         completeSeasons += original.size() % 2 != 0 ? 1 : 0;
         seasonalIndices = new double[periods];

@@ -71,11 +71,13 @@ public class SimpleExponentialSmoothingTest extends AbstractTest {
         SimpleExponentialSmoothing.Optimizer optimizer = SimpleExponentialSmoothing.optimizer();
         TimeSeriesModel modelInit = optimizer.minimizedMSE(rModel.getData());
 
-        TimeSeriesModel modelLearnContinuous = new SimpleExponentialSmoothing(optimizer.result()[0]);
-        rModel.getData().forEach(dataPoint -> modelLearnContinuous.learn(dataPoint));
+        TimeSeriesModel continuousModel = new ContinuousModel(
+                new SimpleExponentialSmoothing(optimizer.result()[0]));
+
+        rModel.getData().forEach(dataPoint -> continuousModel.learn(dataPoint));
 
         AccuracyStatistics batchInitStatistics = modelInit.initStatistics();
-        AccuracyStatistics continuousLearnStatistics = modelLearnContinuous.runStatistics();
+        AccuracyStatistics continuousLearnStatistics = continuousModel.runStatistics();
 
         Assert.assertTrue(continuousLearnStatistics.getMse() > batchInitStatistics.getMse());
     }
