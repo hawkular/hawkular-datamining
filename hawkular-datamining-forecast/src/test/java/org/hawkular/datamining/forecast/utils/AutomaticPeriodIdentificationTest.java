@@ -18,12 +18,15 @@
 package org.hawkular.datamining.forecast.utils;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.transform.DftNormalization;
 import org.apache.commons.math3.transform.FastFourierTransformer;
 import org.apache.commons.math3.transform.TransformType;
 import org.hawkular.datamining.forecast.AbstractTest;
+import org.hawkular.datamining.forecast.DataPoint;
 import org.hawkular.datamining.forecast.ModelData;
 import org.hawkular.datamining.forecast.ModelReader;
 import org.junit.Assert;
@@ -36,7 +39,7 @@ import org.junit.Test;
 public class AutomaticPeriodIdentificationTest extends AbstractTest {
 
     @Test
-    public void testAutomaticPeriodIdentifications() throws IOException {
+    public void testAutomaticPeriodIdentification() throws IOException {
         for (String model: seasonalModels) {
             ModelData rModel = ModelReader.read(model);
 
@@ -45,6 +48,34 @@ public class AutomaticPeriodIdentificationTest extends AbstractTest {
             System.out.println("Model=" + model + ", periods=" + rModel.getPeriods() + ", estimated=" + periods);
             Assert.assertEquals(rModel.getPeriods(), periods);
         }
+    }
+
+    @Test
+    public void testAutomaticPeriodIdentificationVariableDataLength() throws IOException {
+
+        ModelData rModel = ModelReader.read("sineTrendLowVar");
+
+        int lastIndex = rModel.getPeriods()*2;
+        while (lastIndex < rModel.getData().size()) {
+
+            List<DataPoint> trainData = rModel.getData().subList(0, lastIndex);
+            int periods = AutomaticPeriodIdentification.periods(trainData);
+
+            Assert.assertEquals(rModel.getPeriods(), periods, 1);
+
+            lastIndex += ThreadLocalRandom.current().nextInt(0, rModel.getPeriods() + 1);
+        }
+
+        int[] startIndices = {
+                0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 28, 47
+        };
+
+        for (int startIndex: startIndices) {
+            List<DataPoint> trainData = rModel.getData().subList(startIndex, rModel.getData().size());
+            int periods = AutomaticPeriodIdentification.periods(trainData);
+            Assert.assertEquals(rModel.getPeriods(), periods, 1);
+        }
+
     }
 
     /**

@@ -20,6 +20,7 @@ package org.hawkular.datamining.forecast.models;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -32,6 +33,9 @@ import org.hawkular.datamining.forecast.ImmutableMetricContext;
 import org.hawkular.datamining.forecast.ModelData;
 import org.hawkular.datamining.forecast.ModelReader;
 import org.hawkular.datamining.forecast.stats.AccuracyStatistics;
+import org.hawkular.datamining.forecast.stats.InformationCriterionHolder;
+import org.hawkular.datamining.forecast.utils.AutomaticPeriodIdentification;
+import org.hawkular.datamining.forecast.utils.Utils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -109,12 +113,17 @@ public class AutomaticForecasterTest extends AbstractTest {
 
                 int runs = 5;
                 while (runs-- > 0) {
-                    int dataSize = ThreadLocalRandom.current().nextInt(AutomaticForecaster.WINDOW_SIZE + 50,
+                    AutomaticForecaster.PeriodicIntervalStrategy periodicStrategy =
+                            new AutomaticForecaster.PeriodicIntervalStrategy(25);
+
+
+                    int dataSize = ThreadLocalRandom.current().nextInt(periodicStrategy.getPeriod() + 50,
                             rModel.getData().size() + 1);
                     System.out.format("%s random sample size (0, %d)\n", rModel.getName(), dataSize);
 
                     Forecaster forecaster =
-                            new AutomaticForecaster(new ImmutableMetricContext("", rModel.getName(), 1L));
+                            new AutomaticForecaster(new ImmutableMetricContext("", rModel.getName(), 1L),
+                                    periodicStrategy);
                     List<DataPoint> dataSubSet = rModel.getData().subList(0, dataSize);
                     forecaster.learn(dataSubSet);
 
@@ -180,4 +189,91 @@ public class AutomaticForecasterTest extends AbstractTest {
     }
 
 
+    @Test
+    public void testConceptDriftPeriodicStrategy() throws IOException {
+        ModelData wnLowVariance = ModelReader.read("wnLowVariance");
+        ModelData trendStationary = ModelReader.read("trendStatUpwardLowVar");
+        ModelData sineStationary = ModelReader.read("sineTrendLowVar");
+        ModelData trendStationaryDownward = ModelReader.read("trendStatDownwardLowVar");
+
+        Forecaster periodicForecaster = new AutomaticForecaster(new ImmutableMetricContext("tenant",
+                wnLowVariance.getName() + trendStationary.getName() + sineStationary.getName(), 1L));
+
+        learn(periodicForecaster, wnLowVariance);
+        learn(periodicForecaster, sineStationary);
+        learn(periodicForecaster, trendStationary);
+        learn(periodicForecaster, trendStationaryDownward);
+    }
+
+    @Test
+    public void testConceptDriftStatStrategy() throws IOException {
+        ModelData wnLowVariance = ModelReader.read("wnLowVariance");
+        ModelData trendStationary = ModelReader.read("trendStatUpwardLowVar");
+        ModelData sineStationary = ModelReader.read("sineTrendLowVar");
+        ModelData trendStationaryDownward = ModelReader.read("trendStatDownwardLowVar");
+
+        Forecaster statisticsForecaster = new AutomaticForecaster(
+                new ImmutableMetricContext("tenant", wnLowVariance.getName()+ trendStationary.getName() +
+                        sineStationary.getName(), 1L),
+                new AutomaticForecaster.ErrorChangeStrategy(20, AutomaticForecaster.ErrorChangeStrategy.Statistics.MAE));
+
+        learn(statisticsForecaster, wnLowVariance);
+        learn(statisticsForecaster, sineStationary);
+        learn(statisticsForecaster, trendStationary);
+        learn(statisticsForecaster, trendStationaryDownward);
+        learn(statisticsForecaster, wnLowVariance);
+    }
+
+    @Test
+    public void test() throws IOException {
+        ModelData trendStationary = ModelReader.read("trendStatUpwardLowVar");
+        ModelData sineTrendStationary = ModelReader.read("sineTrendLowVar");
+
+        List<DataPoint> trainData = sineTrendStationary.getData().subList(43, 94);
+
+        int periods = AutomaticPeriodIdentification.periods(trainData);
+        System.out.println("\n\nperiods = " + periods);
+
+
+        System.out.println(Arrays.toString(Utils.toArray(trainData)));
+        TimeSeriesModel seasonalModel = TripleExponentialSmoothing.optimizer(20).minimizedMSE(trainData);
+        InformationCriterionHolder criterionHolder =
+                new InformationCriterionHolder(seasonalModel.initStatistics().getSse(), seasonalModel.numberOfParams(),
+                        trainData.size());
+        System.out.println("\n\nDefault:" + seasonalModel);
+        System.out.println("accuracy:" + seasonalModel.initStatistics() + criterionHolder + "\n\n");
+
+        TimeSeriesModel trendModel = DoubleExponentialSmoothing.optimizer().minimizedMSE(trainData);
+        InformationCriterionHolder trendCriterionHolder =
+                new InformationCriterionHolder(trendModel.initStatistics().getSse(), trendModel.numberOfParams(),
+                        trainData.size());
+        System.out.println("\n\nDefault:" + trendModel);
+        System.out.println("accuracy:" + trendModel.initStatistics() + trendCriterionHolder + "\n\n");
+
+        AutomaticForecaster automaticForecaster = new AutomaticForecaster(new ImmutableMetricContext("tenant",
+                sineTrendStationary.getName(), 1L));
+        automaticForecaster.learn(trainData);
+        System.out.println("AutomaticForecaster = " + automaticForecaster.model());
+        periods = AutomaticPeriodIdentification.periods(trainData);
+        System.out.println("\n\nperiods = " + periods);
+
+        Forecaster periodicForecaster = new AutomaticForecaster(new ImmutableMetricContext("tenant",
+                sineTrendStationary.getName(), 1L));
+
+        learn(periodicForecaster, trendStationary);
+        learn(periodicForecaster, sineTrendStationary);
+    }
+
+    private void learn(Forecaster forecaster, ModelData model) {
+
+        long startTimestamp = forecaster.lastTimestamp();
+
+        for (DataPoint point: model.getData()) {
+            DataPoint pointToLearn = new DataPoint(point.getValue(), startTimestamp++);
+            System.out.println(startTimestamp);
+            forecaster.learn(pointToLearn);
+        }
+
+        Assert.assertEquals(model.getModel(), forecaster.model().getClass());
+    }
 }

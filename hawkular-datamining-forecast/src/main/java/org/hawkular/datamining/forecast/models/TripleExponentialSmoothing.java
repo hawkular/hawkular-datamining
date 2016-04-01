@@ -110,6 +110,10 @@ public class TripleExponentialSmoothing implements TimeSeriesModel {
             throw new IllegalArgumentException("Seasonal smoothing should be in 0-1");
         }
 
+        if (periods < 2) {
+            throw new IllegalArgumentException("Periods < 2, use non seasonal model.");
+        }
+
         this.periods = periods;
 
         this.levelSmoothing = levelSmoothing;
@@ -256,7 +260,8 @@ public class TripleExponentialSmoothing implements TimeSeriesModel {
                 ", seasonalSmoothing=" + seasonalSmoothing +
                 ", level=" + initState.level +
                 ", slope=" + initState.slope +
-                ", periods=" + Arrays.toString(initState.periods) +
+                ", periods=" + initState.periods.length +
+                ", periodsIndices=" + Arrays.toString(initState.periods) +
                 ", currentPeriod=" + currentPeriod +
                 '}';
     }
@@ -273,9 +278,11 @@ public class TripleExponentialSmoothing implements TimeSeriesModel {
         private static final int MAX_ITER = 10000;
         private static final int MAX_EVAL = 10000;
 
-        private double[] result;
-        private State initState;
+        private final Integer definedPeriods;
+
         private Integer periods;
+        private State initState;
+        private double[] result;
 
 
         public Optimizer() {
@@ -283,7 +290,11 @@ public class TripleExponentialSmoothing implements TimeSeriesModel {
         }
 
         public Optimizer(Integer periods) {
-            this.periods = periods;
+            this.definedPeriods = periods;
+        }
+
+        public Integer getPeriods() {
+            return definedPeriods == null ? periods : definedPeriods;
         }
 
         @Override
@@ -293,12 +304,8 @@ public class TripleExponentialSmoothing implements TimeSeriesModel {
 
         @Override
         public TimeSeriesModel minimizedMSE(List<DataPoint> dataPoints) {
-            if (periods == null) {
-                identifyPeriods(dataPoints);
-            }
-
-            TripleExponentialSmoothing tripleExponentialSmoothing = new TripleExponentialSmoothing(periods);
-            initState = tripleExponentialSmoothing.initState(dataPoints);
+            periods = definedPeriods == null ? AutomaticPeriodIdentification.periods(dataPoints) : definedPeriods;
+            initState = new TripleExponentialSmoothing(periods).initState(dataPoints);
 
             int periodsToOptimize = periods;
 
@@ -421,10 +428,6 @@ public class TripleExponentialSmoothing implements TimeSeriesModel {
                     new NelderMeadSimplex(initialGuess.length));
 
             return costFunction.unboundedToBounded(unBoundedResult.getPoint());
-        }
-
-        private void identifyPeriods(List<DataPoint> x) {
-            this.periods = AutomaticPeriodIdentification.periods(x);
         }
     }
 }

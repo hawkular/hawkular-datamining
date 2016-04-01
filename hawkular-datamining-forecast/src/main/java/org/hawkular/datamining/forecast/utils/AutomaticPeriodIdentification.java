@@ -51,10 +51,10 @@ public class AutomaticPeriodIdentification {
         return periods(data, ADF_TEST_DEFAULT_CRITICAL_PVALUE);
     }
 
-    public static int periods(final List<DataPoint> data, double critivalValue) {
+    public static int periods(final List<DataPoint> data, double criticalValue) {
         double[] x = Utils.toArray(data);
 
-        if (trendStationary(x, critivalValue)) {
+        if (trendStationary(x, criticalValue)) {
             x = TimeSeriesDifferencing.differencesAtLag(x, 1);
         }
 
@@ -137,7 +137,6 @@ public class AutomaticPeriodIdentification {
 
         AugmentedDickeyFullerTest adfTest = new AugmentedDickeyFullerTest(x, 1);
         double pValue = adfTest.pValue();
-        System.out.println("pValue=" + pValue);
 
         return pValue > criticalValue;
     }
