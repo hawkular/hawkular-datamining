@@ -17,7 +17,6 @@
 
 package org.hawkular.datamining.forecast.models;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,14 +38,12 @@ import org.hawkular.datamining.forecast.stats.AccuracyStatistics;
 import org.hawkular.datamining.forecast.utils.AdditiveSeasonalDecomposition;
 import org.hawkular.datamining.forecast.utils.AutomaticPeriodIdentification;
 
-import com.google.common.collect.EvictingQueue;
-
 /**
  * Triple exponential smoothing model also known as Holt-Winters model. This model implements additive variant.
  *
  * @author Pavol Loffay
  */
-public class TripleExponentialSmoothing implements TimeSeriesModel {
+public class TripleExponentialSmoothing extends AbstractExponentialSmoothing {
 
     public static final double DEFAULT_LEVEL_SMOOTHING = 0.4;
     public static final double DEFAULT_TREND_SMOOTHING = 0.1;
@@ -59,31 +56,22 @@ public class TripleExponentialSmoothing implements TimeSeriesModel {
     public static final double MAX_TREND_SMOOTHING = 0.9999;
     public static final double MAX_SEASONAL_SMOOTHING = 0.9999;
 
+    private State state;
     private final double levelSmoothing;
     private final double trendSmoothing;
     private final double seasonalSmoothing;
 
     private final int periods;
     private int currentPeriod;
-    private State initState;
-
-    private long counter;
-    private double sse;
-    private double absSum;
-    private AccuracyStatistics initAccuracy;
-    private final EvictingQueue<DataPoint> window;
 
 
-    public static class State {
+    public static class State extends DoubleExponentialSmoothing.State {
+        private double[] periods;
+
         public State(double level, double slope, double[] periods) {
-            this.level = level;
-            this.slope = slope;
+            super(level, slope);
             this.periods = Arrays.copyOf(periods, periods.length);
         }
-
-        private double level;
-        private double slope;
-        private double[] periods;
     }
 
     public TripleExponentialSmoothing(int periods) {
@@ -91,10 +79,9 @@ public class TripleExponentialSmoothing implements TimeSeriesModel {
     }
 
     public TripleExponentialSmoothing(double levelSmoothing, double trendSmoothing,
-                                      double seasonalSmoothing, State initState) {
-        this(initState.periods.length, levelSmoothing, trendSmoothing, seasonalSmoothing);
-
-        this.initState = initState;
+                                      double seasonalSmoothing, State state) {
+        this(state.periods.length, levelSmoothing, trendSmoothing, seasonalSmoothing);
+        this.state = state;
     }
 
     public TripleExponentialSmoothing(int periods, double levelSmoothing, double trendSmoothing,
@@ -110,132 +97,14 @@ public class TripleExponentialSmoothing implements TimeSeriesModel {
             throw new IllegalArgumentException("Seasonal smoothing should be in 0-1");
         }
 
-        this.periods = periods;
+        if (periods < 2) {
+            throw new IllegalArgumentException("Periods < 2, use non seasonal model.");
+        }
 
+        this.periods = periods;
         this.levelSmoothing = levelSmoothing;
         this.trendSmoothing = trendSmoothing;
         this.seasonalSmoothing = seasonalSmoothing;
-        this.window = EvictingQueue.create(periods * 2);
-    }
-
-    @Override
-    public AccuracyStatistics init(List<DataPoint> dataPoints) {
-
-        if (initState == null) {
-            initState(dataPoints);
-        }
-
-        learn(dataPoints);
-        initAccuracy = new AccuracyStatistics(sse, sse/(double)dataPoints.size(), absSum/(double)dataPoints.size());
-        sse = 0d;
-        absSum = 0d;
-        counter = 0L;
-
-        return initAccuracy;
-    }
-
-    @Override
-    public void learn(DataPoint dataPoint) {
-
-        window.add(dataPoint);
-
-        additiveUpdate(dataPoint);
-
-        currentPeriod = periodIndex(dataPoint.getTimestamp());
-    }
-
-    @Override
-    public void learn(List<DataPoint> dataPoints) {
-
-        if (initState == null && window.remainingCapacity() - dataPoints.size() < 1) {
-            List<DataPoint> initData = new ArrayList<>(window);
-            initData.addAll(dataPoints);
-            initState(initData);
-        }
-
-        dataPoints.forEach(dataPoint -> {
-            learn(dataPoint);
-        });
-    }
-
-    private int periodIndex(long timestamp) {
-        return (int) (timestamp % periods);
-    }
-
-    private void additiveUpdate(DataPoint point) {
-        double error = point.getValue() - forecast().getValue();
-        sse += error*error;
-        absSum += Math.abs(error);
-        counter++;
-
-        double oldLevel = initState.level;
-        double oldSlope = initState.slope;
-        int periodToCount = currentPeriod = periodIndex(point.getTimestamp());
-
-        initState.level = levelSmoothing*(point.getValue() - initState.periods[periodToCount]) +
-                (1 - levelSmoothing)*(initState.level + initState.slope);
-        initState.slope = trendSmoothing*(initState.level - oldLevel) + (1 - trendSmoothing)*initState.slope;
-        initState.periods[periodToCount] = seasonalSmoothing*(point.getValue() - oldLevel - oldSlope) +
-                (1 - seasonalSmoothing)*initState.periods[periodToCount];
-    }
-
-    private State initState(List<DataPoint> dataPoints) {
-        if (dataPoints.size()/periods < 2) {
-            throw new IllegalArgumentException("At least two complete seasons are required");
-        }
-
-        AdditiveSeasonalDecomposition decomposition = new AdditiveSeasonalDecomposition(dataPoints, periods);
-        double[] periods = decomposition.decompose();
-
-        // do regression on seasonally adjusted data points
-        List<DataPoint> seasonal = decomposition.seasonal();
-        SimpleRegression regression = new SimpleRegression();
-        for (int i = 0; i < dataPoints.size(); i++) {
-            regression.addData(i, dataPoints.get(i).getValue() - seasonal.get(i).getValue());
-        }
-        double level = regression.predict(0);
-        double slope = regression.getSlope();
-
-
-        currentPeriod = periodIndex(dataPoints.get(0).getTimestamp() - 1);
-        if (currentPeriod < 0) {
-            currentPeriod += this.periods;
-        }
-
-        initState = new State(level, slope, periods);
-        return initState;
-    }
-
-    @Override
-    public DataPoint forecast() {
-        double forecast = initState.level + initState.slope + forecastSeason(1);
-        return new DataPoint(forecast, 1L);
-    }
-
-    @Override
-    public List<DataPoint> forecast(int nAhead) {
-        List<DataPoint> result = new ArrayList<>(nAhead);
-
-        for (long i = 1; i <= nAhead; i++) {
-            double forecast = initState.level + i*initState.slope + forecastSeason(i);
-            result.add(new DataPoint(forecast, i));
-        }
-
-        return result;
-    }
-
-    private double forecastSeason(long nAhead) {
-        return  initState.periods[((int) ((currentPeriod + nAhead) % periods))];
-    }
-
-    @Override
-    public AccuracyStatistics initStatistics() {
-        return initAccuracy;
-    }
-
-    @Override
-    public AccuracyStatistics runStatistics() {
-        return new AccuracyStatistics(sse, sse/(double) counter, absSum/(double)counter);
     }
 
     @Override
@@ -249,14 +118,80 @@ public class TripleExponentialSmoothing implements TimeSeriesModel {
     }
 
     @Override
+    public int minimumInitSize() {
+        return periods*2;
+    }
+
+    @Override
+    protected State initState(List<DataPoint> dataPoints) {
+        if (dataPoints.size()/periods < 2) {
+            throw new IllegalArgumentException("At least two complete seasons are required");
+        }
+
+        AdditiveSeasonalDecomposition decomposition = new AdditiveSeasonalDecomposition(dataPoints, periods);
+        double[] periodIndices = decomposition.decompose();
+
+        // do regression on seasonally adjusted data points
+        List<DataPoint> seasonal = decomposition.seasonal();
+        SimpleRegression regression = new SimpleRegression();
+        for (int i = 0; i < dataPoints.size(); i++) {
+            regression.addData(i, dataPoints.get(i).getValue() - seasonal.get(i).getValue());
+        }
+        double level = regression.predict(0);
+        double slope = regression.getSlope();
+
+        currentPeriod = periodIndex(dataPoints.get(0).getTimestamp() - 1);
+        if (currentPeriod < 0) {
+            currentPeriod += periods;
+        }
+
+        state = new State(level, slope, periodIndices);
+        return state;
+    }
+
+    @Override
+    protected SimpleExponentialSmoothing.State state() {
+        return state;
+    }
+
+    @Override
+    protected void updateState(DataPoint point) {
+        double oldLevel = state.level;
+        double oldSlope = state.slope;
+        int periodToCount = periodIndex(point.getTimestamp());
+
+        state.level = levelSmoothing*(point.getValue() - state.periods[periodToCount]) +
+                (1 - levelSmoothing)*(state.level + state.slope);
+        state.slope = trendSmoothing*(state.level - oldLevel) + (1 - trendSmoothing)*state.slope;
+        state.periods[periodToCount] = seasonalSmoothing*(point.getValue() - oldLevel - oldSlope) +
+                (1 - seasonalSmoothing)*state.periods[periodToCount];
+
+        currentPeriod = periodIndex(point.getTimestamp());
+    }
+
+    @Override
+    protected double calculatePrediction(int nAhead) {
+        return state.level + nAhead*state.slope + forecastPeriod(nAhead);
+    }
+
+    private int periodIndex(long timestamp) {
+        return (int) (timestamp % periods);
+    }
+
+    private double forecastPeriod(long nAhead) {
+        return  state.periods[((int) ((currentPeriod + nAhead) % periods))];
+    }
+
+    @Override
     public String toString() {
         return "TripleExponentialSmoothing{" +
                 "levelSmoothing=" + levelSmoothing +
                 ", trendSmoothing=" + trendSmoothing +
                 ", seasonalSmoothing=" + seasonalSmoothing +
-                ", level=" + initState.level +
-                ", slope=" + initState.slope +
-                ", periods=" + Arrays.toString(initState.periods) +
+                ", level=" + state.level +
+                ", slope=" + state.slope +
+                ", periods=" + state.periods.length +
+                ", periodsIndices=" + Arrays.toString(state.periods) +
                 ", currentPeriod=" + currentPeriod +
                 '}';
     }
@@ -273,9 +208,11 @@ public class TripleExponentialSmoothing implements TimeSeriesModel {
         private static final int MAX_ITER = 10000;
         private static final int MAX_EVAL = 10000;
 
-        private double[] result;
-        private State initState;
+        private final Integer definedPeriods;
+
         private Integer periods;
+        private State initState;
+        private double[] result;
 
 
         public Optimizer() {
@@ -283,7 +220,11 @@ public class TripleExponentialSmoothing implements TimeSeriesModel {
         }
 
         public Optimizer(Integer periods) {
-            this.periods = periods;
+            this.definedPeriods = periods;
+        }
+
+        public Integer getPeriods() {
+            return definedPeriods == null ? periods : definedPeriods;
         }
 
         @Override
@@ -293,12 +234,8 @@ public class TripleExponentialSmoothing implements TimeSeriesModel {
 
         @Override
         public TimeSeriesModel minimizedMSE(List<DataPoint> dataPoints) {
-            if (periods == null) {
-                identifyPeriods(dataPoints);
-            }
-
-            TripleExponentialSmoothing tripleExponentialSmoothing = new TripleExponentialSmoothing(periods);
-            initState = tripleExponentialSmoothing.initState(dataPoints);
+            periods = definedPeriods == null ? AutomaticPeriodIdentification.periods(dataPoints) : definedPeriods;
+            initState = new TripleExponentialSmoothing(periods).initState(dataPoints);
 
             int periodsToOptimize = periods;
 
@@ -421,10 +358,6 @@ public class TripleExponentialSmoothing implements TimeSeriesModel {
                     new NelderMeadSimplex(initialGuess.length));
 
             return costFunction.unboundedToBounded(unBoundedResult.getPoint());
-        }
-
-        private void identifyPeriods(List<DataPoint> x) {
-            this.periods = AutomaticPeriodIdentification.periods(x);
         }
     }
 }

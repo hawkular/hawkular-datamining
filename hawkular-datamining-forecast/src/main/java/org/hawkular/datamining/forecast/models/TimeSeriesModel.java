@@ -83,4 +83,9 @@ public interface TimeSeriesModel {
      * @return  number of parameters of the model, seasonal models include seasonal indices
      */
     int numberOfParams();
+
+    /**
+     * @return  number of parameters of the model, seasonal models include seasonal indices
+     */
+    int minimumInitSize();
 }
