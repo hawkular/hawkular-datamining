@@ -76,7 +76,7 @@ public class JMSMetricDataListener extends BasicMessageListener<MetricDataMessag
                 continue;
             }
 
-            if (subscriptionManager.subscribes(tenantId, singleMetric.getSource())) {
+            if (subscriptionManager.isSubscribed(tenantId, singleMetric.getSource())) {
                 DataPoint dataPoint = new DataPoint(singleMetric.getValue(), singleMetric.getTimestamp());
                 subscriptionManager.subscription(tenantId, singleMetric.getSource()).forecaster().learn(dataPoint);
             }

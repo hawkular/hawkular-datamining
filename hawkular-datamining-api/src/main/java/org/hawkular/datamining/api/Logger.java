@@ -32,5 +32,5 @@ public interface Logger extends BasicLogger {
 
     @LogMessage(level = org.jboss.logging.Logger.Level.DEBUG)
     @Message(value = "Subscribing for predictions tenant: %s, metric %s")
-    void subscribing(String metric, String tenant);
+    void subscribe(String metric, String tenant);
 }

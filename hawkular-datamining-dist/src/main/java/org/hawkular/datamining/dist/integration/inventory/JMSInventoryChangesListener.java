@@ -129,7 +129,7 @@ public class JMSInventoryChangesListener extends InventoryEventMessageListener {
                 if (target.getSegment().getElementType().equals(Metric.class)) {
 
                     Metric invMetric = inventoryStorage.metric(target);
-                    if (subscriptionManager.subscribes(invMetric.getPath().ids().getTenantId(), invMetric.getId())) {
+                    if (subscriptionManager.isSubscribed(invMetric.getPath().ids().getTenantId(), invMetric.getId())) {
                         Subscription subscription =
                                 subscriptionManager.subscription(invMetric.getPath().ids().getTenantId(),
                                         invMetric.getId());
@@ -150,7 +150,7 @@ public class JMSInventoryChangesListener extends InventoryEventMessageListener {
                     Set<Metric> invMetrics = inventoryStorage.metricsOfType(target);
 
                     invMetrics.forEach(invMetric -> {
-                        if (subscriptionManager.subscribes(invMetric.getPath().ids().getTenantId(),
+                        if (subscriptionManager.isSubscribed(invMetric.getPath().ids().getTenantId(),
                                 invMetric.getId())) {
 
                             Subscription subscription = subscriptionManager
@@ -175,7 +175,7 @@ public class JMSInventoryChangesListener extends InventoryEventMessageListener {
                     Set<Metric> metricsUnderTenant = inventoryStorage.metricsUnderTenant(tenant);
 
                     metricsUnderTenant.forEach(invMetric -> {
-                        if (subscriptionManager.subscribes(invMetric.getPath().ids().getTenantId(),
+                        if (subscriptionManager.isSubscribed(invMetric.getPath().ids().getTenantId(),
                                 invMetric.getId())) {
 
                             Subscription subscription = subscriptionManager
@@ -224,7 +224,7 @@ public class JMSInventoryChangesListener extends InventoryEventMessageListener {
 
                     subscriptionManager.subscription(invMetric.getPath().ids().getTenantId(), invMetric.getId())
                             .forecaster().context().setForecastingHorizon(horizon);
-                    subscriptionManager.unSubscribe(invMetric.getPath().ids().getTenantId(), invMetric.getId(), owner);
+                    subscriptionManager.unsubscribe(invMetric.getPath().ids().getTenantId(), invMetric.getId(), owner);
                 });
                 break;
             }
@@ -265,7 +265,7 @@ public class JMSInventoryChangesListener extends InventoryEventMessageListener {
             break;
 
             case DELETED: {
-                subscriptionManager.unSubscribe(metric.getPath().ids().getTenantId(), metric.getId(),
+                subscriptionManager.unsubscribe(metric.getPath().ids().getTenantId(), metric.getId(),
                         Subscription.SubscriptionOwner.Metric);
             }
             break;
@@ -294,7 +294,7 @@ public class JMSInventoryChangesListener extends InventoryEventMessageListener {
 
                 Set<Metric> metricsOfType = inventoryStorage.metricsOfType(metricType.getPath());
                 metricsOfType.forEach(metric -> {
-                    if (subscriptionManager.subscribes(metric.getPath().ids().getTenantId(), metric.getId())) {
+                    if (subscriptionManager.isSubscribed(metric.getPath().ids().getTenantId(), metric.getId())) {
                         org.hawkular.datamining.api.model.Metric metricc = (org.hawkular.datamining.api.model.Metric)
                                  subscriptionManager.subscription(metric.getPath().ids().getTenantId(), metric.getId())
                                 .getMetric();
@@ -306,7 +306,7 @@ public class JMSInventoryChangesListener extends InventoryEventMessageListener {
             case DELETED: {
                 Set<Metric> metrics = inventoryStorage.metricsOfType(metricType.getPath());
                 metrics.forEach(metric ->
-                    subscriptionManager.unSubscribeAll(metric.getPath().ids().getTenantId(), metric.getId()));
+                    subscriptionManager.unsubscribeAll(metric.getPath().ids().getTenantId(), metric.getId()));
             }
                 break;
         }

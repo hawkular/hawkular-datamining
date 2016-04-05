@@ -22,7 +22,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.hawkular.datamining.api.SubscriptionManager;
-import org.hawkular.datamining.api.base.CacheSubscriptionManager;
+import org.hawkular.datamining.api.base.InMemorySubscriptionManager;
 import org.hawkular.datamining.api.storage.MetricsClient;
 import org.hawkular.datamining.cdi.Logger;
 
@@ -39,7 +39,7 @@ public class SubscriptionManagerProducer {
     @Singleton
     public SubscriptionManager getSubscriptionManager() {
 
-        CacheSubscriptionManager subscriptionManager = new CacheSubscriptionManager(metricsClient);
+        InMemorySubscriptionManager subscriptionManager = new InMemorySubscriptionManager(metricsClient);
 
         Logger.LOGGER.infof("New instance of subscription manager produced");
 
