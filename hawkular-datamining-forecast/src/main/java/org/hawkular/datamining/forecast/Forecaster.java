@@ -52,14 +52,17 @@ public interface Forecaster {
     TimeSeriesModel model();
 
     /**
-     *
      * @return information about metric
      */
     MetricContext context();
 
     /**
-     *
-     * @return
+     * @return true if model is selected is initialized
      */
     boolean initialized();
+
+    /**
+     * @return last learned timestamp
+     */
+    long lastTimestamp();
 }
