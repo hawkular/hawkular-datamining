@@ -22,18 +22,12 @@ import java.util.List;
 
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.exception.MathIllegalStateException;
-import org.apache.commons.math3.optim.InitialGuess;
-import org.apache.commons.math3.optim.MaxEval;
-import org.apache.commons.math3.optim.MaxIter;
-import org.apache.commons.math3.optim.PointValuePair;
-import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.apache.commons.math3.optim.nonlinear.scalar.MultivariateFunctionMappingAdapter;
-import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
-import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
-import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.hawkular.datamining.forecast.DataPoint;
+import org.hawkular.datamining.forecast.ImmutableMetricContext;
 import org.hawkular.datamining.forecast.Logger;
+import org.hawkular.datamining.forecast.MetricContext;
 import org.hawkular.datamining.forecast.stats.AccuracyStatistics;
 import org.hawkular.datamining.forecast.utils.AdditiveSeasonalDecomposition;
 import org.hawkular.datamining.forecast.utils.AutomaticPeriodIdentification;
@@ -62,30 +56,39 @@ public class TripleExponentialSmoothing extends AbstractExponentialSmoothing {
     private final double seasonalSmoothing;
 
     private final int periods;
-    private int currentPeriod;
 
 
     public static class State extends DoubleExponentialSmoothing.State {
         protected double[] periods;
+        protected long firstTimestamp;
 
-        public State(double level, double slope, double[] periods) {
+        public State(double level, double slope, double[] periods, long firstTimestamp) {
             super(level, slope);
             this.periods = Arrays.copyOf(periods, periods.length);
+            this.firstTimestamp = firstTimestamp;
         }
     }
 
     public TripleExponentialSmoothing(int periods) {
-        this(periods, DEFAULT_LEVEL_SMOOTHING, DEFAULT_TREND_SMOOTHING, DEFAULT_SEASONAL_SMOOTHING);
+        this(periods, DEFAULT_LEVEL_SMOOTHING, DEFAULT_TREND_SMOOTHING, DEFAULT_SEASONAL_SMOOTHING,
+                ImmutableMetricContext.getDefault());
     }
 
-    public TripleExponentialSmoothing(double levelSmoothing, double trendSmoothing,
-                                      double seasonalSmoothing, State state) {
-        this(state.periods.length, levelSmoothing, trendSmoothing, seasonalSmoothing);
+    public TripleExponentialSmoothing(int periods, MetricContext metricContext) {
+        this(periods, DEFAULT_LEVEL_SMOOTHING, DEFAULT_TREND_SMOOTHING, DEFAULT_SEASONAL_SMOOTHING,
+                metricContext);
+    }
+
+    public TripleExponentialSmoothing(double levelSmoothing, double trendSmoothing, double seasonalSmoothing,
+                                      State state, MetricContext metricContext) {
+
+        this(state.periods.length, levelSmoothing, trendSmoothing, seasonalSmoothing, metricContext);
         this.state = state;
     }
 
     public TripleExponentialSmoothing(int periods, double levelSmoothing, double trendSmoothing,
-                                      double seasonalSmoothing) {
+                                      double seasonalSmoothing, MetricContext metricContext) {
+        super(metricContext);
 
         if (levelSmoothing < MIN_LEVEL_SMOOTHING || levelSmoothing > MAX_LEVEL_SMOOTHING) {
             throw new IllegalArgumentException("Level smoothing should be in interval 0-1");
@@ -122,13 +125,14 @@ public class TripleExponentialSmoothing extends AbstractExponentialSmoothing {
         return periods*2;
     }
 
-    public static State initState(List<DataPoint> dataPoints, int periods) {
-        return new TripleExponentialSmoothing(periods).initState(dataPoints);
+    public static State initState(List<DataPoint> dataPoints, int periods, MetricContext metricContext) {
+        return new TripleExponentialSmoothing(periods, metricContext).initState(dataPoints);
     }
 
     @Override
     protected State initState(List<DataPoint> dataPoints) {
-        if (dataPoints.size()/periods < 2) {
+
+        if (dataPoints.size() < minimumInitSize()) {
             throw new IllegalArgumentException("At least two complete seasons are required");
         }
 
@@ -144,12 +148,11 @@ public class TripleExponentialSmoothing extends AbstractExponentialSmoothing {
         double level = regression.predict(0);
         double slope = regression.getSlope();
 
-        int firstPeriod = periodIndex(dataPoints.get(0).getTimestamp());
-        double[] switchedPeriods = rotatePeriods(periodIndices, firstPeriod);
+        double[] switchedPeriods = rotatePeriods(periodIndices, 0);
 
-        state = new State(level, slope, switchedPeriods);
+        state = new State(level, slope, switchedPeriods, dataPoints.get(0).getTimestamp());
         return state;
-    }
+   }
 
     private double[] rotatePeriods(double[] periods, int firstPeriod) {
         double[] result = new double[periods.length];
@@ -170,33 +173,36 @@ public class TripleExponentialSmoothing extends AbstractExponentialSmoothing {
     protected void updateState(DataPoint point) {
         double oldLevel = state.level;
         double oldSlope = state.slope;
-        int periodToCount = periodIndex(point.getTimestamp());
+        int periodOfPoint = periodIndex(point.getTimestamp());
 
-        state.level = levelSmoothing*(point.getValue() - state.periods[periodToCount]) +
+        state.level = levelSmoothing*(point.getValue() - state.periods[periodOfPoint]) +
                 (1 - levelSmoothing)*(state.level + state.slope);
         state.slope = trendSmoothing*(state.level - oldLevel) + (1 - trendSmoothing)*state.slope;
-        state.periods[periodToCount] = seasonalSmoothing*(point.getValue() - oldLevel - oldSlope) +
-                (1 - seasonalSmoothing)*state.periods[periodToCount];
-
-        currentPeriod = periodIndex(point.getTimestamp());
+        state.periods[periodOfPoint] = seasonalSmoothing*(point.getValue() - oldLevel - oldSlope) +
+                (1 - seasonalSmoothing)*state.periods[periodOfPoint];
     }
 
     @Override
-    protected double calculatePrediction(int nAhead, DataPoint learnDataPoint) {
+    protected double calculatePrediction(long nAhead, Long learnTimestamp) {
 
-        int previousPeriodIndex = currentPeriod;
-        if (learnDataPoint != null) {
-            previousPeriodIndex = periodIndex(learnDataPoint.getTimestamp() - 1);
-            previousPeriodIndex += previousPeriodIndex < 0 ? periods : 0;
-        }
+        /**
+         * when learn timestamp != null I want to get the prediction for that period
+         */
+        long predictTimestamp = learnTimestamp != null ? learnTimestamp :
+                lastTimestamp + nAhead*metricContext.getCollectionInterval();
 
-        Double forecastPeriod = state.periods[((previousPeriodIndex + nAhead) % periods)];
+        int periodIndex = periodIndex(predictTimestamp);
 
-        return state.level + nAhead*state.slope + forecastPeriod;
+        return state.level + nAhead*state.slope + state.periods[periodIndex];
     }
 
     private int periodIndex(long timestamp) {
-        return (int) (timestamp % periods);
+
+        long difference = Math.abs(timestamp - state.firstTimestamp);
+        long numberOfPeriodsAheadSinceLastLearn = difference/metricContext.getCollectionInterval();
+
+        int periodIndex = (int)(numberOfPeriodsAheadSinceLastLearn%periods);
+        return periodIndex;
     }
 
     @Override
@@ -209,34 +215,39 @@ public class TripleExponentialSmoothing extends AbstractExponentialSmoothing {
                 ", slope=" + state.slope +
                 ", periods=" + state.periods.length +
                 ", periodsIndices=" + Arrays.toString(state.periods) +
-                ", currentPeriod=" + currentPeriod +
                 '}';
     }
 
     public static Optimizer optimizer(int periods) {
-        return new Optimizer(periods);
+        return optimizer(periods, new ImmutableMetricContext(null, null, 1L));
     }
 
-    public static Optimizer optimizer() {
-        return new Optimizer();
+    public static Optimizer optimizer(MetricContext metricContext) {
+        return new Optimizer(metricContext);
     }
 
-    public static class Optimizer implements ModelOptimizer {
-        private static final int MAX_ITER = 10000;
-        private static final int MAX_EVAL = 10000;
+    public static Optimizer optimizer(int periods, MetricContext metricContext) {
+        return new Optimizer(periods, metricContext);
+    }
+
+
+    public static class Optimizer extends AbstractModelOptimizer {
 
         private final Integer definedPeriods;
-
         private Integer periods;
-        private State initState;
-        private double[] result;
 
+        private State initState;
 
         public Optimizer() {
-            this(null);
+            this(null, new ImmutableMetricContext(null, null, 1L));
         }
 
-        public Optimizer(Integer periods) {
+        public Optimizer(MetricContext metricContext) {
+            this(null, metricContext);
+        }
+
+        public Optimizer(Integer periods, MetricContext metricContext) {
+            super(metricContext);
             this.definedPeriods = periods;
         }
 
@@ -245,35 +256,27 @@ public class TripleExponentialSmoothing extends AbstractExponentialSmoothing {
         }
 
         @Override
-        public double[] result() {
-            return result;
-        }
-
-        @Override
         public TimeSeriesModel minimizedMSE(List<DataPoint> dataPoints) {
             periods = definedPeriods == null ? AutomaticPeriodIdentification.periods(dataPoints) : definedPeriods;
-            initState = TripleExponentialSmoothing.initState(dataPoints, periods);
+            initState = TripleExponentialSmoothing.initState(dataPoints, periods, getMetricContext());
 
             int periodsToOptimize = periods;
 
-            // Nelder-Mead Simplex
             try {
                 double[] initialGuess = initialGuess(initState, periodsToOptimize);
-                MultivariateFunctionMappingAdapter costFunction = costFunction(dataPoints, periodsToOptimize);
-                result = optimize(initialGuess, costFunction);
+                optimize(initialGuess, costFunction(dataPoints, periodsToOptimize));
             } catch (MathIllegalStateException ex) {
                 // optimize without seasons
                 Logger.LOGGER.errorf("Triple exponential smoothing optimizer failed to optimize periods");
                 periodsToOptimize = 0;
                 double[] initialGuess = initialGuess(initState, periodsToOptimize);
-                MultivariateFunctionMappingAdapter costFunction = costFunction(dataPoints, periodsToOptimize);
-                result = optimize(initialGuess, costFunction);
+                optimize(initialGuess, costFunction(dataPoints, periodsToOptimize));
             }
 
-            Logger.LOGGER.debugf("Optimizer best alpha: %.5f, beta %.5f, gamma %.5f", this.result[0], this.result[1],
-                    this.result[2]);
+            Logger.LOGGER.debugf("Triple ES: Optimizer best alpha: %.5f, beta %.5f, gamma %.5f",
+                    this.result[0], this.result[1], this.result[2]);
 
-            TripleExponentialSmoothing bestModel = model(result, periodsToOptimize);
+            TripleExponentialSmoothing bestModel = model(result, periodsToOptimize, dataPoints.get(0).getTimestamp());
             bestModel.init(dataPoints);
 
             return bestModel;
@@ -288,11 +291,10 @@ public class TripleExponentialSmoothing extends AbstractExponentialSmoothing {
                     return Double.POSITIVE_INFINITY;
                 }
 
-                TripleExponentialSmoothing tripleExponentialSmoothing = model(point, periodsToOptimize);
+                TripleExponentialSmoothing tripleExponentialSmoothing = model(point, periodsToOptimize,
+                        dataPoints.get(0).getTimestamp());
                 AccuracyStatistics accuracyStatistics = tripleExponentialSmoothing.init(dataPoints);
 
-                Logger.LOGGER.tracef("MSE = %s, alpha=%f, beta=%f, gamma=%f",  accuracyStatistics.getMse(),
-                        point[0], point[1], point[2]);
                 return accuracyStatistics.getMse();
             };
 
@@ -341,7 +343,7 @@ public class TripleExponentialSmoothing extends AbstractExponentialSmoothing {
             return new double[][]{min, max};
         }
 
-        private TripleExponentialSmoothing model(double[] point, int periodsToOptimize) {
+        private TripleExponentialSmoothing model(double[] point, int periodsToOptimize, long firstTimestamp) {
 
             double alpha = point[0];
             double beta = point[1];
@@ -359,22 +361,11 @@ public class TripleExponentialSmoothing extends AbstractExponentialSmoothing {
                 }
             }
 
-            State state = new State(level, slope, periods);
+            State state = new State(level, slope, periods, firstTimestamp);
 
-            TripleExponentialSmoothing model = new TripleExponentialSmoothing(alpha, beta, gamma, state);
+            TripleExponentialSmoothing model = new TripleExponentialSmoothing(alpha, beta, gamma, state,
+                    getMetricContext());
             return model;
-        }
-
-        private double[] optimize(double[] initialGuess, MultivariateFunctionMappingAdapter costFunction) {
-
-            SimplexOptimizer optimizer = new SimplexOptimizer(0.0001, 0.0001);
-            PointValuePair unBoundedResult = optimizer.optimize(
-                    GoalType.MINIMIZE, new MaxIter(MAX_ITER), new MaxEval(MAX_EVAL),
-                    new InitialGuess(initialGuess),
-                    new ObjectiveFunction(costFunction),
-                    new NelderMeadSimplex(initialGuess.length));
-
-            return costFunction.unboundedToBounded(unBoundedResult.getPoint());
         }
     }
 }

@@ -20,12 +20,15 @@ package org.hawkular.datamining.forecast.models;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.hawkular.datamining.forecast.AbstractTest;
 import org.hawkular.datamining.forecast.DataPoint;
+import org.hawkular.datamining.forecast.ImmutableMetricContext;
+import org.hawkular.datamining.forecast.MetricContext;
 import org.hawkular.datamining.forecast.ModelData;
 import org.hawkular.datamining.forecast.ModelReader;
 import org.hawkular.datamining.forecast.stats.AccuracyStatistics;
@@ -82,10 +85,11 @@ public class TripleExponentialSmoothingTest extends AbstractTest {
 
         TripleExponentialSmoothing.State state =
                 new TripleExponentialSmoothing.State(optimizer.result()[3], optimizer.result()[4],
-                        Arrays.copyOfRange(optimizer.result(), 5, optimizer.result().length));
+                        Arrays.copyOfRange(optimizer.result(), 5, optimizer.result().length),
+                        rModel.getData().get(0).getTimestamp());
 
         TimeSeriesModel modelLearn = new TripleExponentialSmoothing(optimizer.result()[0], optimizer.result()[1],
-                optimizer.result()[2], state);
+                optimizer.result()[2], state, ImmutableMetricContext.getDefault());
         modelLearn.learn(rModel.getData());
 
         AccuracyStatistics batchInitStatistics = modelInit.initStatistics();
@@ -191,5 +195,30 @@ public class TripleExponentialSmoothingTest extends AbstractTest {
             assertThat(forecast.get(i).getValue())
                     .isBetween(expectedFromR[i]*ACCURACY_LOW, expectedFromR[i]*ACCURACY_HIGH);
         }
+    }
+
+    @Test
+    public void testCollectionInterval() throws IOException {
+        ModelData rModel = ModelReader.read("austourists");
+        MetricContext metricContext = new ImmutableMetricContext(null, null, 30L);
+
+        TimeSeriesModel modelCollectionInterval1 = TripleExponentialSmoothing.optimizer(rModel.getPeriods())
+                .minimizedMSE(rModel.getData());
+
+        rModel.setData(setCollectionInterval(rModel.getData(), 30L));
+        TimeSeriesModel model = TripleExponentialSmoothing.optimizer(rModel.getPeriods(), metricContext)
+                .minimizedMSE(rModel.getData());
+
+        Assert.assertEquals(modelCollectionInterval1.initStatistics(), model.initStatistics());
+    }
+
+    private List<DataPoint> setCollectionInterval(List<DataPoint> dataPoints, Long collectionInterval) {
+        List<DataPoint> result = new ArrayList<>(dataPoints.size());
+
+        for (int i = 0; i < dataPoints.size(); i++) {
+            result.add(new DataPoint(dataPoints.get(i).getValue(), i*collectionInterval));
+        }
+
+        return result;
     }
 }

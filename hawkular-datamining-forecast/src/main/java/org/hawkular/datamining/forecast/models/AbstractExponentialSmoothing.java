@@ -18,9 +18,12 @@
 package org.hawkular.datamining.forecast.models;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.hawkular.datamining.forecast.DataPoint;
+import org.hawkular.datamining.forecast.MetricContext;
 import org.hawkular.datamining.forecast.stats.AccuracyStatistics;
 
 /**
@@ -28,17 +31,26 @@ import org.hawkular.datamining.forecast.stats.AccuracyStatistics;
  */
 public abstract class AbstractExponentialSmoothing implements TimeSeriesModel {
 
+    private static Comparator<DataPoint> dataPointComparator = new TimestampComparator();
+
+    // in ms
+    protected long lastTimestamp = -1;
+    protected MetricContext metricContext;
+
     private long counter;
     private double sse;
     private double absSum;
     private AccuracyStatistics initAccuracy;
 
-
-    protected abstract double calculatePrediction(int nAhead, DataPoint learnDataPoint);
+    protected abstract double calculatePrediction(long nAhead, Long learnTimestamp);
     protected abstract void updateState(DataPoint dataPoint);
     protected abstract SimpleExponentialSmoothing.State initState(List<DataPoint> dataPoints);
-
     protected abstract SimpleExponentialSmoothing.State state();
+
+
+    public AbstractExponentialSmoothing(MetricContext metricContext) {
+        this.metricContext = metricContext;
+    }
 
     @Override
     public AccuracyStatistics init(List<DataPoint> dataPoints) {
@@ -60,16 +72,24 @@ public abstract class AbstractExponentialSmoothing implements TimeSeriesModel {
     @Override
     public void learn(DataPoint dataPoint) {
 
-        double error = dataPoint.getValue() - calculatePrediction(1, dataPoint);
+        if (dataPoint.getTimestamp() <= lastTimestamp) {
+            throw new IllegalArgumentException("Data point has older timestamp than current state.");
+        }
+
+        double error = dataPoint.getValue() - calculatePrediction(1, dataPoint.getTimestamp());
         sse += error * error;
         absSum += Math.abs(error);
         counter++;
 
+        lastTimestamp = dataPoint.getTimestamp();
         updateState(dataPoint);
     }
 
     @Override
     public void learn(List<DataPoint> dataPoints) {
+
+        Collections.sort(dataPoints, dataPointComparator);
+
         if (initAccuracy == null && dataPoints.size() >= minimumInitSize()) {
             AccuracyStatistics init = init(dataPoints);
             sse = init.getSse();
@@ -84,16 +104,17 @@ public abstract class AbstractExponentialSmoothing implements TimeSeriesModel {
     @Override
     public DataPoint forecast() {
         double prediction = calculatePrediction(1, null);
-        return new DataPoint(prediction, 1L);
+        return new DataPoint(prediction, lastTimestamp + metricContext.getCollectionInterval());
     }
 
     @Override
     public List<DataPoint> forecast(int nAhead) {
 
         List<DataPoint> result = new ArrayList<>(nAhead);
-        for (int i = 1; i <= nAhead; i++) {
-            double prediction = calculatePrediction(i, null);
-            DataPoint predictedPoint = new DataPoint(prediction,(long) i);
+        for (long i = 1; i <= nAhead; i++) {
+
+            DataPoint predictedPoint = new DataPoint(calculatePrediction(i, null),
+                    lastTimestamp + i*metricContext.getCollectionInterval());
 
             result.add(predictedPoint);
         }
@@ -109,5 +130,10 @@ public abstract class AbstractExponentialSmoothing implements TimeSeriesModel {
     @Override
     public AccuracyStatistics runStatistics() {
         return new AccuracyStatistics(sse, sse/counter, absSum/counter);
+    }
+
+    @Override
+    public long lastTimestamp() {
+        return lastTimestamp;
     }
 }

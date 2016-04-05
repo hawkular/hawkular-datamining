@@ -20,17 +20,11 @@ package org.hawkular.datamining.forecast.models;
 import java.util.List;
 
 import org.apache.commons.math3.analysis.MultivariateFunction;
-import org.apache.commons.math3.optim.InitialGuess;
-import org.apache.commons.math3.optim.MaxEval;
-import org.apache.commons.math3.optim.MaxIter;
-import org.apache.commons.math3.optim.PointValuePair;
-import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.apache.commons.math3.optim.nonlinear.scalar.MultivariateFunctionMappingAdapter;
-import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
-import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
-import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.hawkular.datamining.forecast.DataPoint;
+import org.hawkular.datamining.forecast.ImmutableMetricContext;
 import org.hawkular.datamining.forecast.Logger;
+import org.hawkular.datamining.forecast.MetricContext;
 import org.hawkular.datamining.forecast.stats.AccuracyStatistics;
 
 /**
@@ -72,16 +66,21 @@ public class SimpleExponentialSmoothing extends AbstractExponentialSmoothing {
 
 
     public SimpleExponentialSmoothing() {
-        this(DEFAULT_LEVEL_SMOOTHING);
+        this(DEFAULT_LEVEL_SMOOTHING, ImmutableMetricContext.getDefault());
     }
 
     public SimpleExponentialSmoothing(double levelSmoothing) {
+        this(DEFAULT_LEVEL_SMOOTHING, ImmutableMetricContext.getDefault());
+    }
+
+    public SimpleExponentialSmoothing(double levelSmoothing, MetricContext metricContext) {
+        super(metricContext);
+
         if (levelSmoothing < MIN_LEVEL_SMOOTHING || levelSmoothing > MAX_LEVEL_SMOOTHING) {
             throw new IllegalArgumentException("Level parameter should be in interval 0-1");
         }
         this.levelSmoothing = levelSmoothing;
     }
-
 
     @Override
     public String name() {
@@ -131,12 +130,16 @@ public class SimpleExponentialSmoothing extends AbstractExponentialSmoothing {
     }
 
     @Override
-    protected double calculatePrediction(int nAhead, DataPoint learnDataPoint) {
+    protected double calculatePrediction(long nAhead, Long learnTimestamp) {
         return state.level;
     }
 
     public static Optimizer optimizer() {
-        return new Optimizer();
+        return new Optimizer(new ImmutableMetricContext(null, null, 1L));
+    }
+
+    public static Optimizer optimizer(MetricContext metricContext) {
+        return new Optimizer(metricContext);
     }
 
     @Override
@@ -147,13 +150,11 @@ public class SimpleExponentialSmoothing extends AbstractExponentialSmoothing {
                 '}';
     }
 
-    public static class Optimizer implements ModelOptimizer {
+    public static class Optimizer extends AbstractModelOptimizer {
 
-        private double[] result;
 
-        @Override
-        public double[] result() {
-            return result;
+        public Optimizer(MetricContext metricContext) {
+            super(metricContext);
         }
 
         @Override
@@ -162,22 +163,10 @@ public class SimpleExponentialSmoothing extends AbstractExponentialSmoothing {
                 return new SimpleExponentialSmoothing();
             }
 
-            MultivariateFunctionMappingAdapter constFunction = costFunction(dataPoints);
+            optimize(new double[]{DEFAULT_LEVEL_SMOOTHING}, costFunction(dataPoints));
+            Logger.LOGGER.debugf("Simple ES: Optimizer best alpha: %f", result[0]);
 
-            int maxIter = 10000;
-            int maxEval = 10000;
-
-            // Nelder-Mead Simplex
-            SimplexOptimizer nelderSimplexOptimizer = new SimplexOptimizer(0.0001, 0.0001);
-            PointValuePair nelderResult = nelderSimplexOptimizer.optimize(
-                    GoalType.MINIMIZE, new MaxIter(maxIter), new MaxEval(maxEval),
-                    new InitialGuess(new double[]{0.4}), new ObjectiveFunction(constFunction),
-                    new NelderMeadSimplex(1));
-
-            result = constFunction.unboundedToBounded(nelderResult.getPoint());
-            Logger.LOGGER.debugf("Optimizer best alpha: %f", result[0]);
-
-            SimpleExponentialSmoothing bestModel = new SimpleExponentialSmoothing(result[0]);
+            SimpleExponentialSmoothing bestModel = new SimpleExponentialSmoothing(result[0], getMetricContext());
             bestModel.init(dataPoints);
 
             return bestModel;
@@ -189,10 +178,10 @@ public class SimpleExponentialSmoothing extends AbstractExponentialSmoothing {
 
                 double alpha = point[0];
 
-                SimpleExponentialSmoothing doubleExponentialSmoothing = new SimpleExponentialSmoothing(alpha);
+                SimpleExponentialSmoothing doubleExponentialSmoothing = new SimpleExponentialSmoothing(alpha,
+                        getMetricContext());
                 AccuracyStatistics accuracyStatistics = doubleExponentialSmoothing.init(dataPoints);
 
-                Logger.LOGGER.tracef("Optimizer MSE = %f, alpha=%.10f", accuracyStatistics.getMse(), alpha);
                 return accuracyStatistics.getMse();
             };
             MultivariateFunctionMappingAdapter multivariateFunctionMappingAdapter =

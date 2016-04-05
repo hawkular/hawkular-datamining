@@ -27,14 +27,23 @@ public class ImmutableMetricContext implements MetricContext {
     private String tenant;
 
 
+    /**
+     * @param tenant id of tenant
+     * @param metricId id of metric
+     * @param collectionInterval collection interval of metric in seconds
+     */
     public ImmutableMetricContext(String tenant, String metricId, Long collectionInterval) {
+        if (collectionInterval < 1) {
+            throw new IllegalArgumentException("Collection interval should be at least 1");
+        }
+
         this.tenant = tenant;
         this.metricId = metricId;
         this.collectionInterval = collectionInterval;
     }
 
     public static ImmutableMetricContext getDefault() {
-        ImmutableMetricContext result = new ImmutableMetricContext("default", "default", 1L);
+        ImmutableMetricContext result = new ImmutableMetricContext(null, null, 1L);
 
         return result;
     }

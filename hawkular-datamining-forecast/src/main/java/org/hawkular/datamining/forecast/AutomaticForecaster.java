@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 
 import org.hawkular.datamining.forecast.models.DoubleExponentialSmoothing;
 import org.hawkular.datamining.forecast.models.ModelOptimizer;
@@ -42,16 +42,15 @@ import com.google.common.collect.EvictingQueue;
 public class AutomaticForecaster implements Forecaster {
 
     private long counter;
-    private long lastTimestamp; // in ms
     private int windowSize;
     private EvictingQueue<DataPoint> window;
 
     private TimeSeriesModel usedModel;
-    private final List<Class<? extends ModelOptimizer>> applicableModels;
+    private final List<Function<MetricContext, ModelOptimizer>> applicableModels;
 
     private final MetricContext metricContext;
     private final ConceptDriftStrategy conceptDriftStrategy;
-    private final InformationCriterion icForModelSelecting;;
+    private final InformationCriterion icForModelSelecting;
 
 
     public AutomaticForecaster(MetricContext context) {
@@ -80,9 +79,9 @@ public class AutomaticForecaster implements Forecaster {
         conceptDriftStrategy.forecaster = this;
 
         this.applicableModels = Collections.unmodifiableList(Arrays.asList(
-                SimpleExponentialSmoothing.Optimizer.class,
-                DoubleExponentialSmoothing.Optimizer.class,
-                TripleExponentialSmoothing.Optimizer.class));
+                SimpleExponentialSmoothing::optimizer,
+                DoubleExponentialSmoothing::optimizer,
+                TripleExponentialSmoothing::optimizer));
 
         this.windowSize = windowSize;
         this.window = EvictingQueue.create(windowSize);
@@ -95,8 +94,6 @@ public class AutomaticForecaster implements Forecaster {
 
     @Override
     public void learn(List<DataPoint> dataPoints) {
-
-        sortAndUpdateLastTimestamp(dataPoints);
 
         // recalculate if model is null or periodically after X points
         if (usedModel == null || conceptDriftStrategy.shouldSelectNewModel(dataPoints.size())) {
@@ -111,13 +108,12 @@ public class AutomaticForecaster implements Forecaster {
 
     @Override
     public DataPoint forecast() {
-        if (!initialized()) { //todo may be do not throw exception
+        if (!initialized()) {
             throw new IllegalStateException("Model not initialized, window remaining capacity = " +
                     window.remainingCapacity());
         }
 
-        DataPoint point = usedModel.forecast();
-        return new DataPoint(point.getValue(), lastTimestamp + metricContext.getCollectionInterval()*1000);
+        return usedModel.forecast();
     }
 
     @Override
@@ -126,11 +122,7 @@ public class AutomaticForecaster implements Forecaster {
             throw new IllegalStateException("Model not initialized, window remaining capacity = " +
                     window.remainingCapacity());
         }
-        List<DataPoint> points = usedModel.forecast(nAhead);
-
-        return points.stream().map(dataPoint -> new DataPoint(dataPoint.getValue(),
-                lastTimestamp + dataPoint.getTimestamp()*metricContext.getCollectionInterval()*1000))
-                .collect(Collectors.toList());
+        return usedModel.forecast(nAhead);
     }
 
     @Override
@@ -150,7 +142,7 @@ public class AutomaticForecaster implements Forecaster {
 
     @Override
     public long lastTimestamp() {
-        return lastTimestamp;
+        return usedModel != null ? usedModel.lastTimestamp() : 0;
     }
 
     private void selectBestModel(final List<DataPoint> dataPoints) {
@@ -168,9 +160,10 @@ public class AutomaticForecaster implements Forecaster {
         ModelOptimizer bestOptimizer = null;
         double bestIC = Double.POSITIVE_INFINITY;
 
-        for (Class<? extends ModelOptimizer> clModelOptimizer : applicableModels) {
+        for (Function<MetricContext, ModelOptimizer> modelOptimizerSupplier: applicableModels) {
+            ModelOptimizer modelOptimizer = modelOptimizerSupplier.apply(metricContext);
+
             try {
-                ModelOptimizer modelOptimizer = modelOptimizer = clModelOptimizer.newInstance();
                 TimeSeriesModel currentModel = modelOptimizer.minimizedMSE(initPoints);
 
                 AccuracyStatistics initStatistics = currentModel.initStatistics();
@@ -187,7 +180,7 @@ public class AutomaticForecaster implements Forecaster {
                     bestModel = currentModel;
                     bestOptimizer = modelOptimizer;
                 }
-            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException ex) {
+            } catch (IllegalArgumentException ex) {
                 continue;
             }
         }
@@ -214,20 +207,6 @@ public class AutomaticForecaster implements Forecaster {
                 bestModel.getClass().getSimpleName(), bestModel.initStatistics());
     }
 
-    private List<DataPoint> sortAndUpdateLastTimestamp(List<DataPoint> dataPoints) {
-        Collections.sort(dataPoints);
-
-        Long newLastTimestamp = dataPoints.size() > 0 ?
-                dataPoints.get(dataPoints.size() - 1).getTimestamp() : lastTimestamp;
-
-        if (newLastTimestamp < lastTimestamp) {
-            throw new IllegalArgumentException("Data point has older timestamp than current state.");
-        }
-
-        lastTimestamp = newLastTimestamp;
-
-        return dataPoints;
-    }
 
     /**
      * Strategy used for dealing with concept drift (statistical properties of modelled time series change over time)
