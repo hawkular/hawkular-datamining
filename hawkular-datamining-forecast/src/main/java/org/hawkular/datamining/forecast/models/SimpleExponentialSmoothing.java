@@ -17,10 +17,6 @@
 
 package org.hawkular.datamining.forecast.models;
 
-import static java.lang.Math.abs;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.math3.analysis.MultivariateFunction;
@@ -55,7 +51,7 @@ import org.hawkular.datamining.forecast.stats.AccuracyStatistics;
  *
  * @author Pavol Loffay
  */
-public class SimpleExponentialSmoothing implements TimeSeriesModel {
+public class SimpleExponentialSmoothing extends AbstractExponentialSmoothing {
 
     public static final double DEFAULT_LEVEL_SMOOTHING = 0.4;
     public static final double MIN_LEVEL_SMOOTHING = 0.0001;
@@ -63,13 +59,16 @@ public class SimpleExponentialSmoothing implements TimeSeriesModel {
 
     private final double levelSmoothing;
 
-    private boolean initialized;
-    private double level;
+    private State state;
 
-    double sse;
-    double absSum;
-    long counter;
-    private AccuracyStatistics initAccuracy;
+    public static class State {
+
+        protected double level;
+
+        public State(double level) {
+            this.level = level;
+        }
+    }
 
 
     public SimpleExponentialSmoothing() {
@@ -83,75 +82,6 @@ public class SimpleExponentialSmoothing implements TimeSeriesModel {
         this.levelSmoothing = levelSmoothing;
     }
 
-    @Override
-    public AccuracyStatistics init(List<DataPoint> dataPoints) {
-
-        initState(dataPoints);
-        learn(dataPoints);
-
-        initAccuracy = new AccuracyStatistics(sse, sse/(double)dataPoints.size(), absSum/(double)dataPoints.size());
-        sse = 0d;
-        absSum = 0d;
-        counter = 0L;
-
-        return initAccuracy;
-    }
-
-    @Override
-    public void learn(DataPoint dataPoint) {
-
-        if (!initialized) {
-            initState(Arrays.asList(dataPoint));
-        }
-
-        double error = dataPoint.getValue() - forecast().getValue();
-        sse += error * error;
-        absSum += abs(error);
-        counter++;
-
-        level = levelSmoothing*dataPoint.getValue() + (1 - levelSmoothing)*level;
-    }
-
-    @Override
-    public void learn(List<DataPoint> dataPoints) {
-
-        if (!initialized) {
-            // the more points for init state the better
-            initState(dataPoints);
-        }
-
-        dataPoints.forEach(point -> {
-            learn(point);
-        });
-    }
-
-    @Override
-    public DataPoint forecast() {
-        double prediction = calculatePrediction();
-        return new DataPoint(prediction, 1L);
-    }
-
-    @Override
-    public List<DataPoint> forecast(int nAhead) {
-        double prediction = calculatePrediction();
-
-        List<DataPoint> dataPoints = new ArrayList<>(nAhead);
-        for (long i = 1; i <= nAhead; i++) {
-            dataPoints.add(new DataPoint(prediction, i));
-        }
-
-        return dataPoints;
-    }
-
-    @Override
-    public AccuracyStatistics initStatistics() {
-        return initAccuracy;
-    }
-
-    @Override
-    public AccuracyStatistics runStatistics() {
-        return new AccuracyStatistics(sse, sse/(double)counter, absSum/(double)counter);
-    }
 
     @Override
     public String name() {
@@ -163,12 +93,21 @@ public class SimpleExponentialSmoothing implements TimeSeriesModel {
         return 2;
     }
 
-    private void initState(List<DataPoint> initData) {
+    @Override
+    public int minimumInitSize() {
+        return 0;
+    }
+
+    @Override
+    protected State initState(List<DataPoint> initData) {
 
         if (initData.isEmpty()) {
             throw new IllegalArgumentException("For init is required at least one point");
         }
-        else if (initData.size() == 1) {
+
+        double level;
+
+        if (initData.size() == 1) {
             level = initData.get(0).getValue();
         } else {
             // mean
@@ -177,12 +116,23 @@ public class SimpleExponentialSmoothing implements TimeSeriesModel {
             level = sum / (double) initData.size();
         }
 
-        initialized = true;
+        state = new State(level);
+        return state;
     }
 
-    // flat forecast function
-    private double calculatePrediction() {
-        return level;
+    @Override
+    protected State state() {
+        return state;
+    }
+
+    @Override
+    protected void updateState(DataPoint dataPoint) {
+        state.level = levelSmoothing*dataPoint.getValue() + (1 - levelSmoothing)*state.level;
+    }
+
+    @Override
+    protected double calculatePrediction(int nAhead, DataPoint learnDataPoint) {
+        return state.level;
     }
 
     public static Optimizer optimizer() {
@@ -193,7 +143,7 @@ public class SimpleExponentialSmoothing implements TimeSeriesModel {
     public String toString() {
         return "SimpleExponentialSmoothing{" +
                 "alpha=" + levelSmoothing +
-                ", level=" + level +
+                ", level=" + state.level +
                 '}';
     }
 

@@ -233,6 +233,11 @@ public class AutomaticForecasterTest extends AbstractTest {
             forecaster.learn(pointToLearn);
         }
 
-        Assert.assertEquals(model.getModel(), forecaster.model().getClass());
+        Assert.assertEquals(model.getName(), model.getModel(), forecaster.model().getClass());
+
+//        if (forecaster.model() instanceof TripleExponentialSmoothing) {
+//            Assert.assertEquals(model.getName(), model.getPeriods(),
+//                    ((TripleExponentialSmoothing) forecaster.model()).state().periods.length);
+//        }
     }
 }
