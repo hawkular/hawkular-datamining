@@ -68,6 +68,7 @@ public class ContinuousModel implements TimeSeriesModel {
 
             model.init(initData);
             initialized = true;
+            return;
         } else {
             window.addAll(learnData);
         }
@@ -124,5 +125,10 @@ public class ContinuousModel implements TimeSeriesModel {
     @Override
     public int minimumInitSize() {
         return model.minimumInitSize();
+    }
+
+    @Override
+    public long lastTimestamp() {
+        return model.lastTimestamp();
     }
 }

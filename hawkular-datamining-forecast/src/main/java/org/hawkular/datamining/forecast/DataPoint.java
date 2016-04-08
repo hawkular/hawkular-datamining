@@ -24,7 +24,7 @@ import java.io.Serializable;
  *
  * @author Pavol Loffay
  */
-public class DataPoint implements Serializable, Comparable<DataPoint> {
+public class DataPoint implements Serializable {
 
     private Long timestamp;
     private Double value;
@@ -47,18 +47,26 @@ public class DataPoint implements Serializable, Comparable<DataPoint> {
     }
 
     @Override
-    public String toString() {
-        return this.getClass().getName() + " { value = " + value + " , timestamp=" + timestamp + " }";
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DataPoint)) return false;
+
+        DataPoint dataPoint = (DataPoint) o;
+
+        if (!timestamp.equals(dataPoint.timestamp)) return false;
+        return value.equals(dataPoint.value);
+
     }
 
     @Override
-    public int compareTo(DataPoint dataPoint) {
-        if (this.getTimestamp() < dataPoint.getTimestamp()) {
-            return -1;
-        } else if (this.getTimestamp() > dataPoint.getTimestamp()) {
-            return 1;
-        }
+    public int hashCode() {
+        int result = timestamp.hashCode();
+        result = 31 * result + value.hashCode();
+        return result;
+    }
 
-        return 0;
+    @Override
+    public String toString() {
+        return this.getClass().getName() + " { value = " + value + " , timestamp=" + timestamp + " }";
     }
 }

@@ -211,8 +211,7 @@ public class AutomaticForecasterTest extends AbstractTest {
         ModelData trendStationaryDownward = ModelReader.read("trendStatDownwardLowVar");
 
         Forecaster statisticsForecaster = new AutomaticForecaster(
-                new ImmutableMetricContext("tenant", wnLowVariance.getName()+ trendStationary.getName() +
-                        sineStationary.getName(), 1L),
+                ImmutableMetricContext.getDefault(),
                 new AutomaticForecaster.ErrorChangeStrategy(25,
                         AutomaticForecaster.ErrorChangeStrategy.Statistics.MAE), InformationCriterion.BIC, 80);
 
@@ -228,7 +227,7 @@ public class AutomaticForecasterTest extends AbstractTest {
         long startTimestamp = forecaster.lastTimestamp();
 
         for (DataPoint point: model.getData()) {
-            DataPoint pointToLearn = new DataPoint(point.getValue(), startTimestamp++);
+            DataPoint pointToLearn = new DataPoint(point.getValue(), ++startTimestamp);
             System.out.println(startTimestamp);
             forecaster.learn(pointToLearn);
         }

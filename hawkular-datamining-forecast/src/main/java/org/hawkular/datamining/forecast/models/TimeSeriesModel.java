@@ -17,6 +17,7 @@
 
 package org.hawkular.datamining.forecast.models;
 
+import java.util.Comparator;
 import java.util.List;
 
 import org.hawkular.datamining.forecast.DataPoint;
@@ -88,4 +89,15 @@ public interface TimeSeriesModel {
      * @return  number of parameters of the model, seasonal models include seasonal indices
      */
     int minimumInitSize();
+
+    long lastTimestamp();
+
+
+    class TimestampComparator implements Comparator<DataPoint> {
+
+        @Override
+        public int compare(DataPoint point1, DataPoint point2) {
+            return point1.getTimestamp().compareTo(point2.getTimestamp());
+        }
+    }
 }
