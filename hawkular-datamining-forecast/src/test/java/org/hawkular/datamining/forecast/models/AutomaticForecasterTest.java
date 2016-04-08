@@ -32,7 +32,6 @@ import org.hawkular.datamining.forecast.ImmutableMetricContext;
 import org.hawkular.datamining.forecast.ModelData;
 import org.hawkular.datamining.forecast.ModelReader;
 import org.hawkular.datamining.forecast.stats.AccuracyStatistics;
-import org.hawkular.datamining.forecast.stats.InformationCriterion;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -113,14 +112,11 @@ public class AutomaticForecasterTest extends AbstractTest {
                     AutomaticForecaster.PeriodicIntervalStrategy periodicStrategy =
                             new AutomaticForecaster.PeriodicIntervalStrategy(25);
 
-
                     int dataSize = ThreadLocalRandom.current().nextInt(periodicStrategy.getPeriod() + 50,
                             rModel.getData().size() + 1);
                     System.out.format("%s random sample size (0, %d)\n", rModel.getName(), dataSize);
 
-                    Forecaster forecaster =
-                            new AutomaticForecaster(new ImmutableMetricContext("", rModel.getName(), 1L),
-                                    periodicStrategy);
+                    Forecaster forecaster =  new AutomaticForecaster(ImmutableMetricContext.getDefault());
                     List<DataPoint> dataSubSet = rModel.getData().subList(0, dataSize);
                     forecaster.learn(dataSubSet);
 
@@ -193,9 +189,9 @@ public class AutomaticForecasterTest extends AbstractTest {
         ModelData sineStationary = ModelReader.read("sineTrendLowVar");
         ModelData trendStationaryDownward = ModelReader.read("trendStatDownwardLowVar");
 
-        Forecaster periodicForecaster = new AutomaticForecaster(new ImmutableMetricContext("tenant",
-                wnLowVariance.getName() + trendStationary.getName() + sineStationary.getName(), 1L),
-                new AutomaticForecaster.PeriodicIntervalStrategy(50), InformationCriterion.AICc, 60);
+        Forecaster periodicForecaster = new AutomaticForecaster(ImmutableMetricContext.getDefault(),
+                Forecaster.Config.builder().withConceptDriftStrategy(
+                        new AutomaticForecaster.PeriodicIntervalStrategy(50)).withWindowSize(60).build());
 
         learn(periodicForecaster, wnLowVariance);
         learn(periodicForecaster, sineStationary);
@@ -210,10 +206,10 @@ public class AutomaticForecasterTest extends AbstractTest {
         ModelData sineStationary = ModelReader.read("sineTrendLowVar");
         ModelData trendStationaryDownward = ModelReader.read("trendStatDownwardLowVar");
 
-        Forecaster statisticsForecaster = new AutomaticForecaster(
-                ImmutableMetricContext.getDefault(),
-                new AutomaticForecaster.ErrorChangeStrategy(25,
-                        AutomaticForecaster.ErrorChangeStrategy.Statistics.MAE), InformationCriterion.BIC, 80);
+        Forecaster statisticsForecaster = new AutomaticForecaster(ImmutableMetricContext.getDefault(),
+                Forecaster.Config.builder().withConceptDriftStrategy(
+                        new AutomaticForecaster.ErrorChangeStrategy(25,
+                                AutomaticForecaster.ErrorChangeStrategy.Statistics.MAE)).withWindowSize(80).build());
 
         learn(statisticsForecaster, wnLowVariance);
         learn(statisticsForecaster, sineStationary);

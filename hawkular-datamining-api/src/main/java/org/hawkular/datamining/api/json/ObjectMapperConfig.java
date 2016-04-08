@@ -32,5 +32,6 @@ public class ObjectMapperConfig {
         objectMapper.addMixIn(AutomaticForecaster.class, ForecasterMixin.class);
         objectMapper.addMixIn(DataMiningSubscription.class, SubscriptionMixin.class);
         objectMapper.addMixIn(TimeSeriesModel.class, TimeSeriesMixin.class);
+        objectMapper.addMixIn(AutomaticForecaster.ConceptDriftStrategy.class, ConceptDriftStrategyMixin.class);
     }
 }

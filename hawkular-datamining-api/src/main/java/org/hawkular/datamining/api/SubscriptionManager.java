@@ -19,6 +19,11 @@ package org.hawkular.datamining.api;
 
 import java.util.Set;
 
+import org.hawkular.datamining.api.model.Metric;
+import org.hawkular.datamining.forecast.AutomaticForecaster;
+import org.hawkular.datamining.forecast.models.TimeSeriesModel;
+import org.hawkular.datamining.forecast.stats.InformationCriterion;
+
 /**
  * SubscriptionManager provides access to all subscriptions in Data Mining.
  *
@@ -27,6 +32,9 @@ import java.util.Set;
 public interface SubscriptionManager {
 
     void subscribe(Subscription subscription);
+
+    void updateMetric(String tenant, String metricId, Metric.Update update);
+    void updateForecaster(String tenant, String metricId, org.hawkular.datamining.forecast.Forecaster.Update update);
 
     boolean isSubscribed(String tenant, String metricId);
     Subscription subscription(String tenant, String metricId);
@@ -37,4 +45,11 @@ public interface SubscriptionManager {
     void unsubscribe(String tenant, String metricId, Set<Subscription.SubscriptionOwner> subscriptionOwners);
 
     void setPredictionListener(PredictionListener predictionListener);
+
+    class Forecaster {
+        private int windowsSize;
+        private Class<? extends TimeSeriesModel> recommendedModel;
+        private InformationCriterion informationCriterionForModelSelecting;
+        private AutomaticForecaster.ConceptDriftStrategy conceptDriftStrategy;
+    }
 }

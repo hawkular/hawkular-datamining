@@ -148,4 +148,26 @@ public class Metric implements MetricContext {
             return collectionInterval;
         }
     }
+
+    public static class Update {
+        private Long collectionInterval;
+        private Long forecastingHorizon;
+
+
+        private Update() {
+        }
+
+        public Update(Long collectionInterval, Long forecastingHorizon) {
+            this.collectionInterval = collectionInterval;
+            this.forecastingHorizon = forecastingHorizon;
+        }
+
+        public Long getCollectionInterval() {
+            return collectionInterval;
+        }
+
+        public Long getForecastingHorizon() {
+            return forecastingHorizon;
+        }
+    }
 }
