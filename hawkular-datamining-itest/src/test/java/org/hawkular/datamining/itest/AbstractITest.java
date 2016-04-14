@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import org.hawkular.datamining.api.Constants;
+import org.hawkular.datamining.api.json.ObjectMapperConfig;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -65,6 +66,7 @@ public abstract class AbstractITest {
 
     protected AbstractITest() {
         mapper = new ObjectMapper();
+        ObjectMapperConfig.config(mapper);
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         client = new OkHttpClient();
@@ -108,6 +110,18 @@ public abstract class AbstractITest {
 
         Request request = new Request.Builder()
                 .post(RequestBody.create(MEDIA_TYPE_JSON, json))
+                .url(baseURI + path)
+                .addHeader(Constants.TENANT_HEADER_NAME, tenant)
+                .build();
+
+        return execute(request);
+    }
+
+    protected Response put(String path, String tenant, Object payload) throws Throwable {
+        String json = mapper.writeValueAsString(payload);
+
+        Request request = new Request.Builder()
+                .put(RequestBody.create(MEDIA_TYPE_JSON, json))
                 .url(baseURI + path)
                 .addHeader(Constants.TENANT_HEADER_NAME, tenant)
                 .build();

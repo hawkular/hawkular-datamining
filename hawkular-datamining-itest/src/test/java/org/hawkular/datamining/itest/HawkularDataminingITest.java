@@ -25,7 +25,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hawkular.datamining.api.model.Metric;
+import org.hawkular.datamining.forecast.AutomaticForecaster;
 import org.hawkular.datamining.forecast.DataPoint;
+import org.hawkular.datamining.forecast.Forecaster;
+import org.hawkular.datamining.forecast.models.Model;
+import org.hawkular.datamining.forecast.stats.InformationCriterion;
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -51,41 +55,67 @@ public class HawkularDataminingITest extends AbstractITest {
     public void testModelLearnAndPredict() throws Throwable {
         // create
         Metric.RestBlueprint blueprint = new Metric.RestBlueprint(metricId, 100L);
-        postNewEntity("models", tenant, blueprint);
+        postNewEntity("metrics", tenant, blueprint);
 
         // get
-        Response responseGet = get("models", tenant);
+        Response responseGet = get("metrics", tenant);
         assertThat(responseGet.code(), is(200));
-        List<DataPoint> dataPoints = dataPoints(60);
 
         // learn
-        Response responseLearn = post("models/" + metricId + "/learn", tenant, dataPoints);
+        List<DataPoint> dataPoints = dataPoints(1L, 60);
+        Response responseLearn = post("metrics/" + metricId + "/forecaster/learn", tenant, dataPoints);
         assertThat(responseLearn.code(), is(204));
 
         // predict
         int ahead = 5;
-        Response responsePredict = get("models/" + metricId + "/predict?ahead=" + ahead, tenant);
+        Response responsePredict = get("metrics/" + metricId + "/forecaster/forecast?ahead=" + ahead, tenant);
         assertThat(responsePredict.code(), is(200));
         List<DataPoint> predicted = parseResponseBody(responsePredict, new TypeReference<List<DataPoint>>() {});
         assertThat(predicted.size(), is(ahead));
     }
 
-    private List<DataPoint> dataPoints(Double... values) {
+    @Test
+    public void testForecasterConfigUpdate() throws Throwable {
+
+        String metricId = "metricForUpdate";
+
+        // create
+        Metric.RestBlueprint blueprint = new Metric.RestBlueprint(metricId, 100L);
+        postNewEntity("metrics", tenant, blueprint);
+
+        // get
+        Response responseGet = get("metrics", tenant);
+        assertThat(responseGet.code(), is(200));
+
+        // learn
+        List<DataPoint> dataPoints = dataPoints(1L, 60);
+        Response responseLearn = post("metrics/" + metricId + "/forecaster/learn", tenant, dataPoints);
+        assertThat(responseLearn.code(), is(204));
+
+        //change
+        Forecaster.Update update = new Forecaster.Update(55, Model.SimpleExponentialSmoothing,
+                InformationCriterion.BIC, new AutomaticForecaster.ErrorChangeStrategy(19,
+                AutomaticForecaster.ErrorChangeStrategy.Statistics.MSE));
+        Response responsePut = put("metrics/" + metricId + "/forecaster", tenant, update);
+        assertThat(responsePut.code(), is(204));
+    }
+
+    private List<DataPoint> dataPoints(long firstTimestamp, Double... values) {
         List<DataPoint> dataPoints = new ArrayList<>();
 
         for (int i = 0; i < values.length; i++) {
-            DataPoint dataPoint = new DataPoint(values[i], (long)i);
+            DataPoint dataPoint = new DataPoint(values[i], firstTimestamp++);
             dataPoints.add(dataPoint);
         }
 
         return dataPoints;
     }
 
-    private List<DataPoint> dataPoints(int size) {
+    private List<DataPoint> dataPoints(long firstTimestamp, int size) {
         List<DataPoint> dataPoints = new ArrayList<>(size);
 
         for (int i = 0; i < size; i++) {
-            DataPoint dataPoint = new DataPoint((double)i, (long)i);
+            DataPoint dataPoint = new DataPoint((double)i, firstTimestamp++);
             dataPoints.add(dataPoint);
         }
 

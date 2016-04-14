@@ -30,6 +30,7 @@ import org.hawkular.datamining.api.Subscription;
 import org.hawkular.datamining.api.SubscriptionManager;
 import org.hawkular.datamining.api.exception.SubscriptionAlreadyExistsException;
 import org.hawkular.datamining.api.exception.SubscriptionNotFoundException;
+import org.hawkular.datamining.api.model.Metric;
 import org.hawkular.datamining.api.storage.MetricsClient;
 import org.hawkular.datamining.forecast.DataPoint;
 
@@ -99,6 +100,20 @@ public class InMemorySubscriptionManager implements SubscriptionManager {
     }
 
     @Override
+    public void updateMetric(String tenant, String metricId, Metric.Update update) {
+        Subscription subscription = subscription(tenant, metricId);
+        updateMetric(update, (Metric)subscription.getMetric());
+    }
+
+    @Override
+    public void updateForecaster(String tenant, String metricId,
+                                 org.hawkular.datamining.forecast.Forecaster.Update update) {
+
+        Subscription subscription = subscription(tenant, metricId);
+        subscription.forecaster().update(update);
+    }
+
+    @Override
     public void unsubscribeAll(String tenant, String metricId) {
         unsubscribe(tenant, metricId, Subscription.SubscriptionOwner.getAllDefined());
     }
@@ -153,6 +168,17 @@ public class InMemorySubscriptionManager implements SubscriptionManager {
         }
 
         return subscription;
+    }
+
+    private static Metric updateMetric(Metric.Update update, Metric metric) {
+        if (update.getCollectionInterval() != null) {
+            metric.setCollectionInterval(update.getCollectionInterval());
+        }
+        if (update.getForecastingHorizon() != null) {
+            metric.setForecastingHorizon(update.getForecastingHorizon());
+        }
+
+        return metric;
     }
 
     private static class TenantsSubscriptionsHolder {

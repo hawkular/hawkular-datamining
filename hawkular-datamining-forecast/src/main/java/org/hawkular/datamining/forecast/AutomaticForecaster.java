@@ -29,7 +29,6 @@ import org.hawkular.datamining.forecast.models.SimpleExponentialSmoothing;
 import org.hawkular.datamining.forecast.models.TimeSeriesModel;
 import org.hawkular.datamining.forecast.models.TripleExponentialSmoothing;
 import org.hawkular.datamining.forecast.stats.AccuracyStatistics;
-import org.hawkular.datamining.forecast.stats.InformationCriterion;
 import org.hawkular.datamining.forecast.stats.InformationCriterionHolder;
 
 import com.google.common.collect.EvictingQueue;
@@ -42,49 +41,38 @@ import com.google.common.collect.EvictingQueue;
 public class AutomaticForecaster implements Forecaster {
 
     private long counter;
-    private int windowSize;
     private EvictingQueue<DataPoint> window;
 
     private TimeSeriesModel usedModel;
     private final List<Function<MetricContext, ModelOptimizer>> applicableModels;
 
+    private Config config;
     private final MetricContext metricContext;
-    private final ConceptDriftStrategy conceptDriftStrategy;
-    private final InformationCriterion icForModelSelecting;
+
+    private Object selectModelLock = new Object();
 
 
     public AutomaticForecaster(MetricContext context) {
-        this(context, new PeriodicIntervalStrategy(50));
+        this(context, Config.getDefault());
     }
 
-    public AutomaticForecaster(MetricContext context, ConceptDriftStrategy conceptDriftStrategy) {
-        this(context, conceptDriftStrategy, InformationCriterion.AICc, 50);
-    }
-
-    public AutomaticForecaster(MetricContext context, ConceptDriftStrategy conceptDriftStrategy,
-                               InformationCriterion informationCriterion) {
-        this(context, conceptDriftStrategy, informationCriterion, 50);
-    }
-
-    public AutomaticForecaster(MetricContext context, ConceptDriftStrategy conceptDriftStrategy,
-                               InformationCriterion icForModelSelecting, int windowSize) {
+    public AutomaticForecaster(MetricContext context, Config config) {
         if (context == null ||
                 context.getCollectionInterval() == null || context.getCollectionInterval() <= 0) {
             throw new IllegalArgumentException("Invalid context.");
         }
 
+        this.config = config;
         this.metricContext = context;
-        this.conceptDriftStrategy = conceptDriftStrategy;
-        this.icForModelSelecting = icForModelSelecting;
-        conceptDriftStrategy.forecaster = this;
+
+        config.getConceptDriftStrategy().forecaster = this;
 
         this.applicableModels = Collections.unmodifiableList(Arrays.asList(
                 SimpleExponentialSmoothing::optimizer,
                 DoubleExponentialSmoothing::optimizer,
                 TripleExponentialSmoothing::optimizer));
 
-        this.windowSize = windowSize;
-        this.window = EvictingQueue.create(windowSize);
+        this.window = EvictingQueue.create(config.getWindowsSize());
     }
 
     @Override
@@ -96,7 +84,7 @@ public class AutomaticForecaster implements Forecaster {
     public void learn(List<DataPoint> dataPoints) {
 
         // recalculate if model is null or periodically after X points
-        if (usedModel == null || conceptDriftStrategy.shouldSelectNewModel(dataPoints.size())) {
+        if (usedModel == null || config.getConceptDriftStrategy().shouldSelectNewModel(dataPoints.size())) {
             selectBestModel(dataPoints);
         } else if (usedModel != null) {
             usedModel.learn(dataPoints);
@@ -145,66 +133,97 @@ public class AutomaticForecaster implements Forecaster {
         return usedModel != null ? usedModel.lastTimestamp() : 0;
     }
 
-    private void selectBestModel(final List<DataPoint> dataPoints) {
-        final List<DataPoint> initPoints = new ArrayList<>();
-        initPoints.addAll(window);
-        initPoints.addAll(dataPoints);
-
-        if (initPoints.isEmpty()) {
-            return;
-        }
-
-        Logger.LOGGER.debugf("Estimating best model for: %s, previous: %s", metricContext.getMetricId(), usedModel);
-
-        TimeSeriesModel bestModel = null;
-        ModelOptimizer bestOptimizer = null;
-        double bestIC = Double.POSITIVE_INFINITY;
-
-        for (Function<MetricContext, ModelOptimizer> modelOptimizerSupplier: applicableModels) {
-            ModelOptimizer modelOptimizer = modelOptimizerSupplier.apply(metricContext);
-
-            try {
-                TimeSeriesModel currentModel = modelOptimizer.minimizedMSE(initPoints);
-
-                AccuracyStatistics initStatistics = currentModel.initStatistics();
-
-                InformationCriterionHolder icHolder = new InformationCriterionHolder(initStatistics.getSse(),
-                        currentModel.numberOfParams(), initPoints.size());
-
-                Logger.LOGGER.debugf("Estimated currentModel: %s, data size: %d,init MSE: %f, %s",
-                        currentModel.toString(), initPoints.size(), initStatistics.getMse(), icHolder);
-
-                double currentIc = icHolder.informationCriterion(icForModelSelecting);
-                if (currentIc < bestIC) {
-                    bestIC = currentIc;
-                    bestModel = currentModel;
-                    bestOptimizer = modelOptimizer;
-                }
-            } catch (IllegalArgumentException ex) {
-                continue;
-            }
-        }
-
-        if (bestModel instanceof TripleExponentialSmoothing) {
-            Integer periods = ((TripleExponentialSmoothing.Optimizer) bestOptimizer).getPeriods();
-
-            if (windowSize < periods*3) {
-                windowSize = periods*3;
-                EvictingQueue<DataPoint> newWindow = EvictingQueue.create(periods*3);
+    @Override
+    public void update(Update update) {
+        synchronized (selectModelLock) {
+            if (update.getWindowSize() != null && !update.getWindowSize().equals(config.getWindowsSize())) {
+                EvictingQueue<DataPoint> newWindow = EvictingQueue.create(update.getWindowSize());
                 newWindow.addAll(window);
                 window = newWindow;
             }
+
+            if (update.getConceptDriftStrategy() != null) {
+                update.getConceptDriftStrategy().forecaster = this;
+            }
+
+            config.update(update);
         }
+    }
 
-        if (conceptDriftStrategy instanceof ErrorChangeStrategy) {
-            ((ErrorChangeStrategy) conceptDriftStrategy).setError(bestModel.initStatistics());
+    @Override
+    public Config config() {
+        return config;
+    }
+
+    private void selectBestModel(final List<DataPoint> dataPoints) {
+        synchronized (selectModelLock) {
+            final List<DataPoint> initPoints = new ArrayList<>();
+            initPoints.addAll(window);
+            initPoints.addAll(dataPoints);
+
+            if (initPoints.isEmpty()) {
+                return;
+            }
+
+            Logger.LOGGER.debugf("Estimating best model for: %s, previous: %s", metricContext.getMetricId(), usedModel);
+
+            TimeSeriesModel bestModel = null;
+            ModelOptimizer bestOptimizer = null;
+            double bestIC = Double.POSITIVE_INFINITY;
+
+            for (Function<MetricContext, ModelOptimizer> modelOptimizerSupplier : applicableModels) {
+                ModelOptimizer modelOptimizer = modelOptimizerSupplier.apply(metricContext);
+
+                /**
+                 * Skip models which one doesn't want to
+                 */
+                if (config.getModelToUse() != null && !config.getModelToUse().isOptimizedBy(modelOptimizer)) {
+                    continue;
+                }
+
+                try {
+                    TimeSeriesModel currentModel = modelOptimizer.minimizedMSE(initPoints);
+
+                    AccuracyStatistics initStatistics = currentModel.initStatistics();
+
+                    InformationCriterionHolder icHolder = new InformationCriterionHolder(initStatistics.getSse(),
+                            currentModel.numberOfParams(), initPoints.size());
+
+                    Logger.LOGGER.debugf("Estimated currentModel: %s, data size: %d,init MSE: %f, %s",
+                            currentModel.toString(), initPoints.size(), initStatistics.getMse(), icHolder);
+
+                    double currentIc = icHolder.informationCriterion(config.getIc());
+                    if (currentIc < bestIC) {
+                        bestIC = currentIc;
+                        bestModel = currentModel;
+                        bestOptimizer = modelOptimizer;
+                    }
+                } catch (IllegalArgumentException ex) {
+                    continue;
+                }
+            }
+
+            if (bestModel instanceof TripleExponentialSmoothing) {
+                Integer periods = ((TripleExponentialSmoothing.Optimizer) bestOptimizer).getPeriods();
+
+                if (config.getWindowsSize() < periods * 3) {
+                    config.setWindowsSize(periods * 3);
+                    EvictingQueue<DataPoint> newWindow = EvictingQueue.create(periods * 3);
+                    newWindow.addAll(window);
+                    window = newWindow;
+                }
+            }
+
+            if (config.getConceptDriftStrategy() instanceof ErrorChangeStrategy) {
+                ((ErrorChangeStrategy) config.getConceptDriftStrategy()).setError(bestModel.initStatistics());
+            }
+
+            usedModel = bestModel;
+            counter = 0;
+
+            Logger.LOGGER.debugf("Best model for: %s, is %s, %s", metricContext.getMetricId(),
+                    bestModel.getClass().getSimpleName(), bestModel.initStatistics());
         }
-
-        usedModel = bestModel;
-        counter = 0;
-
-        Logger.LOGGER.debugf("Best model for: %s, is %s, %s", metricContext.getMetricId(),
-                bestModel.getClass().getSimpleName(), bestModel.initStatistics());
     }
 
 
@@ -230,6 +249,10 @@ public class AutomaticForecaster implements Forecaster {
 
         private final int period;
 
+        private PeriodicIntervalStrategy() {
+            period = 0;
+        }
+
         /**
          * @param period number of learning points after which the best model is selected
          */
@@ -249,6 +272,22 @@ public class AutomaticForecaster implements Forecaster {
         public int getPeriod() {
             return period;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof PeriodicIntervalStrategy)) return false;
+
+            PeriodicIntervalStrategy that = (PeriodicIntervalStrategy) o;
+
+            return period == that.period;
+
+        }
+
+        @Override
+        public int hashCode() {
+            return period;
+        }
     }
 
     /**
@@ -260,6 +299,12 @@ public class AutomaticForecaster implements Forecaster {
         private final Statistics statistics;
 
         private double initError;
+
+
+        private ErrorChangeStrategy() {
+            percentageChange = 0;
+            statistics = null;
+        }
 
         public ErrorChangeStrategy(int percentageChange, Statistics statistics) {
             if (percentageChange > 100 || percentageChange < 1) {
@@ -307,6 +352,31 @@ public class AutomaticForecaster implements Forecaster {
         public enum Statistics {
             MAE,
             MSE
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof ErrorChangeStrategy)) return false;
+
+            ErrorChangeStrategy that = (ErrorChangeStrategy) o;
+
+            if (percentageChange != that.percentageChange) return false;
+            if (Double.compare(that.initError, initError) != 0) return false;
+            if (statistics != that.statistics) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result;
+            long temp;
+            result = percentageChange;
+            result = 31 * result + (statistics != null ? statistics.hashCode() : 0);
+            temp = Double.doubleToLongBits(initError);
+            result = 31 * result + (int) (temp ^ (temp >>> 32));
+            return result;
         }
     }
 }

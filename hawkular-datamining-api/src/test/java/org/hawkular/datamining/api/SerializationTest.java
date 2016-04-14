@@ -25,6 +25,10 @@ import org.hawkular.datamining.api.base.DataMiningSubscription;
 import org.hawkular.datamining.api.json.ObjectMapperConfig;
 import org.hawkular.datamining.api.model.Metric;
 import org.hawkular.datamining.api.model.MetricType;
+import org.hawkular.datamining.forecast.AutomaticForecaster;
+import org.hawkular.datamining.forecast.Forecaster;
+import org.hawkular.datamining.forecast.models.Model;
+import org.hawkular.datamining.forecast.stats.InformationCriterion;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -56,6 +60,24 @@ public class SerializationTest {
         String json = serialize(subscription);
 
         Assert.assertTrue(json.contains("forecastingHorizon"));
+    }
+
+    @Test
+    public void testConfig() throws Exception {
+        Forecaster.Config config = Forecaster.Config.getDefault();
+
+        String json = serialize(config);
+        Forecaster.Config deserialized = deserialize(json, Forecaster.Config.class);
+
+        Assert.assertEquals(config, deserialized);
+
+        config = new Forecaster.Config(99, Model.TripleExponentialSmoothing, InformationCriterion.BIC,
+                new AutomaticForecaster.ErrorChangeStrategy(78,
+                        AutomaticForecaster.ErrorChangeStrategy.Statistics.MAE));
+
+        json = serialize(config);
+        deserialized = deserialize(json, Forecaster.Config.class);
+        Assert.assertEquals(config, deserialized);
     }
 
     private String serialize(Object object) throws IOException {

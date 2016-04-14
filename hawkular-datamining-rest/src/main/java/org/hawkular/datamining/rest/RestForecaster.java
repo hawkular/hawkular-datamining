@@ -25,6 +25,7 @@ import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -35,9 +36,11 @@ import javax.ws.rs.core.Response;
 import org.hawkular.datamining.api.Constants;
 import org.hawkular.datamining.api.SubscriptionManager;
 import org.hawkular.datamining.forecast.DataPoint;
+import org.hawkular.datamining.forecast.Forecaster;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
@@ -47,8 +50,8 @@ import io.swagger.annotations.ApiResponses;
 @Path("/")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Api(value = "/models", description = "Learn and predict.", tags = "Models")
-public class RestPredictions {
+@Api(value = "/metrics", description = "Learn and predict.", tags = "Forecaster")
+public class RestForecaster {
 
     @HeaderParam(Constants.TENANT_HEADER_NAME)
     private String tenant;
@@ -58,11 +61,11 @@ public class RestPredictions {
 
 
     @GET
-    @Path("/models/{metricId}/predict")
+    @Path("/metrics/{metricId}/forecaster/forecast")
     @ApiOperation("Predict future values of given metric.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success, Predictions returned"),
-            @ApiResponse(code = 404, message = "Prediction of given metric not found", response = ApiError.class),
+            @ApiResponse(code = 200, message = "Success, predictions returned"),
+            @ApiResponse(code = 404, message = "Subscription of given metric not found", response = ApiError.class),
             @ApiResponse(code = 500, message = "Server error",response = ApiError.class)
     })
     public Response predict(@PathParam("metricId") String metricId,
@@ -75,17 +78,34 @@ public class RestPredictions {
     }
 
     @POST
-    @Path("/models/{metricId}/learn")
+    @Path("/metrics/{metricId}/forecaster/learn")
     @ApiOperation("Learn model based on inserted values.")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Success, Learning successfully processed"),
+            @ApiResponse(code = 201, message = "Success, learning successfully processed"),
             @ApiResponse(code = 400, message = "Missing or invalid payload", response = ApiError.class),
-            @ApiResponse(code = 404, message = "Prediction of given metric not found", response = ApiError.class),
+            @ApiResponse(code = 404, message = "Subscription of given metric not found", response = ApiError.class),
             @ApiResponse(code = 500, message = "Server error",response = ApiError.class)
     })
     public Response learn(@PathParam("metricId") String metricId, List<DataPoint> data) {
 
         subscriptionManager.subscription(tenant, metricId).forecaster().learn(data);
+
+        return Response.status(Response.Status.NO_CONTENT).build();
+    }
+
+    @PUT
+    @Path("/metrics/{metricId}/forecaster")
+    @ApiOperation("Change forecaster configuration.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Success, prediction successfully enabled"),
+            @ApiResponse(code = 400, message = "Missing or invalid payload", response = ApiError.class),
+            @ApiResponse(code = 404, message = "Subscription of given metric not found", response = ApiError.class),
+            @ApiResponse(code = 500, message = "Server error", response = ApiError.class)
+    })
+    public Response updateForecaster(@PathParam("metricId") String metricId,
+                                     @ApiParam(required = true) Forecaster.Update update) {
+
+        subscriptionManager.updateForecaster(tenant, metricId, update);
 
         return Response.status(Response.Status.NO_CONTENT).build();
     }

@@ -17,19 +17,14 @@
 
 package org.hawkular.datamining.api.json;
 
-import org.hawkular.datamining.forecast.Forecaster;
-import org.hawkular.datamining.forecast.models.TimeSeriesModel;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 
 /**
  * @author Pavol Loffay
  */
-public abstract class ForecasterMixin {
+@JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.PROPERTY, property = "strategy")
+@JsonTypeIdResolver(value = ConceptDriftTypeResolver.class)
+public abstract class ConceptDriftStrategyMixin {
 
-    @JsonProperty
-    public abstract TimeSeriesModel model();
-
-    @JsonProperty
-    public abstract Forecaster.Config config();
 }
