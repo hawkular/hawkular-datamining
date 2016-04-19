@@ -114,7 +114,7 @@ public abstract class AbstractExponentialSmoothing implements TimeSeriesModel {
         for (long i = 1; i <= nAhead; i++) {
 
             DataPoint predictedPoint = new DataPoint(calculatePrediction(i, null),
-                    lastTimestamp + i*metricContext.getCollectionInterval());
+                    lastTimestamp + i*metricContext.getCollectionInterval()*1000);
 
             result.add(predictedPoint);
         }
