@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.Collections;
 
 import org.hawkular.datamining.forecast.AbstractTest;
-import org.hawkular.datamining.forecast.ImmutableMetricContext;
 import org.hawkular.datamining.forecast.ModelData;
 import org.hawkular.datamining.forecast.ModelReader;
 import org.hawkular.datamining.forecast.stats.AccuracyStatistics;
@@ -56,8 +55,7 @@ public class SimpleExponentialSmoothingTest extends AbstractTest {
         SimpleExponentialSmoothing.Optimizer optimizer = SimpleExponentialSmoothing.optimizer();
         TimeSeriesModel modelInit = optimizer.minimizedMSE(rModel.getData());
 
-        TimeSeriesModel modelLearn = new SimpleExponentialSmoothing(optimizer.result()[0],
-                ImmutableMetricContext.getDefault());
+        TimeSeriesModel modelLearn = SimpleExponentialSmoothing.createWithSmoothingParam(optimizer.result()[0]);
         modelLearn.learn(rModel.getData());
 
         AccuracyStatistics batchInitStatistics = modelInit.initStatistics();
@@ -73,7 +71,8 @@ public class SimpleExponentialSmoothingTest extends AbstractTest {
         SimpleExponentialSmoothing.Optimizer optimizer = SimpleExponentialSmoothing.optimizer();
         TimeSeriesModel modelInit = optimizer.minimizedMSE(rModel.getData());
 
-        TimeSeriesModel continuousModel = new ContinuousModel(new SimpleExponentialSmoothing(optimizer.result()[0]));
+        TimeSeriesModel continuousModel = new ContinuousModel(
+                SimpleExponentialSmoothing.createWithSmoothingParam(optimizer.result()[0]));
 
         rModel.getData().forEach(dataPoint -> {
 

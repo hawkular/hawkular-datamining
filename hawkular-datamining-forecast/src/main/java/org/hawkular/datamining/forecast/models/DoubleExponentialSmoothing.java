@@ -67,19 +67,8 @@ public class DoubleExponentialSmoothing extends AbstractExponentialSmoothing {
         }
     }
 
-    public DoubleExponentialSmoothing() {
-        this(DEFAULT_LEVEL_SMOOTHING, DEFAULT_TREND_SMOOTHING, ImmutableMetricContext.getDefault());
-    }
 
-    public DoubleExponentialSmoothing(MetricContext metricContext) {
-        this(DEFAULT_LEVEL_SMOOTHING, DEFAULT_TREND_SMOOTHING, metricContext);
-    }
-
-    public DoubleExponentialSmoothing(double levelSmoothing, double trendSmoothing) {
-        this(levelSmoothing, trendSmoothing, ImmutableMetricContext.getDefault());
-    }
-
-    public DoubleExponentialSmoothing(double levelSmoothing, double trendSmoothing, MetricContext metricContext) {
+    private DoubleExponentialSmoothing(double levelSmoothing, double trendSmoothing, MetricContext metricContext) {
         super(metricContext);
 
         if (levelSmoothing < MIN_LEVEL_TREND_SMOOTHING || levelSmoothing > MAX_LEVEL_TREND_SMOOTHING) {
@@ -91,6 +80,24 @@ public class DoubleExponentialSmoothing extends AbstractExponentialSmoothing {
 
         this.levelSmoothing = levelSmoothing;
         this.trendSmoothing = trendSmoothing;
+    }
+
+    public static DoubleExponentialSmoothing createDefault() {
+        return new DoubleExponentialSmoothing(DEFAULT_LEVEL_SMOOTHING, DEFAULT_TREND_SMOOTHING,
+                ImmutableMetricContext.getDefault());
+    }
+
+    public static DoubleExponentialSmoothing createWithMetric(MetricContext metricContext) {
+        return new DoubleExponentialSmoothing(DEFAULT_LEVEL_SMOOTHING, DEFAULT_TREND_SMOOTHING, metricContext);
+    }
+
+    public static DoubleExponentialSmoothing createWithSmoothingParams(double levelSmoothing, double trendSmoothing) {
+        return new DoubleExponentialSmoothing(levelSmoothing, trendSmoothing, ImmutableMetricContext.getDefault());
+    }
+
+    public static DoubleExponentialSmoothing createCustom(double levelSmoothing, double trendSmoothing,
+                                                          MetricContext metricContext) {
+        return new DoubleExponentialSmoothing(levelSmoothing, trendSmoothing, metricContext);
     }
 
     @Override
@@ -179,7 +186,7 @@ public class DoubleExponentialSmoothing extends AbstractExponentialSmoothing {
         public TimeSeriesModel minimizedMSE(List<DataPoint> dataPoints) {
 
             if (dataPoints.isEmpty()) {
-                return new DoubleExponentialSmoothing();
+                return DoubleExponentialSmoothing.createDefault();
             }
 
             optimize(new double[]{DEFAULT_LEVEL_SMOOTHING, DEFAULT_TREND_SMOOTHING}, costFunction(dataPoints));

@@ -65,21 +65,25 @@ public class SimpleExponentialSmoothing extends AbstractExponentialSmoothing {
     }
 
 
-    public SimpleExponentialSmoothing() {
-        this(DEFAULT_LEVEL_SMOOTHING, ImmutableMetricContext.getDefault());
-    }
-
-    public SimpleExponentialSmoothing(double levelSmoothing) {
-        this(DEFAULT_LEVEL_SMOOTHING, ImmutableMetricContext.getDefault());
-    }
-
-    public SimpleExponentialSmoothing(double levelSmoothing, MetricContext metricContext) {
+    private SimpleExponentialSmoothing(double levelSmoothing, MetricContext metricContext) {
         super(metricContext);
 
         if (levelSmoothing < MIN_LEVEL_SMOOTHING || levelSmoothing > MAX_LEVEL_SMOOTHING) {
             throw new IllegalArgumentException("Level parameter should be in interval 0-1");
         }
         this.levelSmoothing = levelSmoothing;
+    }
+
+    public static SimpleExponentialSmoothing createDefault() {
+        return new SimpleExponentialSmoothing(DEFAULT_LEVEL_SMOOTHING, ImmutableMetricContext.getDefault());
+    }
+
+    public static SimpleExponentialSmoothing createWithSmoothingParam(double levelSmoothing) {
+        return new SimpleExponentialSmoothing(levelSmoothing, ImmutableMetricContext.getDefault());
+    }
+
+    public static SimpleExponentialSmoothing createCustom(double levelSmoothing, MetricContext metricContext) {
+        return new SimpleExponentialSmoothing(levelSmoothing, metricContext);
     }
 
     @Override
@@ -160,7 +164,7 @@ public class SimpleExponentialSmoothing extends AbstractExponentialSmoothing {
         @Override
         public TimeSeriesModel minimizedMSE(List<DataPoint> dataPoints) {
             if (dataPoints.isEmpty()) {
-                return new SimpleExponentialSmoothing();
+                return SimpleExponentialSmoothing.createDefault();
             }
 
             optimize(new double[]{DEFAULT_LEVEL_SMOOTHING}, costFunction(dataPoints));

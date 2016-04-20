@@ -69,24 +69,8 @@ public class TripleExponentialSmoothing extends AbstractExponentialSmoothing {
         }
     }
 
-    public TripleExponentialSmoothing(int periods) {
-        this(periods, DEFAULT_LEVEL_SMOOTHING, DEFAULT_TREND_SMOOTHING, DEFAULT_SEASONAL_SMOOTHING,
-                ImmutableMetricContext.getDefault());
-    }
 
-    public TripleExponentialSmoothing(int periods, MetricContext metricContext) {
-        this(periods, DEFAULT_LEVEL_SMOOTHING, DEFAULT_TREND_SMOOTHING, DEFAULT_SEASONAL_SMOOTHING,
-                metricContext);
-    }
-
-    public TripleExponentialSmoothing(double levelSmoothing, double trendSmoothing, double seasonalSmoothing,
-                                      State state, MetricContext metricContext) {
-
-        this(state.periods.length, levelSmoothing, trendSmoothing, seasonalSmoothing, metricContext);
-        this.state = state;
-    }
-
-    public TripleExponentialSmoothing(int periods, double levelSmoothing, double trendSmoothing,
+    private TripleExponentialSmoothing(int periods, double levelSmoothing, double trendSmoothing,
                                       double seasonalSmoothing, MetricContext metricContext) {
         super(metricContext);
 
@@ -110,6 +94,41 @@ public class TripleExponentialSmoothing extends AbstractExponentialSmoothing {
         this.seasonalSmoothing = seasonalSmoothing;
     }
 
+    public static TripleExponentialSmoothing createDefault(int periods) {
+        return new TripleExponentialSmoothing(periods, DEFAULT_LEVEL_SMOOTHING, DEFAULT_TREND_SMOOTHING,
+                DEFAULT_SEASONAL_SMOOTHING, ImmutableMetricContext.getDefault());
+    }
+
+    public static TripleExponentialSmoothing createWithMetric(int periods, MetricContext metricContext) {
+        return new TripleExponentialSmoothing(periods, DEFAULT_LEVEL_SMOOTHING, DEFAULT_TREND_SMOOTHING,
+                DEFAULT_SEASONAL_SMOOTHING, metricContext);
+    }
+
+    public static TripleExponentialSmoothing createWithSmoothingParams(int periods, double levelSmoothing,
+                                                                       double trendSmoothing,
+                                                                       double seasonalSmoothing) {
+        return new TripleExponentialSmoothing(periods, levelSmoothing, trendSmoothing, seasonalSmoothing,
+                ImmutableMetricContext.getDefault());
+    }
+
+    public static TripleExponentialSmoothing createCustom(int periods, double levelSmoothing,
+                                                          double trendSmoothing,
+                                                          double seasonalSmoothing,
+                                                          MetricContext metricContext) {
+        return new TripleExponentialSmoothing(periods, levelSmoothing, trendSmoothing, seasonalSmoothing,
+                metricContext);
+    }
+
+    public static TripleExponentialSmoothing createWithState(State state, double levelSmoothing, double trendSmoothing,
+                                                             double seasonalSmoothing, MetricContext metricContext) {
+        TripleExponentialSmoothing tripleExponentialSmoothing =
+                new TripleExponentialSmoothing(state.periods.length, levelSmoothing, trendSmoothing,
+                        seasonalSmoothing, metricContext);
+        tripleExponentialSmoothing.state = state;
+
+        return tripleExponentialSmoothing;
+    }
+
     @Override
     public String name() {
         return "Triple exponential smoothing";
@@ -126,7 +145,7 @@ public class TripleExponentialSmoothing extends AbstractExponentialSmoothing {
     }
 
     public static State initState(List<DataPoint> dataPoints, int periods, MetricContext metricContext) {
-        return new TripleExponentialSmoothing(periods, metricContext).initState(dataPoints);
+        return TripleExponentialSmoothing.createWithMetric(periods, metricContext).initState(dataPoints);
     }
 
     @Override
@@ -363,7 +382,7 @@ public class TripleExponentialSmoothing extends AbstractExponentialSmoothing {
 
             State state = new State(level, slope, periods, firstTimestamp);
 
-            TripleExponentialSmoothing model = new TripleExponentialSmoothing(alpha, beta, gamma, state,
+            TripleExponentialSmoothing model = TripleExponentialSmoothing.createWithState(state, alpha, beta, gamma,
                     getMetricContext());
             return model;
         }
