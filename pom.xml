@@ -45,9 +45,9 @@
 
   <properties>
     <version.org.hawkular.bus>0.7.2.Final</version.org.hawkular.bus>
-    <version.org.hawkular.inventory>0.13.0.Final-SRC-revision-aa05dfbbe99c84667f4ff7c496f91df38bf7c433</version.org.hawkular.inventory>
-    <version.org.hawkular.commons>0.3.1.Final</version.org.hawkular.commons>
-    <version.org.hawkular.alerts>0.8.1.Final</version.org.hawkular.alerts>
+    <version.org.hawkular.inventory>0.14.0.Final</version.org.hawkular.inventory>
+    <version.org.hawkular.commons>0.4.0.Final</version.org.hawkular.commons>
+    <version.org.hawkular.alerts>1.0.2.Final</version.org.hawkular.alerts>
 
     <version.io.swagger>1.5.3</version.io.swagger>
     <version.org.apache.commons-commons-math3>3.6</version.org.apache.commons-commons-math3>
