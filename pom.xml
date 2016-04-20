@@ -58,8 +58,8 @@
 
   <scm>
     <url>https://github.com/pavolloffay/alert-prediction</url>
-    <connection>scm:git:https://github.com/pavolloffay/alert-prediction</connection>
-    <developerConnection>scm:git:git@github.com:pavolloffay/alert-prediction.git</developerConnection>
+    <connection>scm:git:https://github.com/hawkular/hawkular-datamining</connection>
+    <developerConnection>scm:git:git@github.com:hawkular/hawkular-datamining.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
 
