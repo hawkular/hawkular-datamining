@@ -88,8 +88,9 @@ public class TripleExponentialSmoothingTest extends AbstractTest {
                         Arrays.copyOfRange(optimizer.result(), 5, optimizer.result().length),
                         rModel.getData().get(0).getTimestamp());
 
-        TimeSeriesModel modelLearn = new TripleExponentialSmoothing(optimizer.result()[0], optimizer.result()[1],
-                optimizer.result()[2], state, ImmutableMetricContext.getDefault());
+        TimeSeriesModel modelLearn = TripleExponentialSmoothing.createWithState(state, optimizer.result()[0],
+                optimizer.result()[1],
+                optimizer.result()[2],  ImmutableMetricContext.getDefault());
         modelLearn.learn(rModel.getData());
 
         AccuracyStatistics batchInitStatistics = modelInit.initStatistics();
@@ -102,7 +103,7 @@ public class TripleExponentialSmoothingTest extends AbstractTest {
     public void testInit() throws IOException {
        ModelData rModel = ModelReader.read("sineLowVarMedium");
 
-        TripleExponentialSmoothing tripleExponentialSmoothing = new TripleExponentialSmoothing(rModel.getPeriods());
+        TripleExponentialSmoothing tripleExponentialSmoothing = TripleExponentialSmoothing.createDefault(rModel.getPeriods());
 
         AccuracyStatistics initStat = tripleExponentialSmoothing.init(rModel.getData());
         Assert.assertNotNull(initStat);
