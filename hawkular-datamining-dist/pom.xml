@@ -35,11 +35,6 @@
   <dependencies>
     <dependency>
       <groupId>org.hawkular.datamining</groupId>
-      <artifactId>hawkular-datamining-api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.hawkular.datamining</groupId>
       <artifactId>hawkular-datamining-cdi</artifactId>
       <version>${project.version}</version>
     </dependency>
