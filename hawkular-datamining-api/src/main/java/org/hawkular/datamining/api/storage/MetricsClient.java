@@ -18,7 +18,7 @@ package org.hawkular.datamining.api.storage;
 
 import java.util.List;
 
-import org.hawkular.datamining.api.model.BucketPoint;
+import org.hawkular.datamining.api.model.Metric;
 import org.hawkular.datamining.forecast.DataPoint;
 
 /**
@@ -28,7 +28,5 @@ import org.hawkular.datamining.forecast.DataPoint;
  */
 public interface MetricsClient {
 
-    List<BucketPoint> loadBuckets(long buckets, String metricId, String tenant);
-
-    List<DataPoint> loadPoints(String metricId, String tenant);
+    List<DataPoint> loadPoints(Metric metric, long start, long end);
 }

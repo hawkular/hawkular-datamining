@@ -15,20 +15,35 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.cdi.qualifiers;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import javax.inject.Qualifier;
+package org.hawkular.datamining.api.model;
 
 /**
  * @author Pavol Loffay
  */
-@Qualifier
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD, ElementType.TYPE})
-public @interface Official {
+public enum  MetricDataType {
+
+    GAUGE("gauge"),
+    AVAILABILITY("availability"),
+    COUNTER("counter"),
+    COUNTER_RATE("counter_rate");
+
+    private final String displayName;
+
+    MetricDataType(String name) {
+        this.displayName = name;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public static MetricDataType fromDisplayName(String displayName) {
+        for (MetricDataType type : values()) {
+            if (type.displayName.equals(displayName)) {
+                return type;
+            }
+        }
+
+        throw new IllegalArgumentException("No such type: " + displayName);
+    }
 }

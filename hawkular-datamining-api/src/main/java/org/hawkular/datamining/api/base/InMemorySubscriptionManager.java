@@ -91,8 +91,9 @@ public class InMemorySubscriptionManager implements SubscriptionManager {
         /**
          * Initialize subscription with old data
          */
-        List<DataPoint> points = restMetricsClient.loadPoints(subscription.getMetric().getMetricId(),
-                subscription.getMetric().getTenant());
+        long startTime = System.currentTimeMillis() - subscription.getMetric().getCollectionInterval() * 100 * 1000;
+        List<DataPoint> points = restMetricsClient.loadPoints((Metric) subscription.getMetric(), startTime,
+                System.currentTimeMillis());
         subscription.forecaster().learn(points);
 
         tenantSubscriptions.getSubscriptions().put(subscription.getMetric().getMetricId(), subscription);
