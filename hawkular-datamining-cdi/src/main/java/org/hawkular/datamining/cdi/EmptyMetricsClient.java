@@ -22,7 +22,7 @@ import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import org.hawkular.datamining.api.model.BucketPoint;
+import org.hawkular.datamining.api.model.Metric;
 import org.hawkular.datamining.api.storage.MetricsClient;
 import org.hawkular.datamining.forecast.DataPoint;
 
@@ -33,12 +33,7 @@ import org.hawkular.datamining.forecast.DataPoint;
 public class EmptyMetricsClient implements MetricsClient {
 
     @Override
-    public List<BucketPoint> loadBuckets(long buckets, String metricId, String tenant) {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<DataPoint> loadPoints(String metricId, String tenant) {
+    public List<DataPoint> loadPoints(Metric metric, long start, long end) {
         return Collections.emptyList();
     }
 }

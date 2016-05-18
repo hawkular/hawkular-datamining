@@ -24,6 +24,7 @@ import org.hawkular.datamining.api.base.DataMiningForecaster;
 import org.hawkular.datamining.api.base.DataMiningSubscription;
 import org.hawkular.datamining.api.json.ObjectMapperConfig;
 import org.hawkular.datamining.api.model.Metric;
+import org.hawkular.datamining.api.model.MetricDataType;
 import org.hawkular.datamining.api.model.MetricType;
 import org.hawkular.datamining.forecast.AutomaticForecaster;
 import org.hawkular.datamining.forecast.Forecaster;
@@ -52,7 +53,7 @@ public class SerializationTest {
     public void testSubscription() throws IOException {
 
         DataMiningForecaster forecaster = new DataMiningForecaster(new Metric("tenant", "feed", "foo", 1L, 2L, new
-                MetricType("fooType", 2L)));
+                MetricType("fooType", 2L, MetricDataType.GAUGE)));
 
         Subscription subscription = new DataMiningSubscription(forecaster,
                 Subscription.SubscriptionOwner.getAllDefined());

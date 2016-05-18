@@ -46,6 +46,13 @@
     </dependency>
 
     <dependency>
+      <groupId>org.hawkular.metrics</groupId>
+      <artifactId>hawkular-metrics-core-service</artifactId>
+      <version>${version.org.hawkular.metrics}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.hawkular.alerts</groupId>
       <artifactId>hawkular-alerts-bus-api</artifactId>
       <version>${version.org.hawkular.alerts}</version>
@@ -62,6 +69,12 @@
       <groupId>org.hawkular.inventory</groupId>
       <artifactId>hawkular-inventory-bus-api</artifactId>
       <version>${version.org.hawkular.inventory}</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>rxjava</artifactId>
+          <groupId>io.reactivex</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>

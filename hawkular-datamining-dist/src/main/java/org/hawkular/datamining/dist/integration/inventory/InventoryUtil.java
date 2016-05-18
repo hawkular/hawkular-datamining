@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.hawkular.datamining.api.Subscription;
+import org.hawkular.datamining.api.model.MetricDataType;
 import org.hawkular.datamining.dist.integration.Configuration;
 import org.hawkular.inventory.api.model.CanonicalPath;
 import org.hawkular.inventory.api.model.Metric;
@@ -33,8 +34,10 @@ import org.hawkular.inventory.api.model.Tenant;
 public class InventoryUtil {
 
     public static org.hawkular.datamining.api.model.MetricType convertMetricType(MetricType type) {
+        MetricDataType dataType = convertDataType(type.getType());
+
         return new org.hawkular.datamining.api.model.MetricType(type.getPath().ids().getTenantId(),
-                type.getCollectionInterval());
+                type.getCollectionInterval(), dataType);
     }
 
     public static org.hawkular.datamining.api.model.Metric convertMetric(Metric metric, Long forecastingHorizon) {
@@ -109,5 +112,25 @@ public class InventoryUtil {
             return 0L;
         }
         return InventoryUtil.parseForecastingHorizon(closestRelationship);
+    }
+
+    public static MetricDataType convertDataType(org.hawkular.inventory.api.model.MetricDataType dataType) {
+
+        MetricDataType dataMiningType = null;
+
+        switch (dataType) {
+            case AVAILABILITY: dataMiningType = MetricDataType.AVAILABILITY;
+                break;
+            case COUNTER: dataMiningType = MetricDataType.COUNTER;
+                break;
+            case COUNTER_RATE: dataMiningType = MetricDataType.COUNTER_RATE;
+                break;
+
+            default:
+            case GAUGE: dataMiningType = MetricDataType.GAUGE;
+                break;
+        }
+
+        return dataMiningType;
     }
 }

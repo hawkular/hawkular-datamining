@@ -24,13 +24,15 @@ public class MetricType {
     private String path;
     private Long collectionInterval;
 
+    private MetricDataType metricDataType;
 
     public MetricType() {
     }
 
-    public MetricType(String id, Long collectionInterval) {
+    public MetricType(String id, Long collectionInterval, MetricDataType metricDataType) {
         this.path = id;
         this.collectionInterval = collectionInterval;
+        this.metricDataType = metricDataType;
     }
 
     public String getPath() {
@@ -43,5 +45,9 @@ public class MetricType {
 
     public void setCollectionInterval(Long collectionInterval) {
         this.collectionInterval = collectionInterval;
+    }
+
+    public MetricDataType getMetricDataType() {
+        return metricDataType;
     }
 }
