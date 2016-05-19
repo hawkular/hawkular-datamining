@@ -31,6 +31,9 @@ import org.hawkular.datamining.forecast.MetricContext;
 import org.hawkular.datamining.forecast.stats.AccuracyStatistics;
 import org.hawkular.datamining.forecast.utils.AdditiveSeasonalDecomposition;
 import org.hawkular.datamining.forecast.utils.AutomaticPeriodIdentification;
+import org.hawkular.datamining.forecast.utils.Utils;
+
+import com.google.common.collect.EvictingQueue;
 
 /**
  * Triple exponential smoothing model also known as Holt-Winters model. This model implements additive variant.
@@ -57,6 +60,7 @@ public class TripleExponentialSmoothing extends AbstractExponentialSmoothing {
 
     private final int periods;
 
+    private EvictingQueue<Double>[] residuals;
 
     public static class State extends DoubleExponentialSmoothing.State {
         protected double[] periods;
@@ -92,6 +96,10 @@ public class TripleExponentialSmoothing extends AbstractExponentialSmoothing {
         this.levelSmoothing = levelSmoothing;
         this.trendSmoothing = trendSmoothing;
         this.seasonalSmoothing = seasonalSmoothing;
+        this.residuals = new EvictingQueue[this.periods];
+        for (int i = 0; i < residuals.length; i++) {
+            this.residuals[i] = EvictingQueue.create(50);
+        }
     }
 
     public static TripleExponentialSmoothing createDefault(int periods) {
@@ -202,17 +210,29 @@ public class TripleExponentialSmoothing extends AbstractExponentialSmoothing {
     }
 
     @Override
-    protected double calculatePrediction(long nAhead, Long learnTimestamp) {
+    protected PredictionResult calculatePrediction(int nAhead, Long learnTimestamp, Double expected) {
 
         /**
-         * when learn timestamp != null I want to get the prediction for that period
+         * when learnTimestamp != null I want to get the prediction for that period
          */
         long predictTimestamp = learnTimestamp != null ? learnTimestamp :
                 lastTimestamp + nAhead*metricContext.getCollectionInterval();
 
         int periodIndex = periodIndex(predictTimestamp);
 
-        return state.level + nAhead*state.slope + state.periods[periodIndex];
+        double prediction = state.level + nAhead*state.slope + state.periods[periodIndex];
+        PredictionResult predictionResult = new PredictionResult(prediction);
+
+        if (expected != null) {
+            predictionResult.error = expected - predictionResult.value;
+            residuals[periodIndex].add(predictionResult.error);
+        }
+
+        if (learnTimestamp == null) {
+            predictionResult.sdOfResiduals = Utils.standardDeviation(residuals[periodIndex].toArray(new Double[0]));
+        }
+
+        return predictionResult;
     }
 
     private int periodIndex(long timestamp) {

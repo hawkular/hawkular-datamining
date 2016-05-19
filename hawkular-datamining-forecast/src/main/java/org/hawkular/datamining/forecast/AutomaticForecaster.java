@@ -86,7 +86,7 @@ public class AutomaticForecaster implements Forecaster {
         // recalculate if model is null or periodically after X points
         if (usedModel == null || config.getConceptDriftStrategy().shouldSelectNewModel(dataPoints.size())) {
             selectBestModel(dataPoints);
-        } else if (usedModel != null) {
+        } else {
             usedModel.learn(dataPoints);
         }
 

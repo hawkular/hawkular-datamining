@@ -29,6 +29,8 @@ public class DataPoint implements Serializable {
     private Long timestamp;
     private Double value;
 
+    private Double min;
+    private Double max;
 
     public DataPoint() {
     }
@@ -38,12 +40,27 @@ public class DataPoint implements Serializable {
         this.timestamp = timestamp;
     }
 
+    public DataPoint(Double value, Long timestamp, Double max, Double min) {
+        this.value = value;
+        this.timestamp = timestamp;
+        this.min = min;
+        this.max = max;
+    }
+
     public Double getValue() {
         return value;
     }
 
     public Long getTimestamp() {
         return timestamp;
+    }
+
+    public Double getMin() {
+        return min;
+    }
+
+    public Double getMax() {
+        return max;
     }
 
     @Override

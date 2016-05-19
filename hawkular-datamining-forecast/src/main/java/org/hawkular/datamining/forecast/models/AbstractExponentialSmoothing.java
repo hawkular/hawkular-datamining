@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.hawkular.datamining.forecast.DataPoint;
 import org.hawkular.datamining.forecast.MetricContext;
+import org.hawkular.datamining.forecast.PredictionIntervalMultipliers;
 import org.hawkular.datamining.forecast.stats.AccuracyStatistics;
 
 /**
@@ -31,7 +32,7 @@ import org.hawkular.datamining.forecast.stats.AccuracyStatistics;
  */
 public abstract class AbstractExponentialSmoothing implements TimeSeriesModel {
 
-    private static Comparator<DataPoint> dataPointComparator = new TimestampComparator();
+    private static final Comparator<DataPoint> dataPointComparator = new TimestampComparator();
 
     // in ms
     protected long lastTimestamp = -1;
@@ -42,14 +43,35 @@ public abstract class AbstractExponentialSmoothing implements TimeSeriesModel {
     private double absSum;
     private AccuracyStatistics initAccuracy;
 
-    protected abstract double calculatePrediction(long nAhead, Long learnTimestamp);
+    private double predictionIntervalMultiplier = 1.96;
+
+    protected abstract PredictionResult calculatePrediction(int nAhead, Long learnTimestamp, Double expected);
     protected abstract void updateState(DataPoint dataPoint);
     protected abstract SimpleExponentialSmoothing.State initState(List<DataPoint> dataPoints);
     protected abstract SimpleExponentialSmoothing.State state();
 
 
+    protected static class PredictionResult {
+        protected final double value;
+        protected double error;
+        protected double sdOfResiduals;
+
+        public PredictionResult(double value) {
+            this(value, 0);
+        }
+        public PredictionResult(double value, double sdOfResiduals) {
+            this.value = value;
+            this.sdOfResiduals = sdOfResiduals;
+        }
+    }
+
     public AbstractExponentialSmoothing(MetricContext metricContext) {
+        this(metricContext, 95);
+    }
+
+    public AbstractExponentialSmoothing(MetricContext metricContext, int confidenceInterval) {
         this.metricContext = metricContext;
+        this.predictionIntervalMultiplier = PredictionIntervalMultipliers.multiplier(confidenceInterval);
     }
 
     @Override
@@ -76,9 +98,10 @@ public abstract class AbstractExponentialSmoothing implements TimeSeriesModel {
             throw new IllegalArgumentException("Data point has older timestamp than current state.");
         }
 
-        double error = dataPoint.getValue() - calculatePrediction(1, dataPoint.getTimestamp());
-        sse += error * error;
-        absSum += Math.abs(error);
+        PredictionResult prediction = calculatePrediction(1, dataPoint.getTimestamp(), dataPoint.getValue());
+
+        sse += prediction.error*prediction.error;
+        absSum += Math.abs(prediction.error);
         counter++;
 
         lastTimestamp = dataPoint.getTimestamp();
@@ -103,18 +126,24 @@ public abstract class AbstractExponentialSmoothing implements TimeSeriesModel {
 
     @Override
     public DataPoint forecast() {
-        double prediction = calculatePrediction(1, null);
-        return new DataPoint(prediction, lastTimestamp + metricContext.getCollectionInterval());
+        PredictionResult predictionResult = calculatePrediction(1, null, null);
+
+        return new DataPoint(predictionResult.value, lastTimestamp + metricContext.getCollectionInterval(),
+                predictionResult.value + predictionIntervalMultiplier*predictionResult.sdOfResiduals,
+                predictionResult.value - predictionIntervalMultiplier*predictionResult.sdOfResiduals);
     }
 
     @Override
     public List<DataPoint> forecast(int nAhead) {
 
         List<DataPoint> result = new ArrayList<>(nAhead);
-        for (long i = 1; i <= nAhead; i++) {
 
-            DataPoint predictedPoint = new DataPoint(calculatePrediction(i, null),
-                    lastTimestamp + i*metricContext.getCollectionInterval()*1000);
+        for (int i = 1; i <= nAhead; i++) {
+            PredictionResult predictionResult = calculatePrediction(i, null, null);
+            DataPoint predictedPoint = new DataPoint(predictionResult.value,
+                    lastTimestamp + i*metricContext.getCollectionInterval()*1000,
+                    predictionResult.value + predictionIntervalMultiplier*predictionResult.sdOfResiduals,
+                    predictionResult.value - predictionIntervalMultiplier*predictionResult.sdOfResiduals);
 
             result.add(predictedPoint);
         }
@@ -136,4 +165,9 @@ public abstract class AbstractExponentialSmoothing implements TimeSeriesModel {
     public long lastTimestamp() {
         return lastTimestamp;
     }
+
+    public void setConfidenceInterval(int percentage) {
+        predictionIntervalMultiplier = PredictionIntervalMultipliers.multiplier(percentage);
+    }
+
 }
