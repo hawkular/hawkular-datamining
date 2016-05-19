@@ -42,7 +42,7 @@ public class PredictionIntervalMultipliers {
     }
 
     public static double multiplier(int percentage) {
-        if (percentage < 0 && percentage > 100) {
+        if (percentage < 0 || percentage > 100) {
             throw new IllegalArgumentException();
         }
 
