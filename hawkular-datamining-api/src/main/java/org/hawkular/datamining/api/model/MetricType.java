@@ -26,7 +26,7 @@ public class MetricType {
 
     private MetricDataType metricDataType;
 
-    public MetricType() {
+    private MetricType() {
     }
 
     public MetricType(String id, Long collectionInterval, MetricDataType metricDataType) {

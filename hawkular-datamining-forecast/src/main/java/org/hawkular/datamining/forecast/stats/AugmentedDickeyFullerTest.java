@@ -18,7 +18,7 @@
 package org.hawkular.datamining.forecast.stats;
 
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
@@ -72,7 +72,6 @@ public class AugmentedDickeyFullerTest {
         InterceptTimeTrend
     }
 
-    private final double[] x;
     private final int maxLag;
     private final Type type;
 
@@ -91,11 +90,14 @@ public class AugmentedDickeyFullerTest {
     }
 
     public AugmentedDickeyFullerTest(double[] x, int maxLag, Type type) {
-        this.x = x;
         this.maxLag = maxLag;
         this.type = type;
 
-        calculateStatistics();
+        calculateStatistics(x);
+    }
+
+    public Type getType() {
+        return type;
     }
 
     public double pValue() {
@@ -110,11 +112,11 @@ public class AugmentedDickeyFullerTest {
         return adfStat;
     }
 
-    private void calculateStatistics() {
+    private void calculateStatistics(double[] x) {
         double[] differences = TimeSeriesDifferencing.differencesAtLag(x, 1);
 
         double[] dependedVariable = Arrays.copyOfRange(differences, maxLag, differences.length);
-        double[][] explanatoryVariables = explanatoryVariables(differences);
+        double[][] explanatoryVariables = explanatoryVariables(x, differences);
 
         // OLS model
         OLSMultipleLinearRegression olsMultipleLinearRegression = new OLSMultipleLinearRegression();
@@ -129,7 +131,7 @@ public class AugmentedDickeyFullerTest {
         adfStat = parameters[gammaIndex]/standardErrors[gammaIndex];
     }
 
-    private double[][] explanatoryVariables(double[] differences) {
+    private double[][] explanatoryVariables(double[] x, double[] differences) {
 
         double[] xt = Arrays.copyOfRange(x, maxLag, differences.length);
 
@@ -213,11 +215,11 @@ public class AugmentedDickeyFullerTest {
         return result;
     }
 
-    private static final Map<Type, double[]> ADF_TAU_MAX = new HashMap<>();
-    private static final Map<Type, double[]> ADF_TAU_MIN = new HashMap<>();
-    private static final Map<Type, double[]> ADF_TAU_STAR = new HashMap<>();
-    private static final Map<Type, double[][]> ADF_TAU_SMALLP = new HashMap<>();
-    private static final Map<Type, double[][]> ADF_TAU_LARGEP = new HashMap<>();
+    private static final Map<Type, double[]> ADF_TAU_MAX = new EnumMap<>(Type.class);
+    private static final Map<Type, double[]> ADF_TAU_MIN = new EnumMap<>(Type.class);
+    private static final Map<Type, double[]> ADF_TAU_STAR = new EnumMap<>(Type.class);
+    private static final Map<Type, double[][]> ADF_TAU_SMALLP = new EnumMap<>(Type.class);
+    private static final Map<Type, double[][]> ADF_TAU_LARGEP = new EnumMap<>(Type.class);
     private static final double[] ADF_LARGE_SCALING = {1.0, 1e-1, 1e-1, 1e-2};
     static {
         ADF_TAU_MAX.put(Type.NoInterceptNoTimeTrend, new double[] {1.51, 0.86, 0.88, 1.05, 1.24});

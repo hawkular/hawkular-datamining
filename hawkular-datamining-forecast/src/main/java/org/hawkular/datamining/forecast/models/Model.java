@@ -22,11 +22,11 @@ package org.hawkular.datamining.forecast.models;
  */
 public enum Model {
     SimpleExponentialSmoothing(org.hawkular.datamining.forecast.models.SimpleExponentialSmoothing.class,
-            org.hawkular.datamining.forecast.models.SimpleExponentialSmoothing.Optimizer.class),
+            org.hawkular.datamining.forecast.models.SimpleExponentialSmoothing.SimpleExOptimizer.class),
     DoubleExponentialSmoothing(org.hawkular.datamining.forecast.models.DoubleExponentialSmoothing.class,
-            org.hawkular.datamining.forecast.models.DoubleExponentialSmoothing.Optimizer.class),
+            org.hawkular.datamining.forecast.models.DoubleExponentialSmoothing.DoubleExOptimizer.class),
     TripleExponentialSmoothing(org.hawkular.datamining.forecast.models.TripleExponentialSmoothing.class,
-            org.hawkular.datamining.forecast.models.TripleExponentialSmoothing.Optimizer.class);
+            org.hawkular.datamining.forecast.models.TripleExponentialSmoothing.TripleExOptimizer.class);
 
     private final Class<? extends TimeSeriesModel> model;
     private final Class<? extends ModelOptimizer> optimizer;

@@ -37,7 +37,7 @@ public class SimpleMovingAverageTest extends AbstractTest {
     @Test
     public void testError() {
         try {
-            new SimpleMovingAverage(Collections.EMPTY_LIST, 0, false);
+            new SimpleMovingAverage(Collections.emptyList(), 0, false);
             Assert.fail();
         } catch (IllegalArgumentException ex) {
             //ok

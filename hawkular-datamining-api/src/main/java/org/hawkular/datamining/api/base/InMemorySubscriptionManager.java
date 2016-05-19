@@ -69,7 +69,7 @@ public class InMemorySubscriptionManager implements SubscriptionManager {
     @Override
     public void subscribe(Subscription subscription) {
 
-        TenantsSubscriptionsHolder tenantSubscriptions = null;
+        TenantsSubscriptionsHolder tenantSubscriptions;
 
         synchronized (subscriptions) {
             tenantSubscriptions = subscriptions.get(subscription.getMetric().getTenant());

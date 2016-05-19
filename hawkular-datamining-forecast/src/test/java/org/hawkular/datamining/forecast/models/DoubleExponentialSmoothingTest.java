@@ -40,7 +40,7 @@ public class DoubleExponentialSmoothingTest extends AbstractTest {
 
         ModelData rModel = ModelReader.read("trendStatUpwardLowVar");
 
-        DoubleExponentialSmoothing.Optimizer optimizer = DoubleExponentialSmoothing.optimizer();
+        DoubleExponentialSmoothing.DoubleExOptimizer optimizer = DoubleExponentialSmoothing.optimizer();
 
         try {
             TimeSeriesModel model = optimizer.minimizedMSE(rModel.getData().subList(0, minimalPoints));
@@ -54,7 +54,7 @@ public class DoubleExponentialSmoothingTest extends AbstractTest {
     public void testBatchInitAndLearn() throws IOException {
         ModelData rModel = ModelReader.read("wnLowVariance");
 
-        DoubleExponentialSmoothing.Optimizer optimizer = DoubleExponentialSmoothing.optimizer();
+        DoubleExponentialSmoothing.DoubleExOptimizer optimizer = DoubleExponentialSmoothing.optimizer();
         TimeSeriesModel modelInit = optimizer.minimizedMSE(rModel.getData());
 
         TimeSeriesModel modelLearn = DoubleExponentialSmoothing.createWithSmoothingParams(optimizer.result()[0], optimizer.result()[1]);
@@ -70,7 +70,7 @@ public class DoubleExponentialSmoothingTest extends AbstractTest {
     public void testContinuousLearning() throws IOException {
         ModelData rModel = ModelReader.read("trendStatUpwardLowVar");
 
-        DoubleExponentialSmoothing.Optimizer optimizer = DoubleExponentialSmoothing.optimizer();
+        DoubleExponentialSmoothing.DoubleExOptimizer optimizer = DoubleExponentialSmoothing.optimizer();
         TimeSeriesModel modelInit = optimizer.minimizedMSE(rModel.getData());
 
         TimeSeriesModel continuousModel = new ContinuousModel(
@@ -99,7 +99,7 @@ public class DoubleExponentialSmoothingTest extends AbstractTest {
         double ACCURACY_HIGH = 1.05;
         ModelData rModel = ModelReader.read("trendStatUpwardLowVar");
 
-        DoubleExponentialSmoothing.Optimizer optimizer = DoubleExponentialSmoothing.optimizer();
+        DoubleExponentialSmoothing.DoubleExOptimizer optimizer = DoubleExponentialSmoothing.optimizer();
         TimeSeriesModel model = optimizer.minimizedMSE(rModel.getData());
         AccuracyStatistics initStatistics = model.initStatistics();
 
@@ -114,7 +114,7 @@ public class DoubleExponentialSmoothingTest extends AbstractTest {
         double ACCURACY_HIGH = 1.05;
         ModelData rModel = ModelReader.read("wnHighVariance");
 
-        DoubleExponentialSmoothing.Optimizer optimizer = DoubleExponentialSmoothing.optimizer();
+        DoubleExponentialSmoothing.DoubleExOptimizer optimizer = DoubleExponentialSmoothing.optimizer();
         TimeSeriesModel model = optimizer.minimizedMSE(rModel.getData());
         AccuracyStatistics initStatistics = model.initStatistics();
 

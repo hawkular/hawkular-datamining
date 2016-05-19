@@ -127,7 +127,7 @@ public class InventoryCDIStorage implements InventoryStorage {
         Page<Metric> page = inventory.execute(query, Metric.class, Pager.unlimited(Order.unspecified()));
 
         List<Metric> metrics = page.toList();
-        return metrics.size() > 0 ? metrics.get(0) : null;
+        return metrics.isEmpty() ? null : metrics.get(0) ;
     }
 
     @Override

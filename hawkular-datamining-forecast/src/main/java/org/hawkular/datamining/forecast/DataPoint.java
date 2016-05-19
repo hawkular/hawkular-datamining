@@ -32,7 +32,7 @@ public class DataPoint implements Serializable {
     private Double min;
     private Double max;
 
-    public DataPoint() {
+    private DataPoint() {
     }
 
     public DataPoint(Double value, Long timestamp) {

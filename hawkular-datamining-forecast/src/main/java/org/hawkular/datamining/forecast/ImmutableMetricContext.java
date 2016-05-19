@@ -43,9 +43,7 @@ public class ImmutableMetricContext implements MetricContext {
     }
 
     public static ImmutableMetricContext getDefault() {
-        ImmutableMetricContext result = new ImmutableMetricContext(null, null, 1L);
-
-        return result;
+        return new ImmutableMetricContext(null, null, 1L);
     }
 
     @Override

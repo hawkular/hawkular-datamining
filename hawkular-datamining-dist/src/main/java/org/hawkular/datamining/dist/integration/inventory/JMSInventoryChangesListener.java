@@ -39,6 +39,7 @@ import org.hawkular.datamining.api.base.DataMiningForecaster;
 import org.hawkular.datamining.api.base.DataMiningSubscription;
 import org.hawkular.datamining.api.exception.DataMiningException;
 import org.hawkular.datamining.cdi.qualifiers.Eager;
+import org.hawkular.datamining.dist.Logger;
 import org.hawkular.datamining.dist.integration.Configuration;
 import org.hawkular.inventory.api.Action;
 import org.hawkular.inventory.api.model.CanonicalPath;
@@ -70,7 +71,7 @@ public class JMSInventoryChangesListener extends InventoryEventMessageListener {
         try {
             InitialContext initialContext = new InitialContext();
             ConnectionFactory connectionFactory = (ConnectionFactory) initialContext.lookup(
-                    "java:/HawkularBusConnectionFactory");
+                    Configuration.BUS_CONNECTION_FACTORY_JNDI);
 
             ConnectionContextFactory factory = new ConnectionContextFactory(connectionFactory);
             Endpoint endpoint = new Endpoint(Endpoint.Type.TOPIC, Configuration.TOPIC_INVENTORY_CHANGES);
@@ -78,10 +79,10 @@ public class JMSInventoryChangesListener extends InventoryEventMessageListener {
 
             MessageProcessor processor = new MessageProcessor();
             processor.listen(consumerConnectionContext, this);
-        } catch (JMSException ex) {
-            ex.printStackTrace();
-        } catch (NamingException e) {
-            e.printStackTrace();
+
+            Logger.LOGGER.connectedToTopic(Configuration.TOPIC_INVENTORY_CHANGES);
+        } catch (JMSException | NamingException ex) {
+            Logger.LOGGER.errorf("Could not connect to: %s, exception: %s", Configuration.TOPIC_INVENTORY_CHANGES, ex);
         }
     }
 
@@ -291,7 +292,6 @@ public class JMSInventoryChangesListener extends InventoryEventMessageListener {
 
         switch (action) {
             case UPDATED: {
-
                 Set<Metric> metricsOfType = inventoryStorage.metricsOfType(metricType.getPath());
                 metricsOfType.forEach(metric -> {
                     if (subscriptionManager.isSubscribed(metric.getPath().ids().getTenantId(), metric.getId())) {

@@ -125,8 +125,7 @@ public class SimpleExponentialSmoothing extends AbstractExponentialSmoothing {
             level = sum / (double) initData.size();
         }
 
-        state = new State(level);
-        return state;
+        return state = new State(level);
     }
 
     @Override
@@ -156,12 +155,12 @@ public class SimpleExponentialSmoothing extends AbstractExponentialSmoothing {
         return predictionResult;
     }
 
-    public static Optimizer optimizer() {
-        return new Optimizer(new ImmutableMetricContext(null, null, 1L));
+    public static SimpleExOptimizer optimizer() {
+        return new SimpleExOptimizer(new ImmutableMetricContext(null, null, 1L));
     }
 
-    public static Optimizer optimizer(MetricContext metricContext) {
-        return new Optimizer(metricContext);
+    public static SimpleExOptimizer optimizer(MetricContext metricContext) {
+        return new SimpleExOptimizer(metricContext);
     }
 
     @Override
@@ -172,15 +171,15 @@ public class SimpleExponentialSmoothing extends AbstractExponentialSmoothing {
                 '}';
     }
 
-    public static class Optimizer extends AbstractModelOptimizer {
+    public static class SimpleExOptimizer extends AbstractModelOptimizer {
 
 
-        public Optimizer(MetricContext metricContext) {
+        public SimpleExOptimizer(MetricContext metricContext) {
             super(metricContext);
         }
 
         @Override
-        public TimeSeriesModel minimizedMSE(List<DataPoint> dataPoints) {
+        public SimpleExponentialSmoothing minimizedMSE(List<DataPoint> dataPoints) {
             if (dataPoints.isEmpty()) {
                 return SimpleExponentialSmoothing.createDefault();
             }

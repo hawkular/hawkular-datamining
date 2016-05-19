@@ -59,7 +59,7 @@ public class TripleExponentialSmoothingTest extends AbstractTest {
 
         ModelData rModel = ModelReader.read("sineLowVarLong");
 
-        TripleExponentialSmoothing.Optimizer optimizer = TripleExponentialSmoothing.optimizer(rModel.getPeriods());
+        TripleExponentialSmoothing.TripleExOptimizer optimizer = TripleExponentialSmoothing.optimizer(rModel.getPeriods());
 
         try {
             TimeSeriesModel model = optimizer.minimizedMSE(rModel.getData().subList(0, minimalPoints));
@@ -80,11 +80,11 @@ public class TripleExponentialSmoothingTest extends AbstractTest {
     public void testBatchInitAndLearnStatistics() throws IOException {
         ModelData rModel = ModelReader.read("sineLowVarLong");
 
-        TripleExponentialSmoothing.Optimizer optimizer = TripleExponentialSmoothing.optimizer(rModel.getPeriods());
+        TripleExponentialSmoothing.TripleExOptimizer optimizer = TripleExponentialSmoothing.optimizer(rModel.getPeriods());
         TimeSeriesModel modelInit = optimizer.minimizedMSE(rModel.getData());
 
-        TripleExponentialSmoothing.State state =
-                new TripleExponentialSmoothing.State(optimizer.result()[3], optimizer.result()[4],
+        TripleExponentialSmoothing.TripleExState state =
+                new TripleExponentialSmoothing.TripleExState(optimizer.result()[3], optimizer.result()[4],
                         Arrays.copyOfRange(optimizer.result(), 5, optimizer.result().length),
                         rModel.getData().get(0).getTimestamp());
 

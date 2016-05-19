@@ -15,31 +15,20 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.forecast;
+package org.hawkular.datamining.rest.exception.mapper;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.Properties;
-
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
 
 /**
  * @author Pavol Loffay
  */
-public class EngineConfiguration {
+@Provider
+public class IllegalStateExceptionMapper implements ExceptionMapper<IllegalStateException> {
 
-    public static final String CONF_FILE = "hawkular-datamining.properties";
-
-    private Properties properties = new Properties();
-
-    public EngineConfiguration() throws IOException {
-        properties.load(getConfigurationFile().openStream());
-    }
-
-    public String getProperty(String key) {
-        return properties.getProperty(key);
-    }
-
-    private URL getConfigurationFile() {
-        return this.getClass().getClassLoader().getResource(CONF_FILE);
+    @Override
+    public Response toResponse(IllegalStateException exception) {
+        return Response.status(Response.Status.BAD_REQUEST).entity(exception.getMessage()).build();
     }
 }

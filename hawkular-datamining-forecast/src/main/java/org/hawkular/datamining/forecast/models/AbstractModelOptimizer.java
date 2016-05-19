@@ -17,6 +17,8 @@
 
 package org.hawkular.datamining.forecast.models;
 
+import java.util.Arrays;
+
 import org.apache.commons.math3.optim.InitialGuess;
 import org.apache.commons.math3.optim.MaxEval;
 import org.apache.commons.math3.optim.MaxIter;
@@ -49,7 +51,7 @@ public abstract class AbstractModelOptimizer implements ModelOptimizer {
 
     @Override
     public double[] result() {
-        return result;
+        return Arrays.copyOf(result, result.length);
     }
 
     protected void optimize(double[] initialGuess, MultivariateFunctionMappingAdapter costFunction) {

@@ -24,6 +24,8 @@ package org.hawkular.datamining.forecast.utils;
  */
 public class TimeSeriesLag {
 
+    private TimeSeriesLag() {
+    }
 
     public static double[][] lag(double[] x, int maxLag) {
 

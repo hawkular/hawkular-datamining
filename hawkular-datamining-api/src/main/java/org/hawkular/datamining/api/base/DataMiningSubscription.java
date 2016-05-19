@@ -52,6 +52,7 @@ public class DataMiningSubscription implements Subscription {
         return forecaster;
     }
 
+    @Override
     public Set<SubscriptionOwner> getSubscriptionOwners() {
         return new HashSet<>(subscriptionOwners);
     }

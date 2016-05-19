@@ -28,6 +28,9 @@ import org.hawkular.datamining.forecast.DataPoint;
  */
 public class Utils {
 
+    private Utils() {
+    }
+
     /**
      * Converts list of data points to array of values
      * @return array of values

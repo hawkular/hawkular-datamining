@@ -32,6 +32,9 @@ import java.util.Arrays;
  */
 public class TimeSeriesDifferencing {
 
+    private TimeSeriesDifferencing() {
+    }
+
     /**
      * @param x time series
      * @param differences order of differences

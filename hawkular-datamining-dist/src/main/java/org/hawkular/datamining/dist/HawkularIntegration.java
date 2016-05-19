@@ -17,13 +17,11 @@
 package org.hawkular.datamining.dist;
 
 import javax.annotation.PostConstruct;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
+import javax.ejb.ApplicationException;
 import javax.inject.Inject;
 
 import org.hawkular.datamining.api.SubscriptionManager;
+import org.hawkular.datamining.cdi.qualifiers.Eager;
 import org.hawkular.datamining.dist.integration.Configuration;
 import org.hawkular.datamining.dist.integration.metrics.JMSMetricDataListener;
 import org.hawkular.datamining.dist.integration.metrics.JMSPredictionSender;
@@ -31,9 +29,8 @@ import org.hawkular.datamining.dist.integration.metrics.JMSPredictionSender;
 /**
  * @author Pavol Loffay
  */
-@Startup
-@Singleton //todo eager?
-@TransactionAttribute(value = TransactionAttributeType.NOT_SUPPORTED)
+@Eager
+@ApplicationException
 public class HawkularIntegration {
 
     @Inject
@@ -43,9 +40,9 @@ public class HawkularIntegration {
     @PostConstruct
     public void postConstruct() {
 
-        new JMSMetricDataListener(subscriptionManager);
-
+        JMSMetricDataListener jmsMetricDataListener = new JMSMetricDataListener(subscriptionManager);
         JMSPredictionSender jmsPredictionSender = new JMSPredictionSender(Configuration.TOPIC_METRIC_DATA);
+
         subscriptionManager.setPredictionListener(jmsPredictionSender);
 
         Logger.LOGGER.infof("Datamining Hawkular Integration successful");

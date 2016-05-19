@@ -18,6 +18,7 @@
 package org.hawkular.datamining.forecast.utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
@@ -86,7 +87,7 @@ public class AdditiveSeasonalDecomposition implements TimeSeriesDecomposition {
             seasonalIndices[i] = seasonalIndices[i] - mean;
         }
 
-        return seasonalIndices;
+        return Arrays.copyOf(seasonalIndices, seasonalIndices.length);
     }
 
     public List<DataPoint> seasonal() {

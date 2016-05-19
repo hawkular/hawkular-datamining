@@ -22,6 +22,9 @@ package org.hawkular.datamining.api;
  */
 public class Constants {
 
+    private Constants() {
+    }
+
     /**
      * Header used for tenant identification
      */
