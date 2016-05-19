@@ -26,6 +26,9 @@ import org.hawkular.datamining.forecast.ImmutableMetricContext;
 import org.hawkular.datamining.forecast.Logger;
 import org.hawkular.datamining.forecast.MetricContext;
 import org.hawkular.datamining.forecast.stats.AccuracyStatistics;
+import org.hawkular.datamining.forecast.utils.Utils;
+
+import com.google.common.collect.EvictingQueue;
 
 /**
  * Simple exponential smoothing
@@ -51,9 +54,11 @@ public class SimpleExponentialSmoothing extends AbstractExponentialSmoothing {
     public static final double MIN_LEVEL_SMOOTHING = 0.0001;
     public static final double MAX_LEVEL_SMOOTHING = 0.9999;
 
+    private State state;
     private final double levelSmoothing;
 
-    private State state;
+    private EvictingQueue<Double> residuals;
+
 
     public static class State {
 
@@ -72,6 +77,7 @@ public class SimpleExponentialSmoothing extends AbstractExponentialSmoothing {
             throw new IllegalArgumentException("Level parameter should be in interval 0-1");
         }
         this.levelSmoothing = levelSmoothing;
+        this.residuals = EvictingQueue.create(50);
     }
 
     public static SimpleExponentialSmoothing createDefault() {
@@ -134,8 +140,20 @@ public class SimpleExponentialSmoothing extends AbstractExponentialSmoothing {
     }
 
     @Override
-    protected double calculatePrediction(long nAhead, Long learnTimestamp) {
-        return state.level;
+    protected PredictionResult calculatePrediction(int nAhead, Long learnTimestamp, Double expected) {
+        double predicted = state.level;
+        PredictionResult predictionResult = new PredictionResult(predicted);
+
+        if (expected != null) {
+            predictionResult.error = expected - predictionResult.value;
+            residuals.add(predictionResult.error);
+        }
+
+        if (learnTimestamp == null) {
+            predictionResult.sdOfResiduals = Utils.standardDeviation(residuals.toArray(new Double[0]));
+        }
+
+        return predictionResult;
     }
 
     public static Optimizer optimizer() {
@@ -188,11 +206,8 @@ public class SimpleExponentialSmoothing extends AbstractExponentialSmoothing {
 
                 return accuracyStatistics.getMse();
             };
-            MultivariateFunctionMappingAdapter multivariateFunctionMappingAdapter =
-                    new MultivariateFunctionMappingAdapter(multivariateFunction,
-                            new double[]{MIN_LEVEL_SMOOTHING}, new double[]{MAX_LEVEL_SMOOTHING});
-
-            return multivariateFunctionMappingAdapter;
+            return new MultivariateFunctionMappingAdapter(multivariateFunction,
+                    new double[]{MIN_LEVEL_SMOOTHING}, new double[]{MAX_LEVEL_SMOOTHING});
         }
     }
 }

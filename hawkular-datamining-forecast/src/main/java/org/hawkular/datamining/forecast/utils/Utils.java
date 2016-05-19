@@ -19,6 +19,8 @@ package org.hawkular.datamining.forecast.utils;
 
 import java.util.List;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import org.hawkular.datamining.forecast.DataPoint;
 
 /**
@@ -38,5 +40,11 @@ public class Utils {
         }
 
         return result;
+    }
+
+    public static double standardDeviation(Double[] residuals) {
+        double[] primitiveResiduals = ArrayUtils.toPrimitive(residuals);
+        StandardDeviation standardDeviation = new StandardDeviation();
+        return standardDeviation.evaluate(primitiveResiduals);
     }
 }

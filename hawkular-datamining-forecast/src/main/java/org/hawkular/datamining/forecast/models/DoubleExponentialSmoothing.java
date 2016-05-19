@@ -27,6 +27,9 @@ import org.hawkular.datamining.forecast.ImmutableMetricContext;
 import org.hawkular.datamining.forecast.Logger;
 import org.hawkular.datamining.forecast.MetricContext;
 import org.hawkular.datamining.forecast.stats.AccuracyStatistics;
+import org.hawkular.datamining.forecast.utils.Utils;
+
+import com.google.common.collect.EvictingQueue;
 
 /**
  * Double exponential smoothing (Holt's linear trend model)
@@ -57,6 +60,8 @@ public class DoubleExponentialSmoothing extends AbstractExponentialSmoothing {
     private final double levelSmoothing;
     private final double trendSmoothing;
 
+    private EvictingQueue<Double> residuals;
+
 
     public static class State extends SimpleExponentialSmoothing.State {
         protected double slope;
@@ -66,7 +71,6 @@ public class DoubleExponentialSmoothing extends AbstractExponentialSmoothing {
             this.slope = slope;
         }
     }
-
 
     private DoubleExponentialSmoothing(double levelSmoothing, double trendSmoothing, MetricContext metricContext) {
         super(metricContext);
@@ -80,6 +84,7 @@ public class DoubleExponentialSmoothing extends AbstractExponentialSmoothing {
 
         this.levelSmoothing = levelSmoothing;
         this.trendSmoothing = trendSmoothing;
+        this.residuals = EvictingQueue.create(50);
     }
 
     public static DoubleExponentialSmoothing createDefault() {
@@ -153,8 +158,21 @@ public class DoubleExponentialSmoothing extends AbstractExponentialSmoothing {
     }
 
     @Override
-    protected double calculatePrediction(long nAhead, Long learnTimestamp) {
-        return state.level + state.slope * nAhead;
+    protected PredictionResult calculatePrediction(int nAhead, Long learnTimestamp, Double expected) {
+
+        double value = state.level + state.slope * nAhead;
+        PredictionResult predictionResult = new PredictionResult(value);
+
+        if (expected != null) {
+            predictionResult.error = expected - predictionResult.value;
+            residuals.add(predictionResult.error);
+        }
+
+        if (learnTimestamp == null) {
+            predictionResult.sdOfResiduals = Utils.standardDeviation(residuals.toArray(new Double[0]));
+        }
+
+        return predictionResult;
     }
 
     public static Optimizer optimizer() {
@@ -202,6 +220,7 @@ public class DoubleExponentialSmoothing extends AbstractExponentialSmoothing {
 
         public MultivariateFunctionMappingAdapter costFunction(final List<DataPoint> dataPoints) {
             // func for minimization
+
             MultivariateFunction multivariateFunction = point -> {
 
                 double alpha = point[0];
@@ -217,12 +236,10 @@ public class DoubleExponentialSmoothing extends AbstractExponentialSmoothing {
 
                 return accuracyStatistics.getMse();
             };
-            MultivariateFunctionMappingAdapter multivariateFunctionMappingAdapter =
-                    new MultivariateFunctionMappingAdapter(multivariateFunction,
-                            new double[]{MIN_LEVEL_TREND_SMOOTHING, MIN_LEVEL_TREND_SMOOTHING},
-                            new double[]{MAX_LEVEL_TREND_SMOOTHING, MAX_LEVEL_TREND_SMOOTHING});
 
-            return multivariateFunctionMappingAdapter;
+            return new MultivariateFunctionMappingAdapter(multivariateFunction,
+                    new double[]{MIN_LEVEL_TREND_SMOOTHING, MIN_LEVEL_TREND_SMOOTHING},
+                    new double[]{MAX_LEVEL_TREND_SMOOTHING, MAX_LEVEL_TREND_SMOOTHING});
         }
     }
 }
