@@ -27,6 +27,8 @@ import org.apache.commons.math3.stat.descriptive.moment.Variance;
  */
 public class AutoCorrelationFunction {
 
+    private AutoCorrelationFunction() {
+    }
 
     /**
      * Autocorrelation function AFC

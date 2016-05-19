@@ -204,11 +204,11 @@ public class AutomaticForecaster implements Forecaster {
             }
 
             if (bestModel instanceof TripleExponentialSmoothing) {
-                Integer periods = ((TripleExponentialSmoothing.Optimizer) bestOptimizer).getPeriods();
+                Integer periods = ((TripleExponentialSmoothing.TripleExOptimizer) bestOptimizer).getPeriods();
 
-                if (config.getWindowsSize() < periods * 3) {
-                    config.setWindowsSize(periods * 3);
-                    EvictingQueue<DataPoint> newWindow = EvictingQueue.create(periods * 3);
+                if (config.getWindowsSize() < periods*3) {
+                    config.setWindowsSize(periods*3);
+                    EvictingQueue<DataPoint> newWindow = EvictingQueue.create(periods*3);
                     newWindow.addAll(window);
                     window = newWindow;
                 }

@@ -61,6 +61,7 @@ public class Metric implements MetricContext {
         this.feed = feed;
     }
 
+    @Override
     public void setCollectionInterval(Long collectionInterval) {
         this.collectionInterval = collectionInterval;
     }
@@ -132,7 +133,7 @@ public class Metric implements MetricContext {
         private String metricId;
         private Long collectionInterval;
 
-        public RestBlueprint() {
+        private RestBlueprint() {
         }
 
         public RestBlueprint(String metricId, Long collectionInterval) {

@@ -56,17 +56,17 @@ public class DoubleExponentialSmoothing extends AbstractExponentialSmoothing {
     public static final double MIN_LEVEL_TREND_SMOOTHING = 0.0001;
     public static final double MAX_LEVEL_TREND_SMOOTHING = 0.9999;
 
-    private State state;
+    private DoubleExState state;
     private final double levelSmoothing;
     private final double trendSmoothing;
 
     private EvictingQueue<Double> residuals;
 
 
-    public static class State extends SimpleExponentialSmoothing.State {
+    public static class DoubleExState extends SimpleExponentialSmoothing.State {
         protected double slope;
 
-        public State(double level, double slope) {
+        public DoubleExState(double level, double slope) {
             super(level);
             this.slope = slope;
         }
@@ -121,7 +121,7 @@ public class DoubleExponentialSmoothing extends AbstractExponentialSmoothing {
     }
 
     @Override
-    protected State initState(List<DataPoint> initData) {
+    protected DoubleExState initState(List<DataPoint> initData) {
 
         if (initData.size() < minimumInitSize()) {
             throw new IllegalArgumentException("For init are required " + minimumInitSize() + " points.");
@@ -141,12 +141,11 @@ public class DoubleExponentialSmoothing extends AbstractExponentialSmoothing {
             slope = regression.getSlope();
         }
 
-        state = new State(level, slope);
-        return state;
+        return state =new DoubleExState(level, slope);
     }
 
     @Override
-    protected DoubleExponentialSmoothing.State state() {
+    protected DoubleExponentialSmoothing.DoubleExState state() {
         return state;
     }
 
@@ -175,12 +174,12 @@ public class DoubleExponentialSmoothing extends AbstractExponentialSmoothing {
         return predictionResult;
     }
 
-    public static Optimizer optimizer() {
-        return new Optimizer(new ImmutableMetricContext(null, null, 1L));
+    public static DoubleExOptimizer optimizer() {
+        return new DoubleExOptimizer(new ImmutableMetricContext(null, null, 1L));
     }
 
-    public static Optimizer optimizer(MetricContext metricContext) {
-        return new Optimizer(metricContext);
+    public static DoubleExOptimizer optimizer(MetricContext metricContext) {
+        return new DoubleExOptimizer(metricContext);
     }
 
     @Override
@@ -193,15 +192,15 @@ public class DoubleExponentialSmoothing extends AbstractExponentialSmoothing {
                 '}';
     }
 
-    public static class Optimizer extends AbstractModelOptimizer {
+    public static class DoubleExOptimizer extends AbstractModelOptimizer {
 
 
-        public Optimizer(MetricContext metricContext) {
+        public DoubleExOptimizer(MetricContext metricContext) {
             super(metricContext);
         }
 
         @Override
-        public TimeSeriesModel minimizedMSE(List<DataPoint> dataPoints) {
+        public DoubleExponentialSmoothing minimizedMSE(List<DataPoint> dataPoints) {
 
             if (dataPoints.isEmpty()) {
                 return DoubleExponentialSmoothing.createDefault();

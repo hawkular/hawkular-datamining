@@ -21,6 +21,7 @@ package org.hawkular.datamining.dist.integration;
  * @author Pavol Loffay
  */
 public class Configuration {
+    public static final String BUS_CONNECTION_FACTORY_JNDI = "java:/HawkularBusConnectionFactory";
 
     public static final String TOPIC_INVENTORY_CHANGES = "HawkularInventoryChanges";
     public static final String QUEUE_INVENTORY_QUERY = "HawkularInventoryQuery";
@@ -28,7 +29,6 @@ public class Configuration {
     public static final String PREDICTION_RELATIONSHIP = "__inPrediction";
     public static final String PREDICTION_INTERVAL_PROP = "forecastingHorizon";
 
-    public static final String BROKER_URL = "tcp://localhost:62626";
     public static final String TOPIC_METRIC_DATA = "HawkularMetricData";
 }
 

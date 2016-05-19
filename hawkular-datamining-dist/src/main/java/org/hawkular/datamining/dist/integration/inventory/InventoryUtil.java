@@ -33,6 +33,9 @@ import org.hawkular.inventory.api.model.Tenant;
  */
 public class InventoryUtil {
 
+    private InventoryUtil() {
+    }
+
     public static org.hawkular.datamining.api.model.MetricType convertMetricType(MetricType type) {
         MetricDataType dataType = convertDataType(type.getType());
 

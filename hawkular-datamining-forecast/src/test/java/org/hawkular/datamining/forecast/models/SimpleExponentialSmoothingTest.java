@@ -38,7 +38,7 @@ public class SimpleExponentialSmoothingTest extends AbstractTest {
 
         ModelData rModel = ModelReader.read("trendStatUpwardLowVar");
 
-        SimpleExponentialSmoothing.Optimizer optimizer = SimpleExponentialSmoothing.optimizer();
+        SimpleExponentialSmoothing.SimpleExOptimizer optimizer = SimpleExponentialSmoothing.optimizer();
 
         try {
             TimeSeriesModel model = optimizer.minimizedMSE(rModel.getData().subList(0, minimalPoints));
@@ -52,7 +52,7 @@ public class SimpleExponentialSmoothingTest extends AbstractTest {
     public void testBatchInitAndLearn() throws IOException {
         ModelData rModel = ModelReader.read("wnLowVariance");
 
-        SimpleExponentialSmoothing.Optimizer optimizer = SimpleExponentialSmoothing.optimizer();
+        SimpleExponentialSmoothing.SimpleExOptimizer optimizer = SimpleExponentialSmoothing.optimizer();
         TimeSeriesModel modelInit = optimizer.minimizedMSE(rModel.getData());
 
         TimeSeriesModel modelLearn = SimpleExponentialSmoothing.createWithSmoothingParam(optimizer.result()[0]);
@@ -68,7 +68,7 @@ public class SimpleExponentialSmoothingTest extends AbstractTest {
     public void testContinuousLearning() throws IOException {
         ModelData rModel = ModelReader.read("wnLowVariance");
 
-        SimpleExponentialSmoothing.Optimizer optimizer = SimpleExponentialSmoothing.optimizer();
+        SimpleExponentialSmoothing.SimpleExOptimizer optimizer = SimpleExponentialSmoothing.optimizer();
         TimeSeriesModel modelInit = optimizer.minimizedMSE(rModel.getData());
 
         TimeSeriesModel continuousModel = new ContinuousModel(

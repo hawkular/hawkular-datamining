@@ -169,5 +169,4 @@ public abstract class AbstractExponentialSmoothing implements TimeSeriesModel {
     public void setConfidenceInterval(int percentage) {
         predictionIntervalMultiplier = PredictionIntervalMultipliers.multiplier(percentage);
     }
-
 }

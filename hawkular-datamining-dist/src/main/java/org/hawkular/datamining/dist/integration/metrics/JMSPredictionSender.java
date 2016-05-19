@@ -32,6 +32,7 @@ import org.hawkular.bus.common.MessageProcessor;
 import org.hawkular.bus.common.producer.ProducerConnectionContext;
 import org.hawkular.datamining.api.PredictionListener;
 import org.hawkular.datamining.dist.Logger;
+import org.hawkular.datamining.dist.integration.Configuration;
 import org.hawkular.datamining.forecast.DataPoint;
 
 /**
@@ -52,9 +53,9 @@ public class JMSPredictionSender implements PredictionListener {
         try {
             InitialContext initialContext = new InitialContext();
             connectionFactory = (ConnectionFactory) initialContext.lookup(
-                    "java:/HawkularBusConnectionFactory");
-        } catch (NamingException e) {
-            e.printStackTrace();
+                    Configuration.BUS_CONNECTION_FACTORY_JNDI);
+        } catch (NamingException ex) {
+            Logger.LOGGER.errorf("Could not initialize naming context, exception: %s", ex);
         }
     }
 

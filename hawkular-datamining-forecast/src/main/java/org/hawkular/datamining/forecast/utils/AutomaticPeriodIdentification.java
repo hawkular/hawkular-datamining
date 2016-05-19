@@ -47,6 +47,9 @@ public class AutomaticPeriodIdentification {
     private static final int NO_PERIOD = 1;
 
 
+    private AutomaticPeriodIdentification() {
+    }
+
     public static int periods(final List<DataPoint> data) {
         return periods(data, ADF_TEST_DEFAULT_CRITICAL_PVALUE);
     }

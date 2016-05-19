@@ -47,7 +47,7 @@ public class JMSMetricDataListener extends BasicMessageListener<MetricDataMessag
         try {
             InitialContext initialContext = new InitialContext();
             ConnectionFactory connectionFactory = (ConnectionFactory) initialContext.lookup(
-                    "java:/HawkularBusConnectionFactory");
+                    Configuration.BUS_CONNECTION_FACTORY_JNDI);
 
             ConnectionContextFactory factory = new ConnectionContextFactory(connectionFactory);
             Endpoint endpoint = new Endpoint(Endpoint.Type.TOPIC, Configuration.TOPIC_METRIC_DATA);
@@ -56,11 +56,9 @@ public class JMSMetricDataListener extends BasicMessageListener<MetricDataMessag
             MessageProcessor processor = new MessageProcessor();
             processor.listen(consumerConnectionContext, this);
 
-            Logger.LOGGER.connectedToMetricDataTopic();
-        } catch (JMSException ex) {
-            Logger.LOGGER.failedToStart(ex);
-        } catch (NamingException e) {
-            e.printStackTrace();
+            Logger.LOGGER.connectedToTopic(Configuration.TOPIC_METRIC_DATA);
+        } catch (JMSException | NamingException ex) {
+            Logger.LOGGER.errorf("Could not connect to: %s, exception: %s", Configuration.TOPIC_METRIC_DATA, ex);
         }
     }
 

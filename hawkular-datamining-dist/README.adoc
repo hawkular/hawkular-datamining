@@ -1,4 +1,0 @@
-= Hawkular Data mining Dist
-
-Artifact with integration code for Hawkular/hawkular.
-

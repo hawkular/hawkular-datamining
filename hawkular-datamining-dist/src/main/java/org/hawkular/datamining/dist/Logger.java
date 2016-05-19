@@ -18,7 +18,6 @@
 package org.hawkular.datamining.dist;
 
 import org.jboss.logging.BasicLogger;
-import org.jboss.logging.annotations.Cause;
 import org.jboss.logging.annotations.LogMessage;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageLogger;
@@ -31,21 +30,13 @@ public interface Logger extends BasicLogger {
 
     Logger LOGGER = org.jboss.logging.Logger.getMessageLogger(Logger.class, "org.hawkular.datamining.dist");
 
-    @LogMessage(level = org.jboss.logging.Logger.Level.DEBUG)
-    @Message(value = "Subscribing for predictions tenant: %s, metric %s")
-    void subscribing(String metric, String tenant);
-
     @LogMessage(level = org.jboss.logging.Logger.Level.INFO)
     @Message(value = "Initialized %d metrics from Inventory")
     void inventoryInitialized(int metrics);
 
     @LogMessage(level = org.jboss.logging.Logger.Level.INFO)
-    @Message(value = "Successfully connected to MetricDataTopic")
-    void connectedToMetricDataTopic();
-
-    @LogMessage(level = org.jboss.logging.Logger.Level.ERROR)
-    @Message(value = "Dataminig bus failed to connect to bus")
-    void failedToStart(@Cause Throwable t);
+    @Message(value = "Successfully connected to MetricDataTopic %s")
+    void connectedToTopic(String topicName);
 
     @LogMessage(level = org.jboss.logging.Logger.Level.ERROR)
     @Message(value = "Failed to send message to the bus = %s")
@@ -53,5 +44,5 @@ public interface Logger extends BasicLogger {
 
     @LogMessage(level = org.jboss.logging.Logger.Level.ERROR)
     @Message(value = "Failed to load metric data from Metrics, url: %s, message: %s")
-    void failedToLoadMetricData(String url, String message);
+    void failedToGetMetricData(String url, String message);
 }

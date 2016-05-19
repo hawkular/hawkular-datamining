@@ -45,28 +45,26 @@ public class CDIMetricsClient extends EmptyMetricsClient {
     @Override
     public List<DataPoint> loadPoints(Metric metric, long start, long end) {
 
-        MetricType type = metric.getMetricType().getMetricDataType() == MetricDataType.COUNTER ?
-                MetricType.COUNTER :
-                MetricType.GAUGE;
+        return metric.getMetricType().getMetricDataType() == MetricDataType.GAUGE ?
+                this.<Double>getData(metric, start, end, MetricType.GAUGE) :
+                this.<Long>getData(metric, start, end, MetricType.COUNTER);
+    }
 
-        MetricId<Double> metricId = new MetricId<>(metric.getTenant(), type, metric.getMetricId());
+    private <T extends Number> List<DataPoint> getData(Metric metric, long start, long end, MetricType type) {
 
-        List<org.hawkular.metrics.model.DataPoint<Double>> first =
+        MetricId<T> metricId = new MetricId<>(metric.getTenant(), type, metric.getMetricId());
+
+        List<org.hawkular.metrics.model.DataPoint<T>> data =
                 metricsService.findDataPoints(metricId, start, end, Integer.MAX_VALUE, Order.ASC)
                         .toList().toBlocking().first();
 
-        return convertDataPoints(first);
+        return convertDataPoints(data);
     }
 
-    private static List<DataPoint> convertDataPoints(List<org.hawkular.metrics.model.DataPoint<Double>> dataPoints) {
+    private static <T extends Number> List<DataPoint> convertDataPoints(List<org.hawkular.metrics.model.DataPoint<T>>
+                                                     dataPoints) {
 
-       return dataPoints.stream().map(dataPoint -> new DataPoint(dataPoint.getValue(), dataPoint.getTimestamp()))
-                        .collect(Collectors.toList());
-    }
-
-    private static List<DataPoint> convertBuckets(List<org.hawkular.metrics.model.NumericBucketPoint> buckets) {
-
-        return buckets.stream().map(bucket -> new DataPoint(bucket.getAvg(), bucket.getEnd()))
-                .collect(Collectors.toList());
+       return dataPoints.stream().map(dataPoint -> new DataPoint(dataPoint.getValue().doubleValue(),
+               dataPoint.getTimestamp())).collect(Collectors.toList());
     }
 }

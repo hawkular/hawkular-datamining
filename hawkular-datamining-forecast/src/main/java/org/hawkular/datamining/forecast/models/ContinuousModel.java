@@ -90,7 +90,7 @@ public class ContinuousModel implements TimeSeriesModel {
     @Override
     public List<DataPoint> forecast(int nAhead) {
         if (!initialized)  {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         return model.forecast(nAhead);

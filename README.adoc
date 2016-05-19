@@ -1,25 +1,39 @@
-= Hawkular Data mining
-
-Project is being developed for Red Hat and supervised by link:https://github.com/Jiri-Kremser[Jiri Kremser].
-In the future it will be probably integrated into link:http://www.hawkular.org/[Hawkular].
+= Hawkular Data Mining
 
 ifdef::env-github[]
 [link=https://travis-ci.org/hawkular/hawkular-datamining]
 image:https://travis-ci.org/hawkular/hawkular-datamining.svg?branch=master["Build Status", link="https://travis-ci.org/hawkular/hawkular-datamining"]{nbsp}
-
 endif::[]
+
+== About
+Data Mining is time series prediction engine for Hawkular. It autonomously selects best model for time series being
+modelled. Produced prediction can be used for alert prediction or in predictive charts in UI.
+
+Module is split into several artifacts:
+
+ - `hawkular-datamining-forecast` - lightweight time series forecasting library
+ - `hawkular-datamining-rest` - standalone web application with link:http://www.hawkular.org/docs/rest/rest-datamining.html[REST API]
+ - `hawkular-datamining-dist` - web application dedicated for deployment into Hawkular
+
 
 == Build & Run
 
-To build Hawkular Data mining, clone this repository and build from the top level. Then build link:https://github.com/hawkular/hawkular/tree/datamining[Hawkular] branch datamining and run server
+To run standalone instance of Data Mining:
 
 [source,shell]
 ----
-# build Hawkular Datamining
-$ git clone https://github.com/hawkular/hawkular-datamining.git
-$ cd hawkular-datamining
-$ mvn install
-# build Hawkular with deployed datamining
+$ mvn install -Pdev
+# run Wildfly with deployed Data Mining
+$ hawkular-datamining-rest/target/wildfly-*/bin/standalone.sh
+
+----
+
+To run Hawkular with Data Mining, clone and build link:https://github.com/hawkular/hawkular/tree/datamining[Hawkular]
+branch `datamining` and run the server. Predictive charts are located in Explorer tab.
+
+[source,shell]
+----
+# build Hawkular with deployed Data Mining
 $ git clone -b datamining git@github.com:hawkular/hawkular.git
 $ cd hawkular
 $ mvn install -Pdev
@@ -28,8 +42,23 @@ $ dist/target/hawkular-*/bin/standalone.sh
 
 ----
 
+== Time Series Forecasting Library `hawkular-datamining-forecast`
+All models uses non-linear optimization algorithm to estimate best parameters of the model. Models and
+Forecasters are designed for online learning.
+
+ - Simple, Double, Triple exponential smoothing models
+ - AutomaticForecaster - which automatically selects the best model, selection is based on AIC, AICc, BIC
+ - Simple moving average (Weighted moving average)
+ - Augmented Dickey-Fuller test
+ - Autocorrelation function (ACF)
+ - Time series decomposition
+ - Time series lagging
+ - Time series differencing
+ - Automatic period identification
+
 == Enable prediction in Hawkular
-To enable forecasting of metrics create Relationship from Tenant to Metric, MetricType or Tenant.
+In Hawkular prediction can be enabled directly in UI by increasing forecasting horizon or through
+REST call by creating Relationship from Tenant to Metric, MetricType or Tenant.
 
 Following example enables forecasting for all metrics under given tenant.
 ----
@@ -44,54 +73,16 @@ $ curl -ivX POST -H "Content-Type: application/json" 'http://jdoe:password@local
 Source and target are canonical paths.
 
 .Source
-* Tenant
+ - Tenant
 
 .Target
-* Tenant - predict all tenant's metrics, lover levels overrides prediction interval
-* MetricType - predict metric of given type
-* Metric
-
-== Description in English
-==== Alert prediction in metric data based on time series analysis
-Student by application of time series analysis will develop a module which will
-predict future events based on continuously incoming and historical time series data.
-This events are defined as alerts usually as a conjunction or a disjunction of
-simple clauses based on data from time series.
-
-Each data point is a tuple consisting of timestamp and value. There are also available
-metadata such as name, units, type of quantity defining if it is a monotonic
-function or a non-monotonic. These metric data are for instance result of the
-measurement of free disk space, free memory, Java heap usage etc.
-
-Theoretical part should incorporate comparison of time series data
-mining methods and deal with problems as a concept drift and an anomaly detection.
-Chosen algorithm will be implemented in Java language and the module in case
-of good results will be merged into monitoring system Hawkular. This requires
-that module will be distributed under Apache Licence 2.0.
-
-== Description in Czech
-==== Predikce událostí v metrických datech za pomoci analýzy časových řad
-Student za pomoci analýzy časových řad vyvine modul, který na základě příchozích
-a historických dat umožní včasnou detekci blížících se událostí. Tyto události
-jsou předem definovány jako takzvané výstrahy (alerts), většinou jako konjunkce
-či disjunkce jednoduchých podmínek vztahujících se k datům z časových řad.
-
-Data jsou charakteru <časové razítko, hodnota>, navíc je možno zjistit metadata
-jako jednotky, název, zda je to veličina, která jen roste, atd. Jedná se
-zpravidla o naměřená data, například místo na disku, volná paměť, atd.
-
-Součástí teoretické části práce by mělo být srovnání metod pro dolováni v
-časových řadách a také vypořádání se s tzv. concept drift, či detekcemi
-cykličnosti v datech. Vybraný algoritmus bude poté implementován v jazyce Java a
-modul bude v případě dobrých výsledku začleněn do monitorovacího systému
-Hawkular, toto vyžaduje, aby byl modul šířen také pod svobodnou licenci, a to
-Apache Licence 2.0.
+- Tenant - enable prediction of all tenant's metrics
+- MetricType - predict all metrics of given type
+- Metric
 
 == Documentation
-
-link:http://www.hawkular.org/docs/components/datamining/index.html[Module documentation]
-
-link:http://www.hawkular.org/docs/rest/rest-datamining.html[REST API documentation]
+ - link:http://www.hawkular.org/docs/components/datamining/index.html[Module documentation]
+ - link:http://www.hawkular.org/docs/rest/rest-datamining.html[REST API documentation]
 
 == License
 
