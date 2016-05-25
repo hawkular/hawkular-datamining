@@ -82,7 +82,7 @@ Source and target are canonical paths.
 
 == Documentation
  - link:http://www.hawkular.org/docs/components/datamining/index.html[Module documentation]
- - link:http://www.hawkular.org/docs/rest/rest-datamining.html[REST API documentation]
+ - link:http://www.hawkular.org/docs/rest/rest-datamining.html[REST API documentation], this documentation can be generated using `mvn install -Pdocgen`, it is located in `hawkular-datamining-rest/target/generated/rest-datamining.adoc`
 
 == License
 
