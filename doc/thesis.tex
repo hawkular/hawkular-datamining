@@ -11,6 +11,8 @@
 \usepackage[scaled=1.03]{inconsolata}
 \usepackage[plainpages = false,pdfpagelabels]{hyperref}
 
+\usepackage{multicol}
+
 % my declared packages
 % Images
 \usepackage{graphicx}
@@ -19,9 +21,23 @@
 \usepackage{amsfonts}
 \usepackage{amsthm}
 \usepackage{amsmath}
+\usepackage{commath} % abs
+% Data structures, algorithms
+\usepackage{listings}
+\usepackage{algorithm} %algorithmix
+\usepackage[]{algpseudocode} %noend
+\lstset{language=java}
+
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{pgf-pie}
+%\definecolor{LightCyan}{rgb}{0.88,1,1}
+%\usepackage{natbib} % for csplainnat.bib
+
 % Url
 \usepackage{url}
-\DeclareUrlCommand\url{\def\UrlLeft{<}\def\UrlRight{>} \urlstyle{tt}}
+%\Urlmuskip=0mu plus 1mu
+%\DeclareUrlCommand\url{\def\UrlLeft{<}\def\UrlRight{>} \urlstyle{tt}}
 
 \usepackage{xparse}
 \NewDocumentCommand{\INTERVALINNARDS}{ m m }{
@@ -38,16 +54,25 @@
         }
     }
 }
-\usepackage{mathtools}
 
+\newcommand{\ts}{\textsuperscript}
+%\newcommand\nth{\textsuperscript{th}\xspace}
 
-\thesistitle{Alert prediction in metric data based on machine learning methods} % enter thesis title  
+\hyphenation{data-bases}
+\hyphenation{gar-bage}
+\hyphenation{re-using}
+\hyphenation{im-ple-men-ted}
+\hyphenation{auto-cor-rel-a-tion}
+\hyphenation{data-base}
+\hyphenation{bench-marked}
+
+\thesistitle{Alert Prediction in Metric Data Based on Time Series Analysis} % enter thesis title
 \thesissubtitle{Master thesis}  
-\thesisstudent{Pavol Loffay}    % name of the author  
+\thesisstudent{Bc. Pavol Loffay}    % name of the author
 \thesiswoman{false}          % defines author’s gender  
 \thesisfaculty{fi}  
 \thesisyear{spring 2016}  
-\thesisadvisor{RNDr. Adam Rambousek} % fill in advisor’s name  
+\thesisadvisor{RNDr. Adam Rambousek, Ph.D.} % fill in advisor’s name
 \thesislang{en}                 % thesis is in English  
 
 \begin{document}
@@ -59,22 +84,30 @@
 \end{ThesisDeclaration}
 
 \begin{ThesisThanks}            % The acknowledgements (optional)
-  I would like to thank my supervisor Jiri Kremser, family and 
-  the people from Hawkular team. Next, my thanks goes to Ing. Daniel Němec, Ph.D. and
-  Ing. Daniel Schwarz, Ph.D. for consulting theory behind time series analysis. 
+  I would like to thank my supervisor RNDr. Adam Rambousek, Ph.D., Mgr. Jiri Kremser,
+  family and Hawkular Team. Next, my thanks goes to Ing. Daniel Němec, Ph.D.
+  for consulting theory behind time series analysis.
 
-  Last but not least, I would like to thank company Red Hat, that provided me 
-  the great opportunity to work on this project.
+  Last but not least, I would like to thank to company Red Hat that provided me 
+  with great opportunity to work on this project.
 \end{ThesisThanks}
 
 \begin{ThesisAbstract}          % The abstract
-  The aim of the master thesis was to develop a module for open source monitoring
-  and management platform Hawkular. This module is responsible for predicting
-  alerts based on time series. 
+  The goal of the master's thesis is to develop a module for an open source monitoring
+  and management platform Hawkular. The module should provide real time predictive capabilities for collected time
+  series data. Proposed solution should be computationally efficient and more importantly, it should autonomously
+  select the best time series model for given metric. In other words it should work without analyst's interaction.
+
+  The master's thesis starts with time series theory and analysis of various approaches for time series forecasting. It
+  discusses which models are best for Hawkular requirements. The implementation chapter focuses on the most important
+  parts like time series models, automatic forecasters and integration into Hawkular. The last chapter conducts
+  evaluation of the implemented models. Models are benchmarked against its alternatives from statistical language R.
+  The results show that implemented models are similar to R alternatives from the prediction accuracy perspective.
+
 \end{ThesisAbstract}
 
 \begin{ThesisKeyWords}          % The keywords
-  Time Series, Hawkular, Alert Prediction, ARIMA, LMS
+  Time Series, Hawkular, Alert Prediction, Exponential Smoothing
 \end{ThesisKeyWords}
 
 \tableofcontents                % The table of contents
@@ -83,10 +116,17 @@
 
 \MainMatter                     % The main matter
 \input{content}
-    
+\input{content2}
+
 % Bibliography goes here
 % Index goes here (optional)
-\bibliographystyle{czechiso} % sets plain bibliography style  
-\bibliography{bibliography}     % BibTeX database file 
-\end{document}
+\bibliographystyle{czplain}
+%\bibliographystyle{csplainnat}
+%\bibliographystyle{czechiso} % sets plain bibliography style
+\bibliography{bibliography}     % BibTeX database file
 
+% Appendix
+\appendix
+\input{appendix}
+
+\end{document}

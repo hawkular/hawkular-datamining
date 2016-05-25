@@ -4,5 +4,15 @@
 *.bbl
 *.blg
 *.out
+*.lof
+*.bcf
+*.lot
+*.bcx
+*.idx
+*.run.xml
 missfont.log
+
+*.dia~
+img/src/*.eps
+img/src/*.pdf
 

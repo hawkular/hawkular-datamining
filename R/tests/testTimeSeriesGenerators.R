@@ -31,3 +31,15 @@ sine <- function(periods=LENGTH, seasons=1, amplitude=1, error=c('gaussian', 'un
   t <- seq(0, 2*pi,, periods*seasons)
   y <- amplitude*sin(seasons*t) + error
 }
+
+addRandomShocks <- function(x, number=10, timesStd=2) {
+  std <- sd(x)
+  indices <- round(runif(number, 1, length(x)), digits=0)
+  
+  for (i in indices) {
+   
+    x[i] = x[i]*timesStd * sample(c(TRUE,FALSE), 1, TRUE)
+  }
+  
+  x
+}

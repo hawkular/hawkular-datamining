@@ -30,7 +30,7 @@ import org.junit.Test;
 /**
  * @author Pavol Loffay
  */
-public class SimpleExponentialSmoothingTest extends AbstractTest {
+public class SimpleExponentialSmoothingEvaluationTestTest extends AbstractTest {
 
     @Test
     public void testMinimalPoints() throws IOException {
