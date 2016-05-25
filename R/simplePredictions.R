@@ -4,7 +4,7 @@ library(fUnitRoots)
 library(lsmeans)
 
 setwd('/home/pavol/projects/hawkular/hawkular-datamining/R')
-source('getBuckets.R')
+source('hawkularClient.R')
 
 df <- getBuckets()
 ts = ts(unlist(df$avg), start=unlist(df$start[1]) / 1000)
