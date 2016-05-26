@@ -269,7 +269,6 @@ public class TripleExponentialSmoothing extends AbstractExponentialSmoothing {
 
     public static class TripleExOptimizer extends AbstractModelOptimizer {
 
-        private final Integer definedPeriods;
         private Integer periods;
 
         private TripleExState initState;
@@ -284,35 +283,37 @@ public class TripleExponentialSmoothing extends AbstractExponentialSmoothing {
 
         public TripleExOptimizer(Integer periods, MetricContext metricContext) {
             super(metricContext);
-            this.definedPeriods = periods;
+            this.periods = periods;
+        }
+
+        public void setPeriods(Integer periods) {
+            this.periods = periods;
         }
 
         public Integer getPeriods() {
-            return definedPeriods == null ? periods : definedPeriods;
+            return periods;
         }
 
         @Override
         public TripleExponentialSmoothing minimizedMSE(List<DataPoint> dataPoints) {
-            periods = definedPeriods == null ? AutomaticPeriodIdentification.periods(dataPoints) : definedPeriods;
+            periods = periods == null ? AutomaticPeriodIdentification.periods(dataPoints) : periods;
             initState = TripleExponentialSmoothing.initState(dataPoints, periods, getMetricContext());
 
-            int periodsToOptimize = periods;
-
             try {
-                double[] initialGuess = initialGuess(initState, periodsToOptimize);
-                optimize(initialGuess, costFunction(dataPoints, periodsToOptimize));
+                double[] initialGuess = initialGuess(initState, periods);
+                optimize(initialGuess, costFunction(dataPoints, periods));
             } catch (MathIllegalStateException ex) {
                 // optimize without seasons
                 Logger.LOGGER.errorf("Triple exponential smoothing optimizer failed to optimize periods", ex);
-                periodsToOptimize = 0;
-                double[] initialGuess = initialGuess(initState, periodsToOptimize);
-                optimize(initialGuess, costFunction(dataPoints, periodsToOptimize));
+                periods = 0;
+                double[] initialGuess = initialGuess(initState, periods);
+                optimize(initialGuess, costFunction(dataPoints, periods));
             }
 
             Logger.LOGGER.debugf("Triple ES: Optimizer best alpha: %.5f, beta %.5f, gamma %.5f",
                     this.result[0], this.result[1], this.result[2]);
 
-            TripleExponentialSmoothing bestModel = model(result, periodsToOptimize, dataPoints.get(0).getTimestamp());
+            TripleExponentialSmoothing bestModel = model(result, periods, dataPoints.get(0).getTimestamp());
             bestModel.init(dataPoints);
 
             return bestModel;

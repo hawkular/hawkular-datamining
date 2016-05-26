@@ -147,6 +147,7 @@ public class AutomaticForecaster implements Forecaster {
             }
 
             config.update(update);
+            selectBestModel(Collections.emptyList());
         }
     }
 
@@ -175,13 +176,16 @@ public class AutomaticForecaster implements Forecaster {
                 ModelOptimizer modelOptimizer = modelOptimizerSupplier.apply(metricContext);
 
                 /**
-                 * Skip models which one doesn't want to
+                 * if model is defined skip others
                  */
                 if (config.getModelToUse() != null && !config.getModelToUse().isOptimizedBy(modelOptimizer)) {
                     continue;
                 }
 
                 try {
+                    if (modelOptimizer instanceof TripleExponentialSmoothing.TripleExOptimizer) {
+                        ((TripleExponentialSmoothing.TripleExOptimizer) modelOptimizer).setPeriods(config.getPeriod());
+                    }
                     TimeSeriesModel currentModel = modelOptimizer.minimizedMSE(initPoints);
 
                     AccuracyStatistics initStatistics = currentModel.initStatistics();
@@ -203,26 +207,32 @@ public class AutomaticForecaster implements Forecaster {
                 }
             }
 
-            if (bestModel instanceof TripleExponentialSmoothing) {
-                Integer periods = ((TripleExponentialSmoothing.TripleExOptimizer) bestOptimizer).getPeriods();
+            if (bestModel != null) {
+                /**
+                 * increase windows size if the model is seasonal
+                 */
+                if (bestModel instanceof TripleExponentialSmoothing) {
+                    Integer periods = ((TripleExponentialSmoothing.TripleExOptimizer) bestOptimizer).getPeriods();
+                    config.setPeriod(periods);
 
-                if (config.getWindowsSize() < periods*3) {
-                    config.setWindowsSize(periods*3);
-                    EvictingQueue<DataPoint> newWindow = EvictingQueue.create(periods*3);
-                    newWindow.addAll(window);
-                    window = newWindow;
+                    if (config.getWindowsSize() < periods * 3) {
+                        config.setWindowsSize(periods * 3);
+                        EvictingQueue<DataPoint> newWindow = EvictingQueue.create(periods * 3);
+                        newWindow.addAll(window);
+                        window = newWindow;
+                    }
                 }
+
+                if (config.getConceptDriftStrategy() instanceof ErrorChangeStrategy) {
+                    ((ErrorChangeStrategy) config.getConceptDriftStrategy()).setError(bestModel.initStatistics());
+                }
+
+                usedModel = bestModel;
+                counter = 0;
+
+                Logger.LOGGER.debugf("Best model for: %s, is %s, %s", metricContext.getMetricId(),
+                        bestModel.getClass().getSimpleName(), bestModel.initStatistics());
             }
-
-            if (config.getConceptDriftStrategy() instanceof ErrorChangeStrategy) {
-                ((ErrorChangeStrategy) config.getConceptDriftStrategy()).setError(bestModel.initStatistics());
-            }
-
-            usedModel = bestModel;
-            counter = 0;
-
-            Logger.LOGGER.debugf("Best model for: %s, is %s, %s", metricContext.getMetricId(),
-                    bestModel.getClass().getSimpleName(), bestModel.initStatistics());
         }
     }
 
