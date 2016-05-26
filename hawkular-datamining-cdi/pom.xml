@@ -22,7 +22,7 @@
   <parent>
     <artifactId>hawkular-datamining-parent</artifactId>
     <groupId>org.hawkular.datamining</groupId>
-    <version>0.2.0.Final</version>
+    <version>0.2.1.Final-SNAPSHOT</version>
   </parent>
 
   <artifactId>hawkular-datamining-cdi</artifactId>
