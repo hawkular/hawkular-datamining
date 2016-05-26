@@ -15,25 +15,22 @@
  * limitations under the License.
  */
 
-package org.hawkular.datamining.cdi;
-
-import java.util.Collections;
-import java.util.List;
+package org.hawkular.datamining.cdi.producers;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
 
-import org.hawkular.datamining.api.model.Metric;
+import org.hawkular.datamining.api.base.EmptyMetricsClient;
 import org.hawkular.datamining.api.storage.MetricsClient;
-import org.hawkular.datamining.forecast.DataPoint;
 
 /**
  * @author Pavol Loffay
  */
-@ApplicationScoped
-public class EmptyMetricsClient implements MetricsClient {
+public class EmptyMetricsClientProducer {
 
-    @Override
-    public List<DataPoint> loadPoints(Metric metric, long start, long end) {
-        return Collections.emptyList();
+    @Produces
+    @ApplicationScoped
+    public MetricsClient metricsClientProducer() {
+        return new EmptyMetricsClient();
     }
 }

@@ -20,12 +20,9 @@ package org.hawkular.datamining.dist.integration.metrics;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Specializes;
-
+import org.hawkular.datamining.api.base.EmptyMetricsClient;
 import org.hawkular.datamining.api.model.Metric;
 import org.hawkular.datamining.api.model.MetricDataType;
-import org.hawkular.datamining.cdi.EmptyMetricsClient;
 import org.hawkular.datamining.forecast.DataPoint;
 import org.hawkular.metrics.core.service.MetricsService;
 import org.hawkular.metrics.core.service.Order;
@@ -35,12 +32,14 @@ import org.hawkular.metrics.model.MetricType;
 /**
  * @author Pavol Loffay
  */
-@Specializes
-@ApplicationScoped
 public class CDIMetricsClient extends EmptyMetricsClient {
 
-    @javax.annotation.Resource(lookup = "java:global/Hawkular/Metrics")
-    private MetricsService metricsService;
+    private final MetricsService metricsService;
+
+
+    public CDIMetricsClient(MetricsService metricsService) {
+        this.metricsService = metricsService;
+    }
 
     @Override
     public List<DataPoint> loadPoints(Metric metric, long start, long end) {

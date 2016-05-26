@@ -192,7 +192,6 @@ public class TripleExponentialSmoothingTest extends AbstractTest {
                 51.97301, 64.00129, 41.49066, 50.30923, 53.96178, 65.99007, 43.47944, 52.29800};
         for (int i = 0; i < nAhead; i++) {
 
-            System.out.println(i);
             assertThat(forecast.get(i).getValue())
                     .isBetween(expectedFromR[i]*ACCURACY_LOW, expectedFromR[i]*ACCURACY_HIGH);
         }

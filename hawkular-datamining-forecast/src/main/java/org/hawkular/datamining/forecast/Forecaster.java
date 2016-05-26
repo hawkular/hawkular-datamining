@@ -83,13 +83,13 @@ public interface Forecaster {
         private Model modelToUse;
         private InformationCriterion ic;
         private AutomaticForecaster.ConceptDriftStrategy conceptDriftStrategy;
-
+        private Integer period;
 
         private Config() {
         }
 
         public Config(int windowsSize, Model modelToUse, InformationCriterion ic,
-                      AutomaticForecaster.ConceptDriftStrategy conceptDriftStrategy) {
+                      AutomaticForecaster.ConceptDriftStrategy conceptDriftStrategy, Integer period) {
             if (windowsSize <= 5 || ic == null || conceptDriftStrategy == null) {
                 throw new IllegalArgumentException("Wrong forecaster configuration");
             }
@@ -98,6 +98,7 @@ public interface Forecaster {
             this.modelToUse = modelToUse;
             this.ic = ic;
             this.conceptDriftStrategy = conceptDriftStrategy;
+            this.period = period;
         }
 
         public void update() {
@@ -137,12 +138,20 @@ public interface Forecaster {
             this.conceptDriftStrategy = conceptDriftStrategy;
         }
 
+        public Integer getPeriod() {
+            return period;
+        }
+
+        public void setPeriod(Integer period) {
+            this.period = period;
+        }
+
         public static Builder builder() {
             return new Builder();
         }
 
         public static Config getDefault() {
-            return new Config(DEFAULT_WINDOW_SIZE, null, DEFAULT_IC, DEFAULT_CONCEPT_DRIFT_STRATEGY);
+            return new Config(DEFAULT_WINDOW_SIZE, null, DEFAULT_IC, DEFAULT_CONCEPT_DRIFT_STRATEGY, null);
         }
 
         public void update(Update update) {
@@ -158,6 +167,8 @@ public interface Forecaster {
             if (update.getIc() != null) {
                 ic = update.getIc();
             }
+
+            period = update.period;
         }
 
         @Override
@@ -170,6 +181,7 @@ public interface Forecaster {
             if (windowsSize != config.windowsSize) return false;
             if (modelToUse != config.modelToUse) return false;
             if (ic != config.ic) return false;
+            if (period != config.period) return false;
             return !(conceptDriftStrategy != null ? !conceptDriftStrategy.equals(config.conceptDriftStrategy) :
                     config.conceptDriftStrategy != null);
         }
@@ -188,6 +200,7 @@ public interface Forecaster {
             private InformationCriterion ic = DEFAULT_IC;
             private AutomaticForecaster.ConceptDriftStrategy conceptDriftStrategy = DEFAULT_CONCEPT_DRIFT_STRATEGY;
             private Model modelToUse;
+            private Integer period;
 
             public Builder withWindowSize(int windowSize) {
                 this.windowSize = windowSize;
@@ -209,8 +222,13 @@ public interface Forecaster {
                 return this;
             }
 
+            public Builder withPeriod(Integer period) {
+                this.period = period;
+                return this;
+            }
+
             public Config build() {
-                return new Config(windowSize, modelToUse, ic, conceptDriftStrategy);
+                return new Config(windowSize, modelToUse, ic, conceptDriftStrategy, period);
             }
         }
     }
@@ -221,17 +239,19 @@ public interface Forecaster {
         private InformationCriterion ic;
         private AutomaticForecaster.ConceptDriftStrategy conceptDriftStrategy;
         private Model modelToUse;
+        private Integer period;
 
 
         private Update() {
         }
 
         public Update(Integer windowsSize, Model modelToUse, InformationCriterion ic,
-                      AutomaticForecaster.ConceptDriftStrategy conceptDriftStrategy) {
+                      AutomaticForecaster.ConceptDriftStrategy conceptDriftStrategy, Integer period) {
             this.windowSize = windowsSize;
             this.modelToUse = modelToUse;
             this.ic = ic;
             this.conceptDriftStrategy = conceptDriftStrategy;
+            this.period = period;
         }
 
         public Integer getWindowSize() {
@@ -250,11 +270,16 @@ public interface Forecaster {
             return modelToUse;
         }
 
+        public Integer getPeriod() {
+            return period;
+        }
+
         public static class Builder {
             private Integer windowSize = 50;
             private InformationCriterion ic;
             private AutomaticForecaster.ConceptDriftStrategy conceptDriftStrategy;
             private Model modelToUse;
+            private Integer period;
 
             public Builder withWindowSize(Integer windowSize) {
                 this.windowSize = windowSize;
@@ -276,8 +301,13 @@ public interface Forecaster {
                 return this;
             }
 
+            public Builder withPeriod(Integer period) {
+                this.period = period;
+                return this;
+            }
+
             public Update build() {
-                return new Update(windowSize, modelToUse, ic, conceptDriftStrategy);
+                return new Update(windowSize, modelToUse, ic, conceptDriftStrategy, period);
             }
         }
     }

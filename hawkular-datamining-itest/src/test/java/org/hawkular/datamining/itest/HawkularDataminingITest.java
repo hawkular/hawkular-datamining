@@ -95,7 +95,7 @@ public class HawkularDataminingITest extends AbstractITest {
         //change
         Forecaster.Update update = new Forecaster.Update(55, Model.SimpleExponentialSmoothing,
                 InformationCriterion.BIC, new AutomaticForecaster.ErrorChangeStrategy(19,
-                AutomaticForecaster.ErrorChangeStrategy.Statistics.MSE));
+                AutomaticForecaster.ErrorChangeStrategy.Statistics.MSE), null);
         Response responsePut = put("metrics/" + metricId + "/forecaster", tenant, update);
         assertThat(responsePut.code(), is(204));
     }

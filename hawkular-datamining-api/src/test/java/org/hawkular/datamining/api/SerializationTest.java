@@ -74,7 +74,7 @@ public class SerializationTest {
 
         config = new Forecaster.Config(99, Model.TripleExponentialSmoothing, InformationCriterion.BIC,
                 new AutomaticForecaster.ErrorChangeStrategy(78,
-                        AutomaticForecaster.ErrorChangeStrategy.Statistics.MAE));
+                        AutomaticForecaster.ErrorChangeStrategy.Statistics.MAE), 2);
 
         json = serialize(config);
         deserialized = deserialize(json, Forecaster.Config.class);
