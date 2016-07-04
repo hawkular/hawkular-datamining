@@ -1,55 +1,22 @@
-= Hawkular Data Mining
+= Hawkular Data mining Forecast
 
-ifdef::env-github[]
-[link=https://travis-ci.org/hawkular/hawkular-datamining]
-image:https://travis-ci.org/hawkular/hawkular-datamining.svg?branch=master["Build Status", link="https://travis-ci.org/hawkular/hawkular-datamining"]{nbsp}
-image:https://badges.gitter.im/Join%20Chat.svg[link="https://gitter.im/hawkular/hawkular-datamining?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"]
-endif::[]
+Lightweight library for time series modeling and forecasting.
 
-== About
-Data Mining is time series prediction engine for Hawkular. It autonomously selects best model for time series being
-modelled. Produced prediction can be used for alert prediction or in predictive charts in UI.
-
-Module is split into several artifacts:
-
- - `hawkular-datamining-forecast` - lightweight time series forecasting library
- - `hawkular-datamining-rest` - standalone web application with link:http://www.hawkular.org/docs/rest/rest-datamining.html[REST API]
- - `hawkular-datamining-dist` - web application dedicated for deployment into Hawkular
-
-
-== Build & Run
-
-To run standalone instance of Data Mining:
-
-[source,shell]
-----
-$ mvn install -Pdev
-# run Wildfly with deployed Data Mining
-$ hawkular-datamining-rest/target/wildfly-*/bin/standalone.sh
-
-----
-
-To run Hawkular with Data Mining, clone and build link:https://github.com/hawkular/hawkular/tree/datamining[Hawkular]
-branch `datamining` and run the server. Predictive charts are located in Explorer tab.
-
-[source,shell]
-----
-# build Hawkular with deployed Data Mining
-$ git clone -b datamining git@github.com:hawkular/hawkular.git
-$ cd hawkular
-$ mvn install -Pdev
-# run Hawkular
-$ dist/target/hawkular-*/bin/standalone.sh
-
-----
-
-== Time Series Forecasting Library `hawkular-datamining-forecast`
-All models uses non-linear optimization algorithm to estimate best parameters of the model. Models and
-Forecasters are designed for online learning.
-
- - Simple, Double, Triple exponential smoothing models
- - AutomaticForecaster - which automatically selects the best model, selection is based on AIC, AICc, BIC
+=== Time series models
+ - Simple exponential smoothing
+ - Double exponential smoothing (Holt's linear trend)
+ - Seasonal triple exponential smoothing (Holt Winters)
  - Simple moving average (Weighted moving average)
+
+All variants of exponential smoothing contains optimizer which selects best smoothing parameters for given time series.
+Optimizers minimizes mean square error of one step ahead forecasts using non linear optimization algorithm
+(Nelder-Mead simplex).
+
+AutomaticForecaster can be used for the best model selecting. It selects best based on Akaike information criterion (AIC
+and AICc) or Bayesian information criterion (BIC). If the time series changes AutomaticForecaster can select
+different model than previously selected, therefore it can be used on arbitrary time series stream data.
+
+=== Time series manipulation & Statistics
  - Augmented Dickey-Fuller test
  - Autocorrelation function (ACF)
  - Time series decomposition
@@ -57,52 +24,8 @@ Forecasters are designed for online learning.
  - Time series differencing
  - Automatic period identification
 
-== Enable prediction in Hawkular
-In Hawkular prediction can be enabled directly in UI by increasing forecasting horizon or through
-REST call by creating Relationship from Tenant to Metric, MetricType or Tenant.
+=== Dependencies
+ - Apache commons math
+ - Apache commons lang3
+ - Guava
 
-Following example enables forecasting for all metrics under given tenant.
-----
-$ tenant=$(curl -s GET 'http://jdoe:password@localhost:8080/hawkular/inventory/tenant'| grep --color=never -oP 'path" : "\K/t;[0-9a-z\-]+')
-$ curl -ivX POST -H "Content-Type: application/json" 'http://jdoe:password@localhost:8080/hawkular/inventory/tenants/relationships' -d '{
-    "name": "__inPrediction",
-    "source": "'$tenant'",
-    "target": "'$tenant'",
-    "properties": {"forecastingHorizon": 150}
-}'
-----
-Source and target are canonical paths.
-
-.Source
- - Tenant
-
-.Target
-- Tenant - enable prediction of all tenant's metrics
-- MetricType - predict all metrics of given type
-- Metric
-
-== Documentation
- - link:http://www.hawkular.org/docs/components/datamining/index.html[Module documentation]
- - link:http://www.hawkular.org/docs/rest/rest-datamining.html[REST API documentation], this documentation can be generated using `mvn install -Pdocgen`, it is located in `hawkular-datamining-rest/target/generated/rest-datamining.adoc`
-
-== License
-
-Hawkular-datamining is released under Apache License, Version 2.0 as described in the link:LICENSE[LICENSE] document
-
-----
-   Copyright 2015 Red Hat, Inc.
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-----
-
-During build if you are getting `Some files do not have the expected license header` just run `mvn license:format`.

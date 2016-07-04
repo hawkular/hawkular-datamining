@@ -1,39 +1,4 @@
-# Java binary class files
-*.class
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
-*.jar
-*.war
-*.ear
-
-# virtual machine crash logs
-hs_err_pid*
-
-# Maven
-target/
-pom.xml.releaseBackup
-release.properties
-
-# IDE files
-.project
+/target/
 .classpath
-.settings
-.idea
-*.ipr
-*.iml
-*.iws
-nb-configuration.xml
-
-# KDE
-.directory
-
-# OSX
-.DS_Store
-
-*.swp
-*-swp
-*_autosave
-
+.project
+.settings/
