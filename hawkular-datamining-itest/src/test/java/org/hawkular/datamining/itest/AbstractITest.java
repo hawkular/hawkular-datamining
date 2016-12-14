@@ -30,11 +30,12 @@ import org.hawkular.datamining.api.json.ObjectMapperConfig;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 /**
  * @author Pavol Loffay
@@ -69,10 +70,11 @@ public abstract class AbstractITest {
         ObjectMapperConfig.config(mapper);
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        client = new OkHttpClient();
-        client.setConnectTimeout(60, TimeUnit.SECONDS);
-        client.setReadTimeout(60, TimeUnit.SECONDS);
-        client.setWriteTimeout(60, TimeUnit.SECONDS);
+        client = new OkHttpClient.Builder()
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS)
+                .build();
     }
 
     protected Response get(String path) throws IOException {
