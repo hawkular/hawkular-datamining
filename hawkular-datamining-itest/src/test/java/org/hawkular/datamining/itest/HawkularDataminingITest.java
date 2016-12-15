@@ -33,7 +33,8 @@ import org.hawkular.datamining.forecast.stats.InformationCriterion;
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.squareup.okhttp.Response;
+
+import okhttp3.Response;
 
 /**
  * @author Pavol Loffay
